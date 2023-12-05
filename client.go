@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type Client struct {
@@ -14,16 +15,17 @@ type Client struct {
 	Version    string
 }
 
-func NewClient(version string, storeHash string, authToken string) Client {
+func NewClient(storeHash string, authToken string, version int) Client {
+	_version := strconv.Itoa(version)
 	var client Client
-	url, err := url.Parse("https://api.bigcommerce.com/stores/" + storeHash + "/v" + version)
+	url, err := url.Parse("https://api.bigcommerce.com/stores/" + storeHash + "/v" + _version)
 	if err != nil {
 		log.Fatal(err)
 	}
 	client.BaseURL = url
 	client.AuthToken = authToken
 	client.httpClient = http.DefaultClient
-	client.Version = version
+	client.Version = _version
 	return client
 }
 
