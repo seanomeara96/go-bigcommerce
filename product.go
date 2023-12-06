@@ -271,6 +271,11 @@ type Product struct {
 	OpenGraphUseImage       bool      `json:"open_graph_use_image"`
 }
 
+func (p *Product) AddCategory(c int) []int {
+	p.Categories = append(p.Categories, c)
+	return p.Categories
+}
+
 type ProductQueryParams struct {
 	ID                    int      `url:"id,omitempty"`
 	IDIn                  []int    `url:"id:in,omitempty,comma"`

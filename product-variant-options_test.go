@@ -17,7 +17,7 @@ func TestGetProductVriantOptionsById(t *testing.T) {
 	storeHash := os.Getenv("BF_STORE_HASH")
 	xAuthToken := os.Getenv("BF_XAUTHTOKEN")
 
-	client = NewClient("3", storeHash, xAuthToken)
+	client = NewClient(storeHash, xAuthToken, 3)
 
 	_, err = client.GetProductVariantOptions(6073)
 	if err != nil {

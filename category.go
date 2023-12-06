@@ -3,7 +3,6 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 type Category struct {
@@ -108,31 +107,56 @@ func (client *Client) GetCategories(params CategoryQueryParams) ([]Category, Met
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetAllCategories(limit int) ([]Category, error) {
+func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, error) {
 	var categories []Category
-	page := 1
-	end := false
 
-	for !end {
-		c, m, err := client.GetCategories(CategoryQueryParams{Limit: limit, Page: page})
+	if params.Page < 1 {
+		params.Page = 1
+	}
+	if params.Limit < 1 {
+		params.Limit = 250
+	}
+
+	for true {
+		c, m, err := client.GetCategories(params)
 		if err != nil {
 			return categories, err
 		}
-
-		details := m.Pagination
-		log.Printf("Fetched %d categories. Current page: %d", details.Count, details.CurrentPage)
 
 		for i := 0; i < len(c); i++ {
 			categories = append(categories, c[i])
 		}
 
-		if len(c) < limit {
-			end = true
+		if m.Pagination.CurrentPage < params.Limit {
 			break
 		}
 
-		page++
+		params.Page++
 	}
 
 	return categories, nil
+}
+
+func (client *Client) EmptyCategory(id int) error {
+
+	products, _, err := client.GetAllProducts(ProductQueryParams{CategoriesIn: []int{id}})
+	if err != nil {
+		return err
+	}
+
+	for _, product := range products {
+		categories := []int{}
+		for _, categoryID := range product.Categories {
+			if categoryID != id {
+				categories = append(categories, categoryID)
+			}
+		}
+		product.Categories = categories
+		_, err = client.UpdateProduct(product.ID, CreateUpdateProductParams{Categories: categories})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
