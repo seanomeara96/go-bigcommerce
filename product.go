@@ -276,6 +276,26 @@ func (p *Product) AddCategory(c int) []int {
 	return p.Categories
 }
 
+func (p *Product) ContainsCategory(c int) bool {
+	for _, id := range p.Categories {
+		if id == c {
+			return true
+		}
+	}
+	return false
+}
+
+func (p *Product) RemoveCategory(c int) []int {
+	idsToKeep := []int{}
+	for _, id := range p.Categories {
+		if id != c {
+			idsToKeep = append(idsToKeep, id)
+		}
+	}
+	p.Categories = idsToKeep
+	return p.Categories
+}
+
 type ProductQueryParams struct {
 	ID                    int      `url:"id,omitempty"`
 	IDIn                  []int    `url:"id:in,omitempty,comma"`
