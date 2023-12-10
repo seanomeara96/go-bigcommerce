@@ -12,8 +12,9 @@ func (client *Client) GetOrder(orderID int) (Order, error) {
 	}
 	var response ResponseObject
 
-	if client.Version != "2" {
-		return response.Data, fmt.Errorf("API version 2 is required for this function. You are using version: %s", client.Version)
+	err := client.Version2Required()
+	if err != nil {
+		return Order{}, nil
 	}
 
 	getOrderURL := client.BaseURL.JoinPath("/storefront/orders", fmt.Sprint(orderID)).String()
@@ -38,8 +39,9 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 	}
 	var response ResponseData
 
-	if client.Version != "2" {
-		return response.Data, response.Meta, fmt.Errorf("API version 2 is required for this function. You are using version: %s", client.Version)
+	err := client.Version2Required()
+	if err != nil {
+		return response.Data, response.Meta, err
 	}
 
 	queryParams, err := paramString(params)

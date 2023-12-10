@@ -12,7 +12,7 @@ type Client struct {
 	BaseURL    *url.URL
 	AuthToken  string
 	httpClient *http.Client
-	Version    string
+	Version    int
 }
 
 func NewClient(storeHash string, authToken string, version int) Client {
@@ -25,7 +25,7 @@ func NewClient(storeHash string, authToken string, version int) Client {
 	client.BaseURL = url
 	client.AuthToken = authToken
 	client.httpClient = http.DefaultClient
-	client.Version = _version
+	client.Version = version
 	return client
 }
 
