@@ -52,6 +52,8 @@ func (c *Client) Request(httpMethod string, relativeUrl string, payload []byte) 
 		return nil, err
 	}
 
+	//maybe inplement auto retry with delay if response 429 or 5xx
+
 	return resp, nil
 }
 

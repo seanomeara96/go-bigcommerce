@@ -2,6 +2,7 @@ package bigcommerce
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -32,6 +33,20 @@ func (client *Client) GetProduct(id int) (Product, error) {
 	}
 
 	return response.Data, nil
+}
+
+func (client *Client) GetProductBySKU(sku string) (Product, error) {
+	products, _, err := client.GetAllProducts(ProductQueryParams{SKU: sku})
+	if err != nil {
+		return Product{}, err
+	}
+	if len(products) < 1 {
+		return Product{}, errors.New("this sku returned no results")
+	}
+	if len(products) > 1 {
+		return Product{}, errors.New("thissku returned too many results")
+	}
+	return products[0], nil
 }
 
 //TODO maybe change this to getproduct, getproducts and getAllProducts, and have the ability to pass params to get all products
