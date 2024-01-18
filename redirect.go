@@ -19,6 +19,25 @@ type RedirectToObject struct {
 	URL      string `json:"url"`
 }
 
+func (client *Client) GetAllRedirects(params RedirectQueryParams) ([]Redirect, error) {
+	redirects := []Redirect{}
+	page := 1
+	for {
+		params.Page = page
+		params.Limit = 250
+		res, err := client.GetRedirects(params)
+		if err != nil {
+			return []Redirect{}, err
+		}
+		if len(res) < 1 {
+			return redirects, nil
+		}
+		for _, r := range res {
+			redirects = append(redirects, r)
+		}
+	}
+}
+
 func (client *Client) GetRedirects(params RedirectQueryParams) ([]Redirect, error) {
 	type ResponseObject struct {
 		Data []Redirect `json:"data"`
