@@ -5,6 +5,60 @@ import (
 	"fmt"
 )
 
+func (c *Client) GetAllVariants(queryParams AllProductVariantsQueryParams) ([]ProductVariant, error) {
+	page := 1
+	if queryParams.Limit == 0 {
+		queryParams.Limit = 250
+	}
+	all := []ProductVariant{}
+	for {
+		queryParams.Page = page
+		res, _, err := c.GetVariants(queryParams)
+		if err != nil {
+			return []ProductVariant{}, fmt.Errorf("Error calling getvariants from getallvariants %w", err)
+		}
+		if len(res) < 1 {
+			return all, nil
+		}
+		for _, v := range res {
+			all = append(all, v)
+		}
+		page++
+	}
+}
+
+func (c *Client) GetVariants(queryParams AllProductVariantsQueryParams) ([]ProductVariant, MetaData, error) {
+	type ResponseObject struct {
+		Data []ProductVariant `json:"data"`
+		Meta MetaData         `json:"meta"`
+	}
+	var response ResponseObject
+
+	params, err := paramString(queryParams)
+	if err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	path := c.BaseURL.JoinPath("/catalog/variants").String() + params
+
+	resp, err := c.Get(path)
+	if err != nil {
+		return response.Data, response.Meta, err
+	}
+	defer resp.Body.Close()
+
+	if err = expectStatusCode(200, resp); err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	return response.Data, response.Meta, nil
+
+}
+
 func (client *Client) GetProductVariants(productID int, params ProductVariantQueryParams) ([]ProductVariant, MetaData, error) {
 	type ResponseObject struct {
 		Data []ProductVariant `json:"data"`
@@ -137,4 +191,15 @@ type ProductVariantQueryParams struct {
 	Limit         int    `url:"limit,omitempty"`
 	IncludeFields string `url:"include_fields,omitempty"`
 	ExcludeFields string `url:"exclude_fields,omitempty"`
+}
+
+type AllProductVariantsQueryParams struct {
+	ID            int    `url:"id,omitempty"`
+	SKU           string `url:"sku,omitempty"`
+	UPC           string `url:"upc,omitempty"`
+	Page          int    `url:"page,omitempty"`
+	Limit         int    `url:"limit,omitempty"`
+	IncludeFields string `url:"include_fields,omitempty"`
+	ExcludeFields string `url:"exclude_fields,omitempty"`
+	ProductID     string `url:"product_id,omitempty"`
 }

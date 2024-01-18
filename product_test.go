@@ -2,6 +2,7 @@ package bigcommerce
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 
@@ -37,6 +38,20 @@ func TestGetProductById(t *testing.T) {
 	if product.ID != productId {
 		t.Error("Response-product id does not match repquest product id")
 	}
+}
+
+func TestGetProductBySKU(t *testing.T) {
+	fs, _ := getClient()
+
+	productSKU := "7600"
+
+	product, err := fs.GetProductBySKU(productSKU)
+
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(product.Name)
+	t.Error()
 }
 
 func TestGetAllProducts(t *testing.T) {

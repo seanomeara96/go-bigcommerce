@@ -36,17 +36,22 @@ func (client *Client) GetProduct(id int) (Product, error) {
 }
 
 func (client *Client) GetProductBySKU(sku string) (Product, error) {
-	products, _, err := client.GetAllProducts(ProductQueryParams{SKU: sku})
+	// this needs to be a call to /catalog/variants
+	variants, err := client.GetAllVariants(AllProductVariantsQueryParams{SKU: sku})
 	if err != nil {
 		return Product{}, err
 	}
-	if len(products) < 1 {
+	if len(variants) < 1 {
 		return Product{}, errors.New("this sku returned no results")
 	}
-	if len(products) > 1 {
-		return Product{}, errors.New("thissku returned too many results")
+	if len(variants) > 1 {
+		return Product{}, errors.New("this sku returned too many results")
 	}
-	return products[0], nil
+	product, err := client.GetProduct(variants[0].ProductID)
+	if err != nil {
+		return Product{}, err
+	}
+	return product, nil
 }
 
 //TODO maybe change this to getproduct, getproducts and getAllProducts, and have the ability to pass params to get all products
