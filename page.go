@@ -209,13 +209,14 @@ type CreatePageParams struct {
 }
 
 type UpdatePageParams struct {
-	Name            string `json:"name"`
-	IsVisible       bool   `json:"is_visible"`
-	ParentID        int    `json:"parent_id"`
-	SortOrder       int    `json:"sort_order"`
-	Type            string `json:"type"`
-	IsHomepage      bool   `json:"is_homepage"`
-	IsCustomersOnly bool   `json:"is_customers_only"`
+	Name            string `json:"name,omitempty"`
+	IsVisible       bool   `json:"is_visible,omitempty"`
+	ParentID        int    `json:"parent_id,omitempty"`
+	SortOrder       int    `json:"sort_order,omitempty"`
+	Type            string `json:"type,omitempty"`
+	IsHomepage      bool   `json:"is_homepage,omitempty"`
+	IsCustomersOnly bool   `json:"is_customers_only,omitempty"`
+	ID              int    `json:"id,omitempty"`
 	Email           string `json:"email,omitempty"`
 	MetaTitle       string `json:"meta_title,omitempty"`
 	Body            string `json:"body,omitempty"`
@@ -226,7 +227,7 @@ type UpdatePageParams struct {
 	MetaDescription string `json:"meta_description,omitempty"`
 	SearchKeywords  string `json:"search_keywords,omitempty"`
 	URL             string `json:"url,omitempty"`
-	ChannelID       int    `json:"channel_id"`
+	ChannelID       int    `json:"channel_id,omitempty"`
 }
 
 func validateCreatePageParams(params CreatePageParams) error {
