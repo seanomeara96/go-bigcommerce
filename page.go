@@ -3,7 +3,6 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 )
 
 type Page struct {
@@ -74,11 +73,6 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 	var response ResponseObject
 
 	path := client.BaseURL.JoinPath("/content/pages").String()
-
-	err := validateCreatePageParams(params)
-	if err != nil {
-		return response.Data, err
-	}
 
 	paramBytes, err := json.Marshal(params)
 	if err != nil {
@@ -156,11 +150,6 @@ func (client *Client) UpdatePage(pageID int, params UpdatePageParams) (Page, err
 	}
 	var response ResponseObject
 
-	err := validateUpdatePageParams(params)
-	if err != nil {
-		return response.Data, err
-	}
-
 	path := client.BaseURL.JoinPath("/content/pages", fmt.Sprint(pageID)).String()
 
 	paramBytes, err := json.Marshal(params)
@@ -188,106 +177,84 @@ func (client *Client) UpdatePage(pageID int, params UpdatePageParams) (Page, err
 }
 
 type CreatePageParams struct {
-	Email           string `json:"email,omitempty" validate:"omitempty,max=255"`
-	MetaTitle       string `json:"meta_title,omitempty"`
-	Body            string `json:"body,omitempty"`
-	Feed            string `json:"feed,omitempty"`
-	Link            string `json:"link,omitempty"`
-	ContactFields   string `json:"contact_fields,omitempty"`
-	MetaKeywords    string `json:"meta_keywords,omitempty"`
-	MetaDescription string `json:"meta_description,omitempty"`
-	SearchKeywords  string `json:"search_keywords,omitempty"`
-	URL             string `json:"url,omitempty"`
-	ChannelID       int    `json:"channel_id,omitempty"`
-	Name            string `json:"name" validate:"required,min=1,max=100"`
-	IsVisible       bool   `json:"is_visible,omitempty"`
-	ParentID        int    `json:"parent_id,omitempty"`
-	SortOrder       int    `json:"sort_order,omitempty"`
-	Type            string `json:"type" validate:"required,oneof=page raw contact_form feed link blog"`
-	IsHomepage      bool   `json:"is_homepage,omitempty"`
-	IsCustomersOnly bool   `json:"is_customers_only,omitempty"`
+	Email           string         `json:"email,omitempty" validate:"omitempty,max=255"`
+	MetaTitle       string         `json:"meta_title,omitempty"`
+	Body            string         `json:"body,omitempty"`
+	Feed            string         `json:"feed,omitempty"`
+	Link            string         `json:"link,omitempty"`
+	ContactFields   []ContactField `json:"contact_fields,omitempty"`
+	MetaKeywords    string         `json:"meta_keywords,omitempty"`
+	MetaDescription string         `json:"meta_description,omitempty"`
+	SearchKeywords  string         `json:"search_keywords,omitempty"`
+	URL             string         `json:"url,omitempty"`
+	ChannelID       int            `json:"channel_id,omitempty"`
+	Name            string         `json:"name" validate:"required,min=1,max=100"`
+	IsVisible       bool           `json:"is_visible,omitempty"`
+	ParentID        int            `json:"parent_id,omitempty"`
+	SortOrder       int            `json:"sort_order,omitempty"`
+	Type            PageType       `json:"type" validate:"required,oneof=page raw contact_form feed link blog"`
+	IsHomepage      bool           `json:"is_homepage,omitempty"`
+	IsCustomersOnly bool           `json:"is_customers_only,omitempty"`
 }
 
 type UpdatePageParams struct {
-	Name            string `json:"name,omitempty"`
-	IsVisible       bool   `json:"is_visible,omitempty"`
-	ParentID        int    `json:"parent_id,omitempty"`
-	SortOrder       int    `json:"sort_order,omitempty"`
-	Type            string `json:"type,omitempty"`
-	IsHomepage      bool   `json:"is_homepage,omitempty"`
-	IsCustomersOnly bool   `json:"is_customers_only,omitempty"`
-	ID              int    `json:"id,omitempty"`
-	Email           string `json:"email,omitempty"`
-	MetaTitle       string `json:"meta_title,omitempty"`
-	Body            string `json:"body,omitempty"`
-	Feed            string `json:"feed,omitempty"`
-	Link            string `json:"link,omitempty"`
-	ContactFields   string `json:"contact_fields,omitempty"`
-	MetaKeywords    string `json:"meta_keywords,omitempty"`
-	MetaDescription string `json:"meta_description,omitempty"`
-	SearchKeywords  string `json:"search_keywords,omitempty"`
-	URL             string `json:"url,omitempty"`
-	ChannelID       int    `json:"channel_id,omitempty"`
+	Name            string         `json:"name,omitempty"`
+	IsVisible       bool           `json:"is_visible,omitempty"`
+	ParentID        int            `json:"parent_id,omitempty"`
+	SortOrder       int            `json:"sort_order,omitempty"`
+	Type            PageType       `json:"type,omitempty"`
+	IsHomepage      bool           `json:"is_homepage,omitempty"`
+	IsCustomersOnly bool           `json:"is_customers_only,omitempty"`
+	ID              int            `json:"id,omitempty"`
+	Email           string         `json:"email,omitempty"`
+	MetaTitle       string         `json:"meta_title,omitempty"`
+	Body            string         `json:"body,omitempty"`
+	Feed            string         `json:"feed,omitempty"`
+	Link            string         `json:"link,omitempty"`
+	ContactFields   []ContactField `json:"contact_fields,omitempty"`
+	MetaKeywords    string         `json:"meta_keywords,omitempty"`
+	MetaDescription string         `json:"meta_description,omitempty"`
+	SearchKeywords  string         `json:"search_keywords,omitempty"`
+	URL             string         `json:"url,omitempty"`
+	ChannelID       int            `json:"channel_id,omitempty"`
 }
 
-func validateCreatePageParams(params CreatePageParams) error {
-	if len(params.Name) < 1 || len(params.Name) > 100 {
-		return fmt.Errorf("name must be between 1 and 100 characters")
-	}
+type PageType string
 
-	allowedTypes := map[string]bool{
-		"page":         true,
-		"raw":          true,
-		"contact_form": true,
-		"feed":         true,
-		"link":         true,
-		"blog":         true,
-	}
+const (
+	BlogPage        PageType = "blog"
+	ContactFormPage PageType = "contact_form"
+	LinkPage        PageType = "link"
+	UserDefinedPage PageType = "page"
+	RawPage         PageType = "raw"
+	RSSFeedPage     PageType = "rss_feed"
+)
 
-	if !allowedTypes[params.Type] {
-		return fmt.Errorf("invalid page type")
-	}
-
-	// Add more custom validations for other required fields...
-
-	return nil
+// AllowedPageTypes is a slice containing all allowed page types.
+var AllowedPageTypes = []PageType{
+	BlogPage,
+	ContactFormPage,
+	LinkPage,
+	UserDefinedPage,
+	RawPage,
+	RSSFeedPage,
 }
 
-func validateUpdatePageParams(params UpdatePageParams) error {
-	if len(params.Name) < 1 || len(params.Name) > 100 {
-		return fmt.Errorf("name must be between 1 and 100 characters")
-	}
+type ContactField string
 
-	allowedTypes := map[string]bool{
-		"page":         true,
-		"raw":          true,
-		"contact_form": true,
-		"feed":         true,
-		"link":         true,
-		"blog":         true,
-	}
-	if !allowedTypes[params.Type] {
-		return fmt.Errorf("invalid page type")
-	}
+const (
+	FullnameField    ContactField = "fullname"
+	PhoneField       ContactField = "phone"
+	CompanyNameField ContactField = "companyname"
+	OrderNoField     ContactField = "orderno"
+	RMAField         ContactField = "rma"
+)
 
-	if params.Type == "contact_form" && len(params.Email) > 255 {
-		return fmt.Errorf("email must be at most 255 characters")
-	}
-
-	allowedContactFields := map[string]bool{
-		"fullname":    true,
-		"phone":       true,
-		"companyname": true,
-		"orderno":     true,
-		"rma":         true,
-	}
-	for _, field := range strings.Split(params.ContactFields, ",") {
-		if !allowedContactFields[strings.TrimSpace(field)] {
-			return fmt.Errorf("invalid contact field: %s", field)
-		}
-	}
-
-	// Additional validations for other fields...
-
-	return nil
+// AllowedContactFields is a slice containing all allowed contact fields.
+var AllowedContactFields = []ContactField{
+	FullnameField,
+	PhoneField,
+	CompanyNameField,
+	OrderNoField,
+	RMAField,
 }
