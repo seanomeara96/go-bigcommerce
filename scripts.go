@@ -36,6 +36,64 @@ type UpdateScriptParams struct {
 	ChannelID       int    `json:"channel_id,omitempty"`
 }
 
+type ScriptsQuery struct {
+	Page       int      `json:"page,omitempty"`
+	Limit      int      `json:"limit,omitempty"`
+	Sort       string   `json:"sort,omitempty"`
+	Direction  string   `json:"direction,omitempty"`
+	ChannelIDs []string `json:"channel_id,omitempty"`
+}
+
+func (client *Client) GetScripts(params ScriptsQuery) ([]Script, MetaData, error) {
+	type ResponseObject struct {
+		Data []Script `json:"data"`
+		Meta MetaData `json:"meta"`
+	}
+	var response ResponseObject
+
+	path := client.BaseURL.JoinPath("/content/scripts/").String()
+	resp, err := client.Get(path)
+	if err != nil {
+		return response.Data, response.Meta, err
+	}
+	defer resp.Body.Close()
+
+	if err = expectStatusCode(200, resp); err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	return response.Data, response.Meta, nil
+}
+
+func (client *Client) GetAllScripts(limit int) ([]Script, error) {
+	var scripts []Script
+	page := 1
+	end := false
+
+	for !end {
+		p, _, err := client.GetScripts(ScriptsQuery{Limit: limit, Page: page})
+		if err != nil {
+			return scripts, err
+		}
+
+		for i := 0; i < len(p); i++ {
+			scripts = append(scripts, p[i])
+		}
+
+		if len(p) < limit {
+			end = true
+			break
+		}
+
+		page++
+	}
+
+	return scripts, nil
+}
 func (client *Client) UpdateScript(uuid string, params UpdateScriptParams) (Script, error) {
 	type ResponseObject struct {
 		Data Script   `json:"data"`
