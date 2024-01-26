@@ -37,6 +37,7 @@ func (c *Client) configureRequest(httpMethod string, relativeUrl string, payload
 
 	req.Header.Set("x-auth-token", c.AuthToken)
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	return req, nil
 }

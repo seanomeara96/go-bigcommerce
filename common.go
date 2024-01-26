@@ -3,6 +3,7 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/google/go-querystring/query"
@@ -41,11 +42,23 @@ func expectStatusCode(expectedStatusCode int, response *http.Response) error {
 	if response.StatusCode != expectedStatusCode {
 		var errorPayload ErrorPayload
 		if err := json.NewDecoder(response.Body).Decode(&errorPayload); err != nil {
+			bytes, err := io.ReadAll(response.Body)
+			if err != nil {
+				return fmt.Errorf(
+					"expected status code %d, received code: %d. There was a problem decoding the error payload: %s",
+					expectedStatusCode,
+					response.StatusCode,
+					string(bytes),
+				)
+			}
+
 			return fmt.Errorf(
-				"expected status code %d, received code: %d. There was a problem decoding the error payload",
+				"Expected status code %d, received code: %d. Could not decode or read response body. Status: %s.",
 				expectedStatusCode,
 				response.StatusCode,
+				response.Status,
 			)
+
 		}
 		return fmt.Errorf(
 			"bigcommerce responded with status: %d, type: %s, title: %s, instance: %s",
