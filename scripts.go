@@ -116,7 +116,8 @@ type CreateScriptParams struct {
 	ChannelID       int    `json:"channel_id,omitempty"`
 }
 
-func (p *CreateScriptParams) StorefrontFooterHTMLScript(Name string, HTML string) *CreateScriptParams {
+func StorefrontFooterHTMLScript(Name string, HTML string) CreateScriptParams {
+	p := CreateScriptParams{}
 
 	p.Name = Name
 	p.HTML = HTML
