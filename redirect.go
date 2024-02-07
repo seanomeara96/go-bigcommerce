@@ -13,6 +13,14 @@ type Redirect struct {
 	ToURL    string           `json:"to_url"`
 }
 
+func FromPaths(redirects []Redirect) []string {
+	fromPaths := []string{}
+	for i, _ := range redirects {
+		fromPaths = append(fromPaths, redirects[i].FromPath)
+	}
+	return fromPaths
+}
+
 type RedirectToObject struct {
 	Type     string `json:"type"`
 	EntityID int    `json:"entity_id"`
@@ -21,20 +29,20 @@ type RedirectToObject struct {
 
 func (client *Client) GetAllRedirects(params RedirectQueryParams) ([]Redirect, error) {
 	redirects := []Redirect{}
-	page := 1
+	params.Page = 1
+	params.Limit = 250
 	for {
-		params.Page = page
-		params.Limit = 250
 		res, err := client.GetRedirects(params)
 		if err != nil {
 			return []Redirect{}, err
 		}
-		if len(res) < 1 {
+		if len(res) < params.Limit {
 			return redirects, nil
 		}
 		for _, r := range res {
 			redirects = append(redirects, r)
 		}
+		params.Page++
 	}
 }
 

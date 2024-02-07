@@ -56,7 +56,7 @@ func (client *Client) GetProductBySKU(sku string) (Product, error) {
 
 //TODO maybe change this to getproduct, getproducts and getAllProducts, and have the ability to pass params to get all products
 
-func (client *Client) GetAllProducts(params ProductQueryParams) ([]Product, MetaData, error) {
+func (client *Client) GetProducts(params ProductQueryParams) ([]Product, MetaData, error) {
 	type ResponseObject struct {
 		Data []Product `json:"data"`
 		Meta MetaData  `json:"meta"`
@@ -88,30 +88,26 @@ func (client *Client) GetAllProducts(params ProductQueryParams) ([]Product, Meta
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetFullProductCatalog(limit int) ([]Product, error) {
+func (client *Client) GetAllProducts(params ProductQueryParams) ([]Product, error) {
 	var products []Product
-	page := 1
-	end := false
-
-	for !end {
-		p, _, err := client.GetAllProducts(ProductQueryParams{Limit: limit, Page: page})
+	params.Page = 1
+	params.Limit = 250
+	for {
+		p, _, err := client.GetProducts(params)
 		if err != nil {
 			return products, err
 		}
-
 		for i := 0; i < len(p); i++ {
 			products = append(products, p[i])
 		}
 
-		if len(p) < limit {
-			end = true
-			break
+		if len(p) < params.Limit {
+			return products, nil
 		}
 
-		page++
+		params.Page++
 	}
 
-	return products, nil
 }
 
 func (client *Client) UpdateProduct(productId int, params CreateUpdateProductParams) (Product, error) {

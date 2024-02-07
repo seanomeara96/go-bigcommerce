@@ -139,7 +139,7 @@ func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, 
 
 func (client *Client) EmptyCategory(id int) error {
 
-	products, _, err := client.GetAllProducts(ProductQueryParams{CategoriesIn: []int{id}})
+	products, _, err := client.GetProducts(ProductQueryParams{CategoriesIn: []int{id}})
 	if err != nil {
 		return err
 	}
