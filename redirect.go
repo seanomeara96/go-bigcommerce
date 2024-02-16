@@ -170,7 +170,7 @@ func (client *Client) UpsertRedirects(redirects []RedirectUpsert) ([]Redirect, e
 }
 
 type DeleteRedirectsParams struct {
-	ID     []int `url:"id,omitempty"`
+	ID     []int `url:"id:in,omitempty"`
 	SiteID int   `url:"site_id,omitempty"`
 }
 
