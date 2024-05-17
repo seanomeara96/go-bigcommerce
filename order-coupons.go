@@ -43,7 +43,7 @@ func (client *Client) ListOrderCoupons(orderID int) ([]OrderCoupon, error) {
 	}
 	var response ResponseObject
 
-	listOrderCouponsPath := client.BaseURL.JoinPath("/orders/", fmt.Sprint(orderID), "/coupons").String()
+	listOrderCouponsPath := client.BaseURL().JoinPath("/orders/", fmt.Sprint(orderID), "/coupons").String()
 
 	resp, err := client.Get(listOrderCouponsPath)
 	if err != nil {

@@ -28,7 +28,7 @@ func (client *Client) GetAllProductVideos(productID int, params GetAllProductVid
 		return response.Data, response.Meta, err
 	}
 
-	getProductVideosPath := client.BaseURL.JoinPath("/catalog/products/", fmt.Sprint(productID), "/videos").String() + queryParams
+	getProductVideosPath := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(productID), "/videos").String() + queryParams
 
 	resp, err := client.Get(getProductVideosPath)
 	if err != nil {

@@ -58,7 +58,7 @@ func (client *Client) GetRedirects(params RedirectQueryParams) ([]Redirect, erro
 		return response.Data, err
 	}
 
-	getRedirectsURL := client.BaseURL.JoinPath("/storefront/redirects").String() + queryParams
+	getRedirectsURL := client.BaseURL().JoinPath("/storefront/redirects").String() + queryParams
 
 	resp, err := client.Get(getRedirectsURL)
 	if err != nil {
@@ -148,7 +148,7 @@ func (client *Client) UpsertRedirects(redirects []RedirectUpsert) ([]Redirect, e
 		return response.Data, err
 	}
 
-	path := client.BaseURL.JoinPath("/storefront/redirects").String()
+	path := client.BaseURL().JoinPath("/storefront/redirects").String()
 
 	resp, err := client.Put(path, paramBytes)
 	if err != nil {
@@ -179,7 +179,7 @@ func (client *Client) DeleteRedirect(params DeleteRedirectsParams) error {
 	if err != nil {
 		return err
 	}
-	path := client.BaseURL.JoinPath("/storefront/redirects").String() + queryParams
+	path := client.BaseURL().JoinPath("/storefront/redirects").String() + queryParams
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err

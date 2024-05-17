@@ -138,7 +138,7 @@ func (client *Client) GetProductVariantOptions(product_id int) ([]ProductVariant
 		Meta MetaData               `json:"meta"`
 	}
 	var response ResponseObject
-	path := client.BaseURL.JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options").String()
+	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options").String()
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -175,7 +175,7 @@ func (client *Client) CreateProductVariantOption(product_id int, params CreateUp
 		return response.Data, err
 	}
 
-	path := client.BaseURL.JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options").String()
+	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options").String()
 
 	resp, err := client.Post(path, paramBytes)
 	if err != nil {
@@ -201,7 +201,7 @@ func (client *Client) GetProductVariantOption(product_id, option_id int) (Produc
 		Meta MetaData             `json:"meta"`
 	}
 	var response ResponseObject
-	path := client.BaseURL.JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
+	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -237,7 +237,7 @@ func (client *Client) UpdateProductVariantOption(product_id, option_id int, para
 	if err != nil {
 		return response.Data, err
 	}
-	path := client.BaseURL.JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
+	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
 
 	resp, err := client.Put(path, paramBytes)
 	if err != nil {
@@ -257,7 +257,7 @@ func (client *Client) UpdateProductVariantOption(product_id, option_id int, para
 	return response.Data, nil
 }
 func (client *Client) DeleteProductVariantOption(product_id, option_id int) error {
-	path := client.BaseURL.JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
+	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err

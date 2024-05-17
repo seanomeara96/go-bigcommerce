@@ -120,7 +120,7 @@ func (client *Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, err
 	if err != nil {
 		return response.Data, err
 	}
-	path := client.BaseURL.JoinPath("coupons").String()
+	path := client.BaseURL().JoinPath("coupons").String()
 	resp, err := client.Post(path, paramBytes)
 	if err != nil {
 		return response.Data, err
@@ -150,7 +150,7 @@ func (client *Client) UpdateCoupon(couponID int, params CreateUpdateCouponParams
 	if err != nil {
 		return response.Data, err
 	}
-	path := client.BaseURL.JoinPath("coupons", fmt.Sprint(couponID)).String()
+	path := client.BaseURL().JoinPath("coupons", fmt.Sprint(couponID)).String()
 	resp, err := client.Put(path, paramBytes)
 	if err != nil {
 		return response.Data, err
@@ -177,7 +177,7 @@ func (client *Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, 
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-	path := client.BaseURL.JoinPath("coupons").String() + queryParams
+	path := client.BaseURL().JoinPath("coupons").String() + queryParams
 	resp, err := client.Get(path)
 	if err != nil {
 		return response.Data, response.Meta, err
@@ -200,7 +200,7 @@ func (client *Client) GetCoupon(couponID int) (Coupon, error) {
 	if err != nil {
 		return response.Data, err
 	}
-	path := client.BaseURL.JoinPath("coupons", fmt.Sprint(couponID)).String()
+	path := client.BaseURL().JoinPath("coupons", fmt.Sprint(couponID)).String()
 	resp, err := client.Get(path)
 	if err != nil {
 		return response.Data, err
@@ -217,7 +217,7 @@ func (client *Client) GetCoupon(couponID int) (Coupon, error) {
 	return response.Data, nil
 }
 func (client *Client) DeleteCoupon(couponID int) error {
-	path := client.BaseURL.JoinPath("coupons", fmt.Sprint(couponID)).String()
+	path := client.BaseURL().JoinPath("coupons", fmt.Sprint(couponID)).String()
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err

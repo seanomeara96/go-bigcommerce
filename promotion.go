@@ -6,60 +6,81 @@ import (
 )
 
 type Promotion struct {
-	ID             int    `json:"id"`
-	RedemptionType string `json:"redemption_type"`
-	Name           string `json:"name"`
-	Channels       []struct {
-		ID int `json:"id"`
-	} `json:"channels"`
-	Customer struct {
-		GroupIDs          []int `json:"group_ids"`
-		MinimumOrderCount int   `json:"minimum_order_count"`
-		ExcludedGroupIDs  []int `json:"excluded_group_ids"`
-	} `json:"customer"`
-	Segments struct {
-		IDs   []string `json:"id"`
-		Rules []struct {
-			Action    string `json:"action"`
-			CartValue struct {
-				Discount  string `json:"discount"`
-				ApplyOnce bool   `json:"apply_once"`
-				Stop      bool   `json:"stop"`
-			} `json:"cart_value"`
-			Condition struct {
-				Cart struct {
-					Items struct {
-						Brands          []int  `json:"brands"`
-						MinimumSpend    string `json:"minimum_spend"`
-						MinimumQuantity int    `json:"minimum_quantity"`
-					} `json:"items"`
-				} `json:"cart"`
-				CurrentUses int `json:"current_uses"`
-				MaxUses     int `json:"max_uses"`
-			} `json:"condition"`
-		} `json:"rules"`
-	} `json:"segments"`
-	Status             string `json:"status"`
-	StartDate          string `json:"start_date"`
-	EndDate            string `json:"end_date"`
-	Stop               bool   `json:"stop"`
-	CanBeUsedWithOther bool   `json:"can_be_used_with_other_promotions"`
-	CurrencyCode       string `json:"currency_code"`
-	Notifications      []struct {
-		Content   string   `json:"content"`
-		Type      string   `json:"type"`
-		Locations []string `json:"locations"`
-	} `json:"notifications"`
-	ShippingAddress struct {
-		Countries []struct{} `json:"countries"`
-	} `json:"shipping_address"`
-	Schedule struct {
-		WeekFrequency  int      `json:"week_frequency"`
-		WeekDays       []string `json:"week_days"`
-		DailyStartTime string   `json:"daily_start_time"`
-		DailyEndTime   string   `json:"daily_end_time"`
-	} `json:"schedule"`
-	CouponOverridesAutomatic bool `json:"coupon_overrides_automatic_when_offering_higher_discounts"`
+	ID                       int                      `json:"id"`
+	RedemptionType           string                   `json:"redemption_type"`
+	Name                     string                   `json:"name"`
+	Channels                 []PromotionChannel       `json:"channels"`
+	Customer                 PromotionCustomer        `json:"customer"`
+	Segments                 PromotionSegments        `json:"segments"`
+	Status                   string                   `json:"status"`
+	StartDate                string                   `json:"start_date"`
+	EndDate                  string                   `json:"end_date"`
+	Stop                     bool                     `json:"stop"`
+	CanBeUsedWithOther       bool                     `json:"can_be_used_with_other_promotions"`
+	CurrencyCode             string                   `json:"currency_code"`
+	Notifications            []PromotionNotification  `json:"notifications"`
+	ShippingAddress          PromotionShippingAddress `json:"shipping_address"`
+	Schedule                 PromotionSchedule        `json:"schedule"`
+	CouponOverridesAutomatic bool                     `json:"coupon_overrides_automatic_when_offering_higher_discounts"`
+}
+
+type PromotionSchedule struct {
+	WeekFrequency  int      `json:"week_frequency"`
+	WeekDays       []string `json:"week_days"`
+	DailyStartTime string   `json:"daily_start_time"`
+	DailyEndTime   string   `json:"daily_end_time"`
+}
+
+type PromotionShippingAddress struct {
+	Countries []struct{} `json:"countries"`
+}
+
+type PromotionNotification struct {
+	Content   string   `json:"content"`
+	Type      string   `json:"type"`
+	Locations []string `json:"locations"`
+}
+type PromotionChannel struct {
+	ID int `json:"id"`
+}
+
+type PromotionSegmentRuleCartValue struct {
+	Discount  string `json:"discount"`
+	ApplyOnce bool   `json:"apply_once"`
+	Stop      bool   `json:"stop"`
+}
+
+type PromotionSegmentRuleConditionCartItems struct {
+	Brands          []int  `json:"brands"`
+	MinimumSpend    string `json:"minimum_spend"`
+	MinimumQuantity int    `json:"minimum_quantity"`
+}
+
+type PromotionSegmentRuleConditionCart struct {
+	Items PromotionSegmentRuleConditionCartItems `json:"items"`
+}
+
+type PromotionSegmentRuleCondition struct {
+	Cart        PromotionSegmentRuleConditionCart `json:"cart"`
+	CurrentUses int                               `json:"current_uses"`
+	MaxUses     int                               `json:"max_uses"`
+}
+
+type PromotionSegmentRule struct {
+	Action    string                        `json:"action"`
+	CartValue PromotionSegmentRuleCartValue `json:"cart_value"`
+	Condition PromotionSegmentRuleCondition `json:"condition"`
+}
+
+type PromotionSegments struct {
+	IDs   []string               `json:"id"`
+	Rules []PromotionSegmentRule `json:"rules"`
+}
+
+type PromotionCustomer struct {
+	GroupIDs          []int `json:"group_ids"`
+	MinimumOrderCount int   `json:"minimum_order_count"`
+	ExcludedGroupIDs  []int `json:"excluded_group_ids"`
 }
 
 func (c *Client) GetPromotion(id int) (Promotion, error) {
@@ -68,7 +89,7 @@ func (c *Client) GetPromotion(id int) (Promotion, error) {
 		Meta MetaData  `json:"meta"`
 	}
 	var response Response
-	path := c.BaseURL.JoinPath("/promotions/" + strconv.Itoa(id)).String()
+	path := c.BaseURL().JoinPath("/promotions/" + strconv.Itoa(id)).String()
 	resp, err := c.Get(path)
 	if err != nil {
 		return response.Data, err
@@ -164,7 +185,7 @@ func (c *Client) UpdatePromotion(id int, params PromotionUpdateParams) (Promotio
 	}
 	var response Response
 
-	path := c.BaseURL.JoinPath("/promotions/" + strconv.Itoa(id)).String()
+	path := c.BaseURL().JoinPath("/promotions/" + strconv.Itoa(id)).String()
 	payloadBytes, err := json.Marshal(params)
 	if err != nil {
 		return response.Data, err

@@ -10,11 +10,23 @@ import (
 )
 
 type Client struct {
-	BaseURL    *url.URL
-	AuthToken  string
-	StoreHash  string
+	baseURL    *url.URL
+	authToken  string
+	storeHash  string
 	httpClient *http.Client
-	Version    int
+	version    int
+}
+
+func (c *Client) StoreHash() string {
+	return c.storeHash
+}
+
+func (c *Client) BaseURL() *url.URL {
+	return c.baseURL
+}
+
+func (c *Client) Version() int {
+	return c.version
 }
 
 func NewClient(storeHash string, authToken string, version int) Client {
@@ -24,11 +36,11 @@ func NewClient(storeHash string, authToken string, version int) Client {
 	if err != nil {
 		log.Fatal(err)
 	}
-	client.BaseURL = url
-	client.AuthToken = authToken
-	client.StoreHash = storeHash
+	client.baseURL = url
+	client.authToken = authToken
+	client.storeHash = storeHash
 	client.httpClient = http.DefaultClient
-	client.Version = version
+	client.version = version
 	return client
 }
 
@@ -38,7 +50,7 @@ func (c *Client) configureRequest(httpMethod string, relativeUrl string, payload
 		return nil, err
 	}
 
-	req.Header.Set("x-auth-token", c.AuthToken)
+	req.Header.Set("x-auth-token", c.authToken)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 

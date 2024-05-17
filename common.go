@@ -84,7 +84,7 @@ func paramString(params interface{}) (string, error) {
 }
 
 func (client *Client) Version2Required() error {
-	if client.Version != 2 {
+	if client.Version() != 2 {
 		return fmt.Errorf("need to be using version 2 api for this function")
 	}
 	return nil

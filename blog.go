@@ -3,7 +3,6 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 )
 
 type Blog struct {
@@ -15,7 +14,7 @@ type Blog struct {
 	Tags                 []string `json:"tags"`
 	Summary              string   `json:"summary"`
 	IsPublished          bool     `json:"is_published"`
-	PublishedDate        string   `json:"published_date"`
+	PublishedDate        Date     `json:"published_date"`
 	PublishedDateISO8601 string   `json:"published_date_iso8601"`
 	MetaDescription      string   `json:"meta_description"`
 	MetaKeywords         string   `json:"meta_keywords"`
@@ -23,15 +22,26 @@ type Blog struct {
 	ThumbnailPath        string   `json:"thumbnail_path"`
 }
 
-func (ct *Blog) ParsePublishDate() (time.Time, error) {
-	parsedTime, err := time.Parse(`"2006-01-02 15:04:05.000000"`, string(ct.PublishedDate))
-	if err != nil {
-		return nil, err
-	}
-	return parsedTime, nil
+type UpdateBlogParams struct {
+	Title           string   `json:"title,omitempty"`
+	URL             string   `json:"url,omitempty"`
+	Body            string   `json:"body,omitempty"`
+	Tags            []string `json:"tags,omitempty"`
+	IsPublished     bool     `json:"is_published,omitempty"`
+	MetaDescription string   `json:"meta_description,omitempty"`
+	MetaKeywords    string   `json:"meta_keywords,omitempty"`
+	Author          string   `json:"author,omitempty"`
+	ThumbnailPath   string   `json:"thumbnail_path,omitempty"`
+	PublishedDate   string   `json:"published_date,omitempty"`
 }
 
-func (client *Client) GetBrand(id int) (Blog, error) {
+type Date struct {
+	Date         string `json:"date"`
+	TimezoneType int    `json:"timezone_type"`
+	Timezone     string `json:"timezone"`
+}
+
+func (client *Client) GetBlog(id int) (Blog, error) {
 	type ResponseObject struct {
 		Data Blog     `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -39,7 +49,7 @@ func (client *Client) GetBrand(id int) (Blog, error) {
 
 	var response ResponseObject
 
-	path := client.BaseURL.JoinPath("/blog/posts", fmt.Sprint(id)).String()
+	path := client.BaseURL().JoinPath("/blog/posts", fmt.Sprint(id)).String()
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -51,7 +61,40 @@ func (client *Client) GetBrand(id int) (Blog, error) {
 		return response.Data, err
 	}
 
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	// passing in response.Data here instead as it is V2
+	if err = json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
+		return response.Data, err
+	}
+
+	return response.Data, nil
+}
+
+func (client *Client) UpdateBlog(blogId int, params UpdateBlogParams) (Blog, error) {
+	type ResponseObject struct {
+		Data Blog     `json:"data"`
+		Meta MetaData `json:"meta"`
+	}
+	var response ResponseObject
+
+	path := client.BaseURL().JoinPath("/blog/posts", fmt.Sprint(blogId)).String()
+
+	payloadBytes, err := json.Marshal(params)
+	if err != nil {
+		return response.Data, err
+	}
+
+	resp, err := client.Put(path, payloadBytes)
+	if err != nil {
+		return response.Data, err
+	}
+	defer resp.Body.Close()
+
+	if err = expectStatusCode(200, resp); err != nil {
+		return response.Data, err
+	}
+
+	// passing in response.Data here instead as it is V2
+	if err = json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
 		return response.Data, err
 	}
 

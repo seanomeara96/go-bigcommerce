@@ -44,7 +44,7 @@ func (client *Client) GetPages(queryParams GetPagesParams) ([]Page, MetaData, er
 		return response.Data, response.Meta, err
 	}
 
-	path := client.BaseURL.JoinPath("/content/pages").String() + queryString
+	path := client.BaseURL().JoinPath("/content/pages").String() + queryString
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -72,7 +72,7 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 	}
 	var response ResponseObject
 
-	path := client.BaseURL.JoinPath("/content/pages").String()
+	path := client.BaseURL().JoinPath("/content/pages").String()
 
 	paramBytes, err := json.Marshal(params)
 	if err != nil {
@@ -103,7 +103,7 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 }
 
 func (client *Client) DeletePage(pageID int) error {
-	path := client.BaseURL.JoinPath("/content/pages", fmt.Sprint(pageID)).String()
+	path := client.BaseURL().JoinPath("/content/pages", fmt.Sprint(pageID)).String()
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err
@@ -122,7 +122,7 @@ func (client *Client) GetPage(pageID int) (Page, error) {
 	}
 	var response ResponseObject
 
-	path := client.BaseURL.JoinPath("/content/pages", fmt.Sprint(pageID)).String()
+	path := client.BaseURL().JoinPath("/content/pages", fmt.Sprint(pageID)).String()
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -150,7 +150,7 @@ func (client *Client) UpdatePage(pageID int, params UpdatePageParams) (Page, err
 	}
 	var response ResponseObject
 
-	path := client.BaseURL.JoinPath("/content/pages", fmt.Sprint(pageID)).String()
+	path := client.BaseURL().JoinPath("/content/pages", fmt.Sprint(pageID)).String()
 
 	paramBytes, err := json.Marshal(params)
 	if err != nil {

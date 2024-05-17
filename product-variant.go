@@ -39,7 +39,7 @@ func (c *Client) GetVariants(queryParams AllProductVariantsQueryParams) ([]Produ
 		return response.Data, response.Meta, err
 	}
 
-	path := c.BaseURL.JoinPath("/catalog/variants").String() + params
+	path := c.BaseURL().JoinPath("/catalog/variants").String() + params
 
 	resp, err := c.Get(path)
 	if err != nil {
@@ -71,7 +71,7 @@ func (client *Client) GetProductVariants(productID int, params ProductVariantQue
 		return response.Data, response.Meta, err
 	}
 
-	getProductVariantsURL := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productID), "/variants").String() + queryParams
+	getProductVariantsURL := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "/variants").String() + queryParams
 
 	resp, err := client.Get(getProductVariantsURL)
 	if err != nil {
@@ -102,7 +102,7 @@ func (client *Client) CreateProductVariant(productID int, params ProductVariantC
 		return response.Data, err
 	}
 
-	createProductVariantPath := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productID), "variants").String()
+	createProductVariantPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "variants").String()
 
 	resp, err := client.Post(createProductVariantPath, paramBytes)
 	if err != nil {

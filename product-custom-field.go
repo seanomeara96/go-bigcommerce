@@ -23,7 +23,7 @@ func (client *Client) GetCustomFields(productID int, params ProductCustomFieldsR
 		return response.Data, err
 	}
 
-	getCustomFieldPath := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productID), "/custom-fields").String() + queryString
+	getCustomFieldPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "/custom-fields").String() + queryString
 
 	resp, err := client.Get(getCustomFieldPath)
 	if err != nil {
@@ -59,7 +59,7 @@ func (client *Client) CreateCustomField(productID int, params CreateCustomFieldP
 		return response.Data, err
 	}
 
-	createCustomFieldpath := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productID), "/custom-fields").String()
+	createCustomFieldpath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "/custom-fields").String()
 
 	resp, err := client.Post(createCustomFieldpath, paramBytes)
 	if err != nil {
@@ -86,7 +86,7 @@ func (client *Client) GetCustomField(productID int, customFieldID int) (ProductC
 	}
 	var response ResponseObject
 	// /catalog/products/{product_id}/custom-fields/{custom_field_id}
-	getCustomFieldPath := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
+	getCustomFieldPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
 
 	resp, err := client.Get(getCustomFieldPath)
 	if err != nil {
@@ -118,7 +118,7 @@ func (client *Client) UpdateCustomField(productID int, customFieldID int, params
 		return response.Data, err
 	}
 
-	updateCustomFieldPath := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
+	updateCustomFieldPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
 
 	resp, err := client.Put(updateCustomFieldPath, paramBytes)
 	if err != nil {
@@ -140,7 +140,7 @@ func (client *Client) UpdateCustomField(productID int, customFieldID int, params
 
 }
 func (client *Client) DeleteCustomField(productID int, customFieldID int) error {
-	deleteCustomFieldPath := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
+	deleteCustomFieldPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
 	resp, err := client.Delete(deleteCustomFieldPath)
 	if err != nil {
 		return err

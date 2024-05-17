@@ -15,7 +15,7 @@ func (client *Client) GetProduct(id int) (Product, error) {
 	}
 	var response ResponseObject
 
-	getProductUrl := client.BaseURL.JoinPath("/catalog/products/", fmt.Sprint(id)).String()
+	getProductUrl := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(id)).String()
 
 	// Send the request
 	resp, err := client.Get(getProductUrl)
@@ -69,7 +69,7 @@ func (client *Client) GetProducts(params ProductQueryParams) ([]Product, MetaDat
 		return response.Data, response.Meta, err
 	}
 
-	getProductsUrl := client.BaseURL.JoinPath("/catalog/products").String() + queryParams
+	getProductsUrl := client.BaseURL().JoinPath("/catalog/products").String() + queryParams
 
 	resp, err := client.Get(getProductsUrl)
 	if err != nil {
@@ -117,7 +117,7 @@ func (client *Client) UpdateProduct(productId int, params CreateUpdateProductPar
 	}
 	var response ResponseObject
 
-	updateProductPath := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productId)).String()
+	updateProductPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productId)).String()
 
 	payloadBytes, err := json.Marshal(params)
 	if err != nil {
@@ -129,6 +129,14 @@ func (client *Client) UpdateProduct(productId int, params CreateUpdateProductPar
 		return response.Data, err
 	}
 	defer resp.Body.Close()
+
+	if err = expectStatusCode(200, resp); err != nil {
+		return response.Data, err
+	}
+
+	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return response.Data, err
+	}
 
 	return response.Data, nil
 }
@@ -148,7 +156,7 @@ func (client *Client) CreateProduct(params CreateUpdateProductParams) (Product, 
 		return response.Data, fmt.Errorf("failed check of name, type and weight")
 	}
 
-	createProductPath := client.BaseURL.JoinPath("/catalog/products").String()
+	createProductPath := client.BaseURL().JoinPath("/catalog/products").String()
 
 	payloadBytes, err := json.Marshal(params)
 	if err != nil {
@@ -177,7 +185,7 @@ func (client *Client) CreateProduct(params CreateUpdateProductParams) (Product, 
 }
 
 func (client *Client) DeleteProduct(productID int) error {
-	path := client.BaseURL.JoinPath("/catalog/products", fmt.Sprint(productID)).String()
+	path := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID)).String()
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err

@@ -17,7 +17,7 @@ func (client *Client) GetOrder(orderID int) (Order, error) {
 		return Order{}, nil
 	}
 
-	getOrderURL := client.BaseURL.JoinPath("/storefront/orders", fmt.Sprint(orderID)).String()
+	getOrderURL := client.BaseURL().JoinPath("/storefront/orders", fmt.Sprint(orderID)).String()
 
 	resp, err := client.Get(getOrderURL)
 	if err != nil {
@@ -49,7 +49,7 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 		return response.Data, response.Meta, err
 	}
 
-	getOrdersURL := client.BaseURL.JoinPath("/storefront/orders").String() + queryParams
+	getOrdersURL := client.BaseURL().JoinPath("/storefront/orders").String() + queryParams
 
 	resp, err := client.Get(getOrdersURL)
 	if err != nil {
