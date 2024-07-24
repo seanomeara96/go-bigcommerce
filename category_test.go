@@ -85,7 +85,7 @@ func TestEmptyCategory(t *testing.T) {
 
 	fs, _ := getClient()
 
-	products, _, err := fs.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
+	products, err := fs.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
 	if err != nil {
 		return
 	}
@@ -103,7 +103,7 @@ func TestEmptyCategory(t *testing.T) {
 		return
 	}
 
-	products, _, err = fs.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
+	products, err = fs.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
 	if err != nil {
 		return
 	}

@@ -61,7 +61,7 @@ func TestGetAllProducts(t *testing.T) {
 		t.Error("error getting client")
 	}
 
-	products, _, err := fs.GetAllProducts(ProductQueryParams{})
+	products, err := fs.GetAllProducts(ProductQueryParams{})
 	if err != nil {
 		t.Error(err)
 		return
@@ -76,7 +76,7 @@ func TestGetAllProducts(t *testing.T) {
 func TestGetFullProductCatalog(t *testing.T) {
 	fs, _ := getClient()
 
-	products, err := fs.GetFullProductCatalog(250)
+	products, err := fs.GetAllProducts(ProductQueryParams{})
 	if err != nil {
 		t.Error(err)
 		return
