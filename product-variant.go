@@ -15,14 +15,14 @@ func (c *Client) GetAllVariants(queryParams AllProductVariantsQueryParams) ([]Pr
 		queryParams.Page = page
 		res, _, err := c.GetVariants(queryParams)
 		if err != nil {
-			return []ProductVariant{}, fmt.Errorf("Error calling getvariants from getallvariants %w", err)
+			return []ProductVariant{}, fmt.Errorf("error calling getvariants from getallvariants %w", err)
 		}
 		if len(res) < 1 {
 			return all, nil
 		}
-		for _, v := range res {
-			all = append(all, v)
-		}
+
+		all = append(all, res...)
+
 		page++
 	}
 }

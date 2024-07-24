@@ -117,7 +117,7 @@ func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, 
 		params.Limit = 250
 	}
 
-	for true {
+	for {
 		c, m, err := client.GetCategories(params)
 		if err != nil {
 			return categories, err

@@ -53,7 +53,7 @@ func expectStatusCode(expectedStatusCode int, response *http.Response) error {
 			}
 
 			return fmt.Errorf(
-				"Expected status code %d, received code: %d. Could not decode or read response body. Status: %s.",
+				"expected status code %d, received code: %d. Could not decode or read response body. status: %s",
 				expectedStatusCode,
 				response.StatusCode,
 				response.Status,

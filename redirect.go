@@ -15,7 +15,7 @@ type Redirect struct {
 
 func FromPaths(redirects []Redirect) []string {
 	fromPaths := []string{}
-	for i, _ := range redirects {
+	for i := range redirects {
 		fromPaths = append(fromPaths, redirects[i].FromPath)
 	}
 	return fromPaths
@@ -39,9 +39,9 @@ func (client *Client) GetAllRedirects(params RedirectQueryParams) ([]Redirect, e
 		if len(res) < params.Limit {
 			return redirects, nil
 		}
-		for _, r := range res {
-			redirects = append(redirects, r)
-		}
+
+		redirects = append(redirects, res...)
+
 		params.Page++
 	}
 }
