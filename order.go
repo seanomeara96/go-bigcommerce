@@ -49,7 +49,7 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 		return response.Data, response.Meta, err
 	}
 
-	getOrdersURL := client.BaseURL().JoinPath("/storefront/orders").String() + queryParams
+	getOrdersURL := client.BaseURL().JoinPath("/orders").String() + queryParams
 
 	resp, err := client.Get(getOrdersURL)
 	if err != nil {
@@ -57,11 +57,11 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 	}
 	defer resp.Body.Close()
 
-	if err = expectStatusCode(200, resp); err != nil {
+	if err := expectStatusCode(200, resp); err != nil {
 		return response.Data, response.Meta, err
 	}
 
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
 		return response.Data, response.Meta, err
 	}
 
@@ -150,10 +150,10 @@ type BillingAddress struct {
 	Street2     string       `json:"street_2"`
 	City        string       `json:"city"`
 	State       string       `json:"state"`
-	Zip         int          `json:"zip"`
+	Zip         string       `json:"zip"`
 	Country     string       `json:"country"`
 	CountryISO2 string       `json:"country_iso2"`
-	Phone       int          `json:"phone"`
+	Phone       string       `json:"phone"`
 	Email       string       `json:"email"`
 	FormFields  []FormFields `json:"form_fields"`
 }
