@@ -13,22 +13,17 @@ type OrderStatus struct {
 	SystemDescription string `json:"system_description"`
 }
 
-// GetAllOrderStatusResponse represents the response for getting all order statuses.
-type GetAllOrderStatusResponse struct {
-	OrderStatuses []OrderStatus `json:"order_statuses"`
-}
-
-func (client *Client) GetOrderStatuses() (GetAllOrderStatusResponse, error) {
+func (client *Client) GetOrderStatuses() ([]OrderStatus, error) {
 
 	type ResponseObject struct {
-		Data GetAllOrderStatusResponse `json:"data"`
-		Meta MetaData                  `json:"meta"`
+		Data []OrderStatus `json:"data"`
+		Meta MetaData      `json:"meta"`
 	}
 	var response ResponseObject
 
 	err := client.Version2Required()
 	if err != nil {
-		return GetAllOrderStatusResponse{}, nil
+		return []OrderStatus{}, nil
 	}
 
 	path := client.BaseURL().JoinPath("/storefront/order_statuses").String()
