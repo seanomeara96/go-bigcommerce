@@ -5,6 +5,40 @@ import (
 	"fmt"
 )
 
+// SortField represents a field that can be used to sort orders
+type OrderSortField string
+
+// OrderSortDirection represents the direction to sort (ascending or descending)
+type OrderSortDirection string
+
+// Constants for OrderSortField
+const (
+	OrderSortFieldID           OrderSortField = "id"
+	OrderSortFieldCustomerID   OrderSortField = "customer_id"
+	OrderSortFieldDateCreated  OrderSortField = "date_created"
+	OrderSortFieldDateModified OrderSortField = "date_modified"
+	OrderSortFieldStatusID     OrderSortField = "status_id"
+	OrderSortFieldChannelID    OrderSortField = "channel_id"
+	OrderSortFieldExternalID   OrderSortField = "external_id"
+)
+
+// Constants for OrderSortDirection
+const (
+	OrderSortDirectionAsc  OrderSortDirection = "asc"
+	OrderSortDirectionDesc OrderSortDirection = "desc"
+)
+
+// SortQuery represents a sort query with field and direction
+type OrderSortQuery struct {
+	Field     OrderSortField
+	Direction OrderSortDirection
+}
+
+// String returns the string representation of the SortQuery
+func (s OrderSortQuery) String() string {
+	return fmt.Sprintf("%s:%s", s.Field, s.Direction)
+}
+
 func (client *Client) GetOrder(orderID int) (Order, error) {
 	type ResponseObject struct {
 		Data Order    `json:"data"`
