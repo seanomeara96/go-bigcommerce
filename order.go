@@ -39,69 +39,6 @@ func (s OrderSortQuery) String() string {
 	return fmt.Sprintf("%s:%s", s.Field, s.Direction)
 }
 
-func (client *Client) GetOrder(orderID int) (Order, error) {
-	type ResponseObject struct {
-		Data Order    `json:"data"`
-		Meta MetaData `json:"meta"`
-	}
-	var response ResponseObject
-
-	err := client.Version2Required()
-	if err != nil {
-		return Order{}, nil
-	}
-
-	getOrderURL := client.BaseURL().JoinPath("/storefront/orders", fmt.Sprint(orderID)).String()
-
-	resp, err := client.Get(getOrderURL)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return response.Data, err
-	}
-
-	return response.Data, nil
-}
-
-func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, error) {
-	type ResponseData struct {
-		Data []Order  `json:"data"`
-		Meta MetaData `json:"meta"`
-	}
-	var response ResponseData
-
-	err := client.Version2Required()
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	queryParams, err := paramString(params)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	getOrdersURL := client.BaseURL().JoinPath("/orders").String() + queryParams
-
-	resp, err := client.Get(getOrdersURL)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	if err := expectStatusCode(200, resp); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	return response.Data, response.Meta, nil
-}
-
 type Order struct {
 	ID                                      int            `json:"id"`
 	CustomerID                              int            `json:"customer_id"`
@@ -242,4 +179,67 @@ type OrderQueryParams struct {
 	Sort            string   `url:"sort,omitempty"`
 	IsDeleted       bool     `url:"is_deleted,omitempty"`
 	ChannelID       int      `url:"channel_id,omitempty"`
+}
+
+func (client *Client) GetOrder(orderID int) (Order, error) {
+	type ResponseObject struct {
+		Data Order    `json:"data"`
+		Meta MetaData `json:"meta"`
+	}
+	var response ResponseObject
+
+	err := client.Version2Required()
+	if err != nil {
+		return Order{}, nil
+	}
+
+	getOrderURL := client.BaseURL().JoinPath("/storefront/orders", fmt.Sprint(orderID)).String()
+
+	resp, err := client.Get(getOrderURL)
+	if err != nil {
+		return response.Data, err
+	}
+	defer resp.Body.Close()
+
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return response.Data, err
+	}
+
+	return response.Data, nil
+}
+
+func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, error) {
+	type ResponseData struct {
+		Data []Order  `json:"data"`
+		Meta MetaData `json:"meta"`
+	}
+	var response ResponseData
+
+	err := client.Version2Required()
+	if err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	queryParams, err := paramString(params)
+	if err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	getOrdersURL := client.BaseURL().JoinPath("/orders").String() + queryParams
+
+	resp, err := client.Get(getOrdersURL)
+	if err != nil {
+		return response.Data, response.Meta, err
+	}
+	defer resp.Body.Close()
+
+	if err := expectStatusCode(200, resp); err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	return response.Data, response.Meta, nil
 }
