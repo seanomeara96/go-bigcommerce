@@ -26,13 +26,17 @@ func (client *Client) GetOrderStatuses() ([]OrderStatus, error) {
 		return []OrderStatus{}, nil
 	}
 
-	path := client.BaseURL().JoinPath("/storefront/order_statuses").String()
+	path := client.BaseURL().JoinPath("/order_statuses").String()
 
 	resp, err := client.Get(path)
 	if err != nil {
 		return response.Data, err
 	}
 	defer resp.Body.Close()
+
+	if err := expectStatusCode(200, resp); err != nil {
+		return response.Data, err
+	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
 		return response.Data, err
