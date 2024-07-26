@@ -27,9 +27,9 @@ func main() {
 	storeHash := os.Getenv("STORE_HASH")
 	xAuthToken := os.Getenv("XAUTHTOKEN")
 
-	store := bigcommerce.NewClient("3", storeHash, xAuthToken)
+	store := bigcommerce.NewClient(storeHash, xAuthToken, 3)
 
-	products, err := store.GetFullProductCatalog(250)
+	products, err := store.GetAllProducts(bigcommerce.ProductQueryParams{})
 	if err != nil {
 		panic(err)
 	}
