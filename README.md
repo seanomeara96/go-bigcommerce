@@ -15,7 +15,7 @@ import (
 	"fmt"
 
   	"github.com/joho/godotenv"
-  	bigcommerce "github.com/seanomeara96/go-bigcommerce"
+  	"github.com/seanomeara96/go-bigcommerce"
 )
 
 func main() {
