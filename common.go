@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/google/go-querystring/query"
 )
@@ -69,6 +71,56 @@ func expectStatusCode(expectedStatusCode int, response *http.Response) error {
 		)
 	}
 	return nil
+}
+
+func expectStatusCodes(expectedStatusCodes []int, response *http.Response) error {
+
+	allExpected := true
+	for _, expectedCode := range expectedStatusCodes {
+		if response.StatusCode != expectedCode {
+			allExpected = false
+		}
+	}
+	if allExpected {
+		return nil
+	}
+
+	expectedStatusCodeString := strings.Join(func() []string {
+		ans := []string{}
+		for _, i := range expectedStatusCodes {
+			ans = append(ans, strconv.Itoa(i))
+		}
+		return ans
+	}(), ", ")
+
+	var errorPayload ErrorPayload
+	if err := json.NewDecoder(response.Body).Decode(&errorPayload); err != nil {
+		bytes, err := io.ReadAll(response.Body)
+		if err != nil {
+			return fmt.Errorf(
+				"expected status code %s, received code: %d. There was a problem decoding the error payload: %s",
+				expectedStatusCodeString,
+				response.StatusCode,
+				string(bytes),
+			)
+		}
+
+		return fmt.Errorf(
+			"expected status code %s, received code: %d. Could not decode or read response body. status: %s",
+			expectedStatusCodeString,
+			response.StatusCode,
+			response.Status,
+		)
+
+	}
+	return fmt.Errorf(
+		"bigcommerce responded with status: %d, type: %s, title: %s, instance: %s",
+		errorPayload.Status,
+		errorPayload.Type,
+		errorPayload.Title,
+		errorPayload.Instance,
+	)
+
 }
 
 func paramString(params interface{}) (string, error) {

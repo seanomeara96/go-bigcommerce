@@ -31,7 +31,7 @@ func (client *Client) GetOrderShipments(orderID int, params OrderShipmentQueryPa
 	}
 	defer resp.Body.Close()
 
-	if err := expectStatusCode(200, resp); err != nil {
+	if err := expectStatusCodes([]int{200, 204}, resp); err != nil {
 		return response.Data, response.Meta, err
 	}
 
