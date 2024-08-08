@@ -75,13 +75,15 @@ func expectStatusCode(expectedStatusCode int, response *http.Response) error {
 
 func expectStatusCodes(expectedStatusCodes []int, response *http.Response) error {
 
-	allExpected := true
-	for _, expectedCode := range expectedStatusCodes {
-		if response.StatusCode != expectedCode {
-			allExpected = false
+	expected := false
+
+	for _, code := range expectedStatusCodes {
+		if code == response.StatusCode {
+			expected = true
 		}
 	}
-	if allExpected {
+
+	if expected {
 		return nil
 	}
 
