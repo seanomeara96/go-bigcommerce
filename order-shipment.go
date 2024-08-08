@@ -2,8 +2,10 @@ package bigcommerce
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 	"time"
+
+	"github.com/google/go-querystring/query"
 )
 
 func (client *Client) GetOrderShipments(orderID int, params OrderShipmentQueryParams) ([]OrderShipment, MetaData, error) {
@@ -13,19 +15,19 @@ func (client *Client) GetOrderShipments(orderID int, params OrderShipmentQueryPa
 	}
 	var response ResponseData
 
-	err := client.Version2Required()
+	if err := client.Version2Required(); err != nil {
+		return response.Data, response.Meta, err
+	}
+
+	vals, err := query.Values(params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
 
-	queryParams, err := paramString(params)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
+	getOrdersURL := client.BaseURL().JoinPath("orders", strconv.Itoa(orderID), "shipments")
+	getOrdersURL.RawQuery = vals.Encode()
 
-	getOrdersURL := client.BaseURL().JoinPath(fmt.Sprintf("/orders/%d/shipments", orderID)).String() + queryParams
-
-	resp, err := client.Get(getOrdersURL)
+	resp, err := client.Get(getOrdersURL.String())
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
