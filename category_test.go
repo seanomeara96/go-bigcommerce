@@ -18,7 +18,7 @@ func TestGetCategory(t *testing.T) {
 	storeHash := os.Getenv("FS_STORE_HASH")
 	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
 
-	fs := NewClient(storeHash, xAuthToken, 3)
+	fs := NewClient(storeHash, xAuthToken, 3, nil)
 
 	categoryIdDoesNotExist := 11
 
@@ -53,7 +53,7 @@ func TestGetCategories(t *testing.T) {
 	storeHash := os.Getenv("FS_STORE_HASH")
 	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
 
-	fs := NewClient(storeHash, xAuthToken, 3)
+	fs := NewClient(storeHash, xAuthToken, 3, nil)
 
 	categories, _, err := fs.GetCategories(CategoryQueryParams{})
 

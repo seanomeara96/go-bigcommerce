@@ -9,8 +9,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getClient() (Client, error) {
-	var client Client
+func getClient() (*Client, error) {
+	var client *Client
 	err := godotenv.Load()
 	if err != nil {
 		return client, err
@@ -19,7 +19,7 @@ func getClient() (Client, error) {
 	storeHash := os.Getenv("FS_STORE_HASH")
 	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
 
-	client = NewClient(storeHash, xAuthToken, 3)
+	client = NewClient(storeHash, xAuthToken, 3, nil)
 
 	return client, nil
 }
