@@ -2,8 +2,8 @@ package bigcommerce
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/google/go-querystring/query"
 )
@@ -21,7 +21,7 @@ func (client *Client) GetOrderShipments(orderID int, params OrderShipmentQueryPa
 
 	vals, err := query.Values(params)
 	if err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("could not encode query vals to get order shipments: %v", err)
 	}
 
 	getOrdersURL := client.BaseURL().JoinPath("orders", strconv.Itoa(orderID), "shipments")
@@ -38,7 +38,7 @@ func (client *Client) GetOrderShipments(orderID int, params OrderShipmentQueryPa
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("could not decode order shipment json: %v", err)
 	}
 
 	return response.Data, response.Meta, nil
@@ -71,20 +71,20 @@ type Item struct {
 }
 
 type OrderShipment struct {
-	ID                          int       `json:"id"`
-	OrderID                     int       `json:"order_id"`
-	CustomerID                  int       `json:"customer_id"`
-	OrderAddressID              int       `json:"order_address_id"`
-	DateCreated                 time.Time `json:"date_created"`
-	TrackingNumber              string    `json:"tracking_number"`
-	ShippingMethod              string    `json:"shipping_method"`
-	ShippingProvider            string    `json:"shipping_provider"`
-	TrackingCarrier             string    `json:"tracking_carrier"`
-	TrackingLink                string    `json:"tracking_link"`
-	Comments                    string    `json:"comments"`
-	BillingAddress              Address   `json:"billing_address"`
-	ShippingAddress             Address   `json:"shipping_address"`
-	Items                       []Item    `json:"items"`
-	ShippingProviderDisplayName string    `json:"shipping_provider_display_name"`
-	GeneratedTrackingLink       string    `json:"generated_tracking_link"`
+	ID                          int     `json:"id"`
+	OrderID                     int     `json:"order_id"`
+	CustomerID                  int     `json:"customer_id"`
+	OrderAddressID              int     `json:"order_address_id"`
+	DateCreated                 string  `json:"date_created"`
+	TrackingNumber              string  `json:"tracking_number"`
+	ShippingMethod              string  `json:"shipping_method"`
+	ShippingProvider            string  `json:"shipping_provider"`
+	TrackingCarrier             string  `json:"tracking_carrier"`
+	TrackingLink                string  `json:"tracking_link"`
+	Comments                    string  `json:"comments"`
+	BillingAddress              Address `json:"billing_address"`
+	ShippingAddress             Address `json:"shipping_address"`
+	Items                       []Item  `json:"items"`
+	ShippingProviderDisplayName string  `json:"shipping_provider_display_name"`
+	GeneratedTrackingLink       string  `json:"generated_tracking_link"`
 }
