@@ -3,6 +3,7 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 )
 
 type Blog struct {
@@ -42,61 +43,42 @@ type Date struct {
 }
 
 func (client *Client) GetBlog(id int) (Blog, error) {
-	type ResponseObject struct {
-		Data Blog     `json:"data"`
-		Meta MetaData `json:"meta"`
-	}
-
-	var response ResponseObject
-
-	path := client.BaseURL().JoinPath("/blog/posts", fmt.Sprint(id)).String()
-
-	resp, err := client.Get(path)
-	if err != nil {
-		return response.Data, nil
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	// passing in response.Data here instead as it is V2
-	if err = json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
-		return response.Data, err
-	}
-
-	return response.Data, nil
+	return client.blogOperation(http.MethodGet, id, nil)
 }
 
 func (client *Client) UpdateBlog(blogId int, params UpdateBlogParams) (Blog, error) {
-	type ResponseObject struct {
-		Data Blog     `json:"data"`
-		Meta MetaData `json:"meta"`
+	return client.blogOperation(http.MethodPut, blogId, params)
+}
+
+func (client *Client) blogOperation(method string, id int, params interface{}) (Blog, error) {
+	var blog Blog
+	path := client.BaseURL().JoinPath("/blog/posts", fmt.Sprint(id)).String()
+
+	var resp *http.Response
+	var err error
+
+	if method == http.MethodPut {
+		payloadBytes, err := json.Marshal(params)
+		if err != nil {
+			return blog, fmt.Errorf("error marshaling params: %w", err)
+		}
+		resp, err = client.Put(path, payloadBytes)
+	} else {
+		resp, err = client.Get(path)
 	}
-	var response ResponseObject
 
-	path := client.BaseURL().JoinPath("/blog/posts", fmt.Sprint(blogId)).String()
-
-	payloadBytes, err := json.Marshal(params)
 	if err != nil {
-		return response.Data, err
-	}
-
-	resp, err := client.Put(path, payloadBytes)
-	if err != nil {
-		return response.Data, err
+		return blog, fmt.Errorf("error making request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
+		return blog, err
 	}
 
-	// passing in response.Data here instead as it is V2
-	if err = json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
-		return response.Data, err
+	if err = json.NewDecoder(resp.Body).Decode(&blog); err != nil {
+		return blog, fmt.Errorf("error decoding response: %w", err)
 	}
 
-	return response.Data, nil
+	return blog, nil
 }
