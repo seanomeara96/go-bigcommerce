@@ -63,13 +63,16 @@ func (client *Client) blogOperation(method string, id int, params interface{}) (
 			return blog, fmt.Errorf("error marshaling params: %w", err)
 		}
 		resp, err = client.Put(path, payloadBytes)
+		if err != nil {
+			return blog, fmt.Errorf("error making request: %w", err)
+		}
 	} else {
 		resp, err = client.Get(path)
+		if err != nil {
+			return blog, fmt.Errorf("error making request: %w", err)
+		}
 	}
 
-	if err != nil {
-		return blog, fmt.Errorf("error making request: %w", err)
-	}
 	defer resp.Body.Close()
 
 	if err = expectStatusCode(200, resp); err != nil {
