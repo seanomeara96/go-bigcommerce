@@ -50,65 +50,39 @@ type CategoryQueryParams struct {
 }
 
 func (client *Client) GetCategory(id int) (Category, error) {
-	type ResponseObject struct {
+	var response struct {
 		Data Category `json:"data"`
-		Meta MetaData `json:"meta"`
-	}
-	var response ResponseObject
-
-	var categoryURL string = client.BaseURL().JoinPath("/catalog/categories", fmt.Sprint(id)).String()
-
-	resp, err := client.Get(categoryURL)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
 	}
 
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return response.Data, err
+	categoryURL := client.BaseURL().JoinPath("/catalog/categories", fmt.Sprint(id)).String()
+	if err := client.getAndDecode(categoryURL, &response); err != nil {
+		return Category{}, err
 	}
 
 	return response.Data, nil
 }
 
 func (client *Client) GetCategories(params CategoryQueryParams) ([]Category, MetaData, error) {
-	type ResponseObject struct {
+	var response struct {
 		Data []Category `json:"data"`
 		Meta MetaData   `json:"meta"`
 	}
-	var response ResponseObject
 
 	queryParams, err := paramString(params)
-
 	if err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, err
 	}
 
-	var categoriesURL string = client.BaseURL().JoinPath("/catalog/categories").String() + queryParams
-
-	resp, err := client.Get(categoriesURL)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return response.Data, response.Meta, err
+	categoriesURL := client.BaseURL().JoinPath("/catalog/categories").String() + queryParams
+	if err := client.getAndDecode(categoriesURL, &response); err != nil {
+		return nil, MetaData{}, err
 	}
 
 	return response.Data, response.Meta, nil
 }
 
 func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, error) {
-	var categories []Category
+	var allCategories []Category
 
 	if params.Page < 1 {
 		params.Page = 1
@@ -118,40 +92,31 @@ func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, 
 	}
 
 	for {
-		c, m, err := client.GetCategories(params)
+		categories, meta, err := client.GetCategories(params)
 		if err != nil {
-			return categories, err
+			return nil, err
 		}
 
-		for i := 0; i < len(c); i++ {
-			categories = append(categories, c[i])
-		}
+		allCategories = append(allCategories, categories...)
 
-		if m.Pagination.CurrentPage < params.Limit {
+		if meta.Pagination.CurrentPage >= meta.Pagination.TotalPages {
 			break
 		}
 
 		params.Page++
 	}
 
-	return categories, nil
+	return allCategories, nil
 }
 
 func (client *Client) EmptyCategory(id int) error {
-
 	products, _, err := client.GetProducts(ProductQueryParams{CategoriesIn: []int{id}})
 	if err != nil {
 		return err
 	}
 
 	for _, product := range products {
-		categories := []int{}
-		for _, categoryID := range product.Categories {
-			if categoryID != id {
-				categories = append(categories, categoryID)
-			}
-		}
-		product.Categories = categories
+		categories := removeCategory(product.Categories, id)
 		_, err = client.UpdateProduct(product.ID, CreateUpdateProductParams{Categories: categories})
 		if err != nil {
 			return err
@@ -159,4 +124,30 @@ func (client *Client) EmptyCategory(id int) error {
 	}
 
 	return nil
+}
+
+// Helper function to remove a category from a slice of categories
+func removeCategory(categories []int, id int) []int {
+	result := make([]int, 0, len(categories))
+	for _, categoryID := range categories {
+		if categoryID != id {
+			result = append(result, categoryID)
+		}
+	}
+	return result
+}
+
+// Helper function to perform GET request and decode response
+func (client *Client) getAndDecode(url string, v interface{}) error {
+	resp, err := client.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if err = expectStatusCode(200, resp); err != nil {
+		return err
+	}
+
+	return json.NewDecoder(resp.Body).Decode(v)
 }
