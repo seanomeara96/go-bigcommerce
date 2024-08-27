@@ -1,9 +1,5 @@
 package bigcommerce
 
-import (
-	"encoding/json"
-)
-
 // OrderStatus represents the structure of each order status.
 type OrderStatus struct {
 	ID                int    `json:"id"`
@@ -23,22 +19,12 @@ func (client *Client) GetOrderStatuses() ([]OrderStatus, error) {
 
 	err := client.Version2Required()
 	if err != nil {
-		return []OrderStatus{}, nil
+		return response.Data, nil
 	}
 
-	path := client.constructURL("/order_statuses")
+	path := client.constructURL("order_statuses")
 
-	resp, err := client.Get(path)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err := expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
+	if err := client.Get(path, &response); err != nil {
 		return response.Data, err
 	}
 

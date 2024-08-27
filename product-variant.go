@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -39,22 +38,12 @@ func (c *Client) GetVariants(queryParams AllProductVariantsQueryParams) ([]Produ
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-	resp, err := c.Get(path)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
 
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err := c.Get(path, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 
 	return response.Data, response.Meta, nil
-
 }
 
 func (client *Client) GetProductVariants(productID int, params ProductVariantQueryParams) ([]ProductVariant, MetaData, error) {
@@ -69,17 +58,7 @@ func (client *Client) GetProductVariants(productID int, params ProductVariantQue
 		return response.Data, response.Meta, err
 	}
 
-	resp, err := client.Get(getProductVariantsURL)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err := client.Get(getProductVariantsURL, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 
@@ -95,21 +74,7 @@ func (client *Client) CreateProductVariant(productID int, params ProductVariantC
 
 	createProductVariantPath := client.constructURL("/catalog/products", fmt.Sprint(productID), "variants")
 
-	resp, err := client.Post(createProductVariantPath, params)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		err = expectStatusCode(207, resp)
-		if err != nil {
-			return response.Data, err
-		}
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
+	if err := client.Post(createProductVariantPath, params, &response); err != nil {
 		return response.Data, err
 	}
 

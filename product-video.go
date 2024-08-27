@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"strconv"
 )
 
@@ -23,24 +22,12 @@ func (client *Client) GetAllProductVideos(productID int, params GetAllProductVid
 	}
 	var response ResponseObject
 
-	getProductVideosPath, err := urlWithQueryParams(client.constructURL("/catalog/products/", strconv.Itoa(productID), "/videos"), params)
+	getProductVideosPath, err := urlWithQueryParams(client.constructURL("catalog", "products", strconv.Itoa(productID), "videos"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
 
-	resp, err := client.Get(getProductVideosPath)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
+	if err := client.Get(getProductVideosPath, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 

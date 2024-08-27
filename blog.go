@@ -1,9 +1,7 @@
 package bigcommerce
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
+	"strconv"
 )
 
 type Blog struct {
@@ -43,42 +41,34 @@ type Date struct {
 }
 
 func (client *Client) GetBlog(id int) (Blog, error) {
-	return client.blogOperation(http.MethodGet, id, nil)
+	type ResponseObject struct {
+		Data Blog     `json:"data"`
+		Meta MetaData `json:"meta"`
+	}
+
+	var response ResponseObject
+
+	path := client.constructURL("/blog/posts", strconv.Itoa(id))
+
+	if err := client.Get(path, &response); err != nil {
+		return response.Data, err
+	}
+
+	return response.Data, nil
 }
 
 func (client *Client) UpdateBlog(blogId int, params UpdateBlogParams) (Blog, error) {
-	return client.blogOperation(http.MethodPut, blogId, params)
-}
+	type ResponseObject struct {
+		Data Blog     `json:"data"`
+		Meta MetaData `json:"meta"`
+	}
+	var response ResponseObject
 
-func (client *Client) blogOperation(method string, id int, params interface{}) (Blog, error) {
-	var blog Blog
-	path := client.constructURL("/blog/posts", fmt.Sprint(id))
+	path := client.constructURL("/blog/posts", strconv.Itoa(blogId))
 
-	var resp *http.Response
-	var err error
-
-	if method == http.MethodPut {
-
-		resp, err = client.Put(path, params)
-		if err != nil {
-			return blog, fmt.Errorf("error making request: %w", err)
-		}
-	} else {
-		resp, err = client.Get(path)
-		if err != nil {
-			return blog, fmt.Errorf("error making request: %w", err)
-		}
+	if err := client.Put(path, params, &response); err != nil {
+		return response.Data, err
 	}
 
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return blog, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&blog); err != nil {
-		return blog, fmt.Errorf("error decoding response: %w", err)
-	}
-
-	return blog, nil
+	return response.Data, nil
 }

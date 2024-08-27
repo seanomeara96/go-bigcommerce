@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -19,28 +18,18 @@ func (client *Client) GetCustomFields(productID int, params ProductCustomFieldsR
 	}
 	var response ResponseObject
 	// /catalog/products/{product_id}/custom-fields
-	getCustomFieldPath, err := urlWithQueryParams(client.constructURL("/catalog/products", strconv.Itoa(productID), "/custom-fields"), params)
-	if err != nil {
-		return response.Data, err
-	}
-	resp, err := client.Get(getCustomFieldPath)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
+	getCustomFieldPath, err := urlWithQueryParams(client.constructURL("catalog", "products", strconv.Itoa(productID), "custom-fields"), params)
 	if err != nil {
 		return response.Data, err
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
+	if err := client.Get(getCustomFieldPath, &response); err != nil {
 		return response.Data, err
 	}
 
 	return response.Data, nil
 }
+
 func (client *Client) CreateCustomField(productID int, params CreateCustomFieldParams) (ProductCustomField, error) {
 	type ResponseObject struct {
 		Data ProductCustomField `json:"data"`
@@ -54,18 +43,7 @@ func (client *Client) CreateCustomField(productID int, params CreateCustomFieldP
 
 	createCustomFieldpath := client.constructURL("catalog", "products", strconv.Itoa(productID), "custom-fields")
 
-	resp, err := client.Post(createCustomFieldpath, params)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Post(createCustomFieldpath, params, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -81,24 +59,14 @@ func (client *Client) GetCustomField(productID int, customFieldID int) (ProductC
 	// /catalog/products/{product_id}/custom-fields/{custom_field_id}
 	getCustomFieldPath := client.constructURL("catalog", "products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
 
-	resp, err := client.Get(getCustomFieldPath)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Get(getCustomFieldPath, &response)
 	if err != nil {
 		return response.Data, err
 	}
 
 	return response.Data, nil
 }
+
 func (client *Client) UpdateCustomField(productID int, customFieldID int, params UpdateCustomFieldParams) (ProductCustomField, error) {
 	type ResponseObject struct {
 		Data ProductCustomField `json:"data"`
@@ -108,18 +76,7 @@ func (client *Client) UpdateCustomField(productID int, customFieldID int, params
 
 	updateCustomFieldPath := client.constructURL("/catalog/products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
 
-	resp, err := client.Put(updateCustomFieldPath, params)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Put(updateCustomFieldPath, params, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -129,15 +86,11 @@ func (client *Client) UpdateCustomField(productID int, customFieldID int, params
 }
 func (client *Client) DeleteCustomField(productID int, customFieldID int) error {
 	deleteCustomFieldPath := client.constructURL("/catalog/products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
-	resp, err := client.Delete(deleteCustomFieldPath)
+	err := client.Delete(deleteCustomFieldPath, nil)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	err = expectStatusCode(204, resp)
-	if err != nil {
-		return err
-	}
+
 	return nil
 }
 

@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"errors"
 	"strconv"
 )
@@ -138,20 +137,9 @@ func (client *Client) GetProductVariantOptions(product_id int) ([]ProductVariant
 		Meta MetaData               `json:"meta"`
 	}
 	var response ResponseObject
-	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options")
+	path := client.constructURL("catalog", "products", strconv.Itoa(product_id), "options")
 
-	resp, err := client.Get(path)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Get(path, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -170,21 +158,9 @@ func (client *Client) CreateProductVariantOption(product_id int, params CreateUp
 		return response.Data, err
 	}
 
-	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options")
+	path := client.constructURL("catalog", "products", strconv.Itoa(product_id), "options")
 
-	resp, err := client.Post(path, params)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
+	if err := client.Post(path, params, &response); err != nil {
 		return response.Data, err
 	}
 
@@ -196,20 +172,9 @@ func (client *Client) GetProductVariantOption(product_id, option_id int) (Produc
 		Meta MetaData             `json:"meta"`
 	}
 	var response ResponseObject
-	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options", strconv.Itoa(option_id))
+	path := client.constructURL("catalog", "products", strconv.Itoa(product_id), "options", strconv.Itoa(option_id))
 
-	resp, err := client.Get(path)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Get(path, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -230,33 +195,18 @@ func (client *Client) UpdateProductVariantOption(product_id, option_id int, para
 
 	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options", strconv.Itoa(option_id))
 
-	resp, err := client.Put(path, params)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
+	if err := client.Put(path, params, &response); err != nil {
 		return response.Data, err
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return response.Data, err
-	}
 	return response.Data, nil
 }
 func (client *Client) DeleteProductVariantOption(product_id, option_id int) error {
-	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options", strconv.Itoa(option_id))
-	resp, err := client.Delete(path)
+	path := client.constructURL("catalog", "products", strconv.Itoa(product_id), "options", strconv.Itoa(option_id))
+	err := client.Delete(path, nil)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	err = expectStatusCode(204, resp)
-	if err != nil {
-		return err
-	}
+
 	return nil
 }

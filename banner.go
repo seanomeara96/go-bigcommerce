@@ -1,8 +1,8 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type Banner struct {
@@ -108,18 +108,7 @@ func (client *Client) CreateBanner(params CreateUpdateBannerParams) (Banner, err
 
 	path := client.constructURL("banners")
 
-	resp, err := client.Post(path, params)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err = client.Post(path, params, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -133,38 +122,21 @@ func (client *Client) UpdateClient(bannerID int, params CreateUpdateBannerParams
 		Meta MetaData `json:"meta"`
 	}
 	var response ResponseObject
-	err := client.Version2Required()
-	if err != nil {
+
+	if err := client.Version2Required(); err != nil {
 		return response.Data, err
 	}
 
-	err = validateBannerParams(params)
-	if err != nil {
+	if err := validateBannerParams(params); err != nil {
 		return response.Data, err
 	}
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
+	path := client.constructURL("banners", strconv.Itoa(bannerID))
+
+	if err := client.Put(path, params, &response); err != nil {
 		return response.Data, err
 	}
 
-	path := client.constructURL("banners", fmt.Sprint(bannerID))
-
-	resp, err := client.Put(path, paramBytes)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return response.Data, err
-	}
 	return response.Data, nil
 }
 
@@ -185,19 +157,7 @@ func (client *Client) GetBanners(params GetBannersParams) ([]Banner, MetaData, e
 		return response.Data, response.Meta, err
 	}
 
-	resp, err := client.Get(path)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
+	if err := client.Get(path, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 
@@ -216,21 +176,9 @@ func (client *Client) GetBanner(bannerID int) (Banner, error) {
 		return response.Data, err
 	}
 
-	path := client.constructURL("banners", fmt.Sprint(bannerID))
+	path := client.constructURL("banners", strconv.Itoa(bannerID))
 
-	resp, err := client.Get(path)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
+	if err := client.Get(path, &response); err != nil {
 		return response.Data, err
 	}
 
@@ -242,15 +190,8 @@ func (client *Client) DeleteBanner(bannerID int) error {
 	if err != nil {
 		return err
 	}
-	path := client.constructURL("banners", fmt.Sprint(bannerID))
-	resp, err := client.Delete(path)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(204, resp)
-	if err != nil {
+	path := client.constructURL("banners", strconv.Itoa(bannerID))
+	if err := client.Delete(path, nil); err != nil {
 		return err
 	}
 

@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"strconv"
 )
 
@@ -29,17 +28,8 @@ func (client *Client) GetAllProductImages(productID int) ([]ProductImage, error)
 
 	getAllImagesPath := client.constructURL("/catalog/products", strconv.Itoa(productID), "images")
 
-	resp, err := client.Get(getAllImagesPath)
+	err := client.Get(getAllImagesPath, &response)
 	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return response.Data, err
 	}
 
@@ -54,17 +44,8 @@ func (client *Client) GetProductImage(productID int, imageID int) (ProductImage,
 
 	getProductImagePath := client.constructURL("/catalog/products", strconv.Itoa(productID), "images", strconv.Itoa(imageID))
 
-	resp, err := client.Get(getProductImagePath)
+	err := client.Get(getProductImagePath, &response)
 	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return response.Data, err
 	}
 
@@ -79,22 +60,7 @@ func (client *Client) CreateProductImage(productID int, params CreateProductImag
 	// POST /catalog/products/{product_id}/images
 	createProductImagePath := client.constructURL("catalog", "products", strconv.Itoa(productID), "images")
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
-
-	resp, err := client.Post(createProductImagePath, paramBytes)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Post(createProductImagePath, params, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -111,20 +77,7 @@ func (client *Client) UpdateProductImage(productID int, imageID int, params Upda
 	// PUT /catalog/products/{product_id}/images/{image_id}
 	updateProductImagePath := client.constructURL("catalog", "products", strconv.Itoa(productID), "images", strconv.Itoa(imageID))
 
-	resp, err := client.Put(updateProductImagePath, params)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		err = expectStatusCode(201, resp)
-		if err != nil {
-			return response.Data, err
-		}
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Put(updateProductImagePath, params, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -135,13 +88,8 @@ func (client *Client) UpdateProductImage(productID int, imageID int, params Upda
 func (client *Client) DeleteProductImage(productID int, imageID int) (bool, error) {
 	deleteProductImagePath := client.constructURL("catalog", "products", strconv.Itoa(productID), "images", strconv.Itoa(imageID))
 
-	resp, err := client.Delete(deleteProductImagePath)
+	err := client.Delete(deleteProductImagePath, nil)
 	if err != nil {
-		return false, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(204, resp); err != nil {
 		return false, err
 	}
 

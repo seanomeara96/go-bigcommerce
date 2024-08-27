@@ -159,32 +159,48 @@ func (c *Client) Request(httpMethod string, relativeUrl string, payload []byte, 
 	return resp, nil
 }
 
-func (client *Client) Get(url *url.URL) (*http.Response, error) {
-	return client.Request("GET", url.String(), nil, 0)
-}
-
-func (client *Client) Put(url *url.URL, params interface{}) (*http.Response, error) {
-
-	payload, err := json.Marshal(params)
+func (client *Client) RequestAndDecode(httpMethod string, relativeUrl string, payload []byte, dest any) error {
+	res, err := client.Request(httpMethod, relativeUrl, payload, 0)
 	if err != nil {
-		return nil, err
+		return err
 	}
+	defer res.Body.Close()
 
-	return client.Request("PUT", url.String(), payload, 0)
+	if dest != nil {
+		if err := json.NewDecoder(res.Body).Decode(dest); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (client *Client) Post(url *url.URL, params interface{}) (*http.Response, error) {
-
-	payload, err := json.Marshal(params)
-	if err != nil {
-		return nil, err
+func (client *Client) MarshalJSONandRequestAndDecode(httpMethod string, relativeUrl string, params any, dest any) error {
+	var payload []byte
+	if params != nil {
+		p, err := json.Marshal(params)
+		if err != nil {
+			return err
+		}
+		payload = p
 	}
-
-	return client.Request("POST", url.String(), payload, 0)
+	return client.RequestAndDecode(httpMethod, relativeUrl, payload, dest)
 }
 
-func (client *Client) Delete(url *url.URL) (*http.Response, error) {
-	return client.Request("DELETE", url.String(), nil, 0)
+func (client *Client) Get(url *url.URL, dest any) error {
+	return client.MarshalJSONandRequestAndDecode("GET", url.String(), nil, dest)
+
+}
+
+func (client *Client) Put(url *url.URL, params any, dest any) error {
+	return client.MarshalJSONandRequestAndDecode("PUT", url.String(), params, dest)
+}
+
+func (client *Client) Post(url *url.URL, params any, dest any) error {
+	return client.MarshalJSONandRequestAndDecode("POST", url.String(), params, dest)
+}
+
+func (client *Client) Delete(url *url.URL, dest any) error {
+	return client.MarshalJSONandRequestAndDecode("DELETE", url.String(), nil, dest)
 }
 
 // Helper functions

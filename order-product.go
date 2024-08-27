@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"strconv"
 )
 
@@ -110,17 +109,7 @@ func (client *Client) GetOrderProducts(orderID int, params OrderProductsQueryPar
 		return response.Data, response.Meta, err
 	}
 
-	resp, err := client.Get(getOrdersURL)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	if err := expectStatusCode(200, resp); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
+	if err := client.Get(getOrdersURL, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 

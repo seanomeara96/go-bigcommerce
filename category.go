@@ -1,9 +1,7 @@
 package bigcommerce
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/url"
+	"strconv"
 )
 
 type Category struct {
@@ -55,8 +53,8 @@ func (client *Client) GetCategory(id int) (Category, error) {
 		Data Category `json:"data"`
 	}
 
-	categoryURL := client.constructURL("/catalog/categories", fmt.Sprint(id))
-	if err := client.getAndDecode(categoryURL, &response); err != nil {
+	categoryURL := client.constructURL("/catalog/categories", strconv.Itoa(id))
+	if err := client.Get(categoryURL, &response); err != nil {
 		return Category{}, err
 	}
 
@@ -69,18 +67,13 @@ func (client *Client) GetCategories(params CategoryQueryParams) ([]Category, Met
 		Meta MetaData   `json:"meta"`
 	}
 
-	queryParams, err := paramString(params)
+	categoriesURL, err := urlWithQueryParams(client.constructURL("/catalog/categories"), params)
 	if err != nil {
-		return nil, MetaData{}, err
+		return nil, response.Meta, err
 	}
 
-	categoriesURL, err := urlWithQueryParams(client.constructURL("/catalog/categories"), queryParams)
-	if err != nil {
-		return nil, MetaData{}, err
-	}
-
-	if err := client.getAndDecode(categoriesURL, &response); err != nil {
-		return nil, MetaData{}, err
+	if err := client.Get(categoriesURL, &response); err != nil {
+		return nil, response.Meta, err
 	}
 
 	return response.Data, response.Meta, nil
@@ -140,19 +133,4 @@ func removeCategory(categories []int, id int) []int {
 		}
 	}
 	return result
-}
-
-// Helper function to perform GET request and decode response
-func (client *Client) getAndDecode(url *url.URL, v interface{}) error {
-	resp, err := client.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return err
-	}
-
-	return json.NewDecoder(resp.Body).Decode(v)
 }

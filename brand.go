@@ -1,8 +1,7 @@
 package bigcommerce
 
 import (
-	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 type Brand struct {
@@ -39,20 +38,10 @@ func (client *Client) GetBrand(id int) (Brand, error) {
 
 	var response ResponseObject
 
-	brandURL := client.constructURL("/catalog/brands", fmt.Sprint(id))
+	brandURL := client.constructURL("/catalog/brands", strconv.Itoa(id))
 
-	resp, err := client.Get(brandURL)
-	if err != nil {
+	if err := client.Get(brandURL, &response); err != nil {
 		return response.Data, nil
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return response.Data, err
 	}
 
 	return response.Data, nil
@@ -65,33 +54,16 @@ func (client *Client) GetBrands(params BrandQueryParams) ([]Brand, MetaData, err
 	}
 	var response ResponseObject
 
-	queryParams, err := paramString(params)
-
+	brandsURL, err := urlWithQueryParams(client.constructURL("/catalog/brands"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
 
-	brandsURL, err := urlWithQueryParams(client.constructURL("/catalog/brands"), queryParams)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	resp, err := client.Get(brandsURL)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err := client.Get(brandsURL, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 
 	return response.Data, response.Meta, nil
-
 }
 
 func (client *Client) GetAllBrands(params BrandQueryParams) ([]Brand, error) {

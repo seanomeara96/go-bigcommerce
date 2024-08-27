@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -196,13 +195,7 @@ func (client *Client) GetOrder(orderID int) (Order, error) {
 
 	getOrderURL := client.constructURL("storefront", "orders", strconv.Itoa(orderID))
 
-	resp, err := client.Get(getOrderURL)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err := client.Get(getOrderURL, &response); err != nil {
 		return response.Data, err
 	}
 
@@ -221,22 +214,12 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 		return response.Data, response.Meta, err
 	}
 
-	getOrdersURL, err := urlWithQueryParams(client.constructURL("/orders"), params)
+	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
 
-	resp, err := client.Get(getOrdersURL)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	if err := expectStatusCode(200, resp); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(&response.Data); err != nil {
+	if err := client.Get(getOrdersURL, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 

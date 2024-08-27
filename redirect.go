@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"errors"
 )
 
@@ -58,17 +57,7 @@ func (client *Client) GetRedirects(params RedirectQueryParams) ([]Redirect, erro
 		return response.Data, err
 	}
 
-	resp, err := client.Get(getRedirectsURL)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err := client.Get(getRedirectsURL, &response); err != nil {
 		return response.Data, err
 	}
 
@@ -143,18 +132,7 @@ func (client *Client) UpsertRedirects(redirects []RedirectUpsert) ([]Redirect, e
 
 	path := client.constructURL("/storefront/redirects")
 
-	resp, err := client.Put(path, redirects)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(201, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Put(path, redirects, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -172,14 +150,10 @@ func (client *Client) DeleteRedirect(params DeleteRedirectsParams) error {
 	if err != nil {
 		return err
 	}
-	resp, err := client.Delete(path)
-	if err != nil {
+
+	if err := client.Delete(path, nil); err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	err = expectStatusCode(204, resp)
-	if err != nil {
-		return err
-	}
+
 	return nil
 }

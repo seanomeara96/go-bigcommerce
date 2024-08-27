@@ -1,9 +1,7 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 )
 
@@ -113,60 +111,43 @@ func (client *Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, err
 	if err != nil {
 		return response.Data, err
 	}
+
 	err = validateCreateUpdateCoupon(params)
 	if err != nil {
 		return response.Data, err
 	}
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
+
 	path := client.constructURL("coupons")
-	resp, err := client.Post(path, paramBytes)
-	if err != nil {
+	if err := client.Post(path, params, &response); err != nil {
 		return response.Data, err
 	}
-	defer resp.Body.Close()
-	err = expectStatusCode(201, resp)
-	if err != nil {
-		return response.Data, err
-	}
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return response.Data, err
-	}
+
 	return response.Data, nil
 }
 
 func (client *Client) UpdateCoupon(couponID int, params CreateUpdateCouponParams) (Coupon, error) {
 	var response CouponResponseObject
+
 	if err := client.Version2Required(); err != nil {
 		return response.Data, err
 	}
+
 	err := validateCreateUpdateCoupon(params)
 	if err != nil {
 		return response.Data, err
 	}
 
 	path := client.constructURL("coupons", strconv.Itoa(couponID))
-	resp, err := client.Put(path, params)
-	if err != nil {
+	if err := client.Put(path, params, &response); err != nil {
 		return response.Data, err
 	}
-	defer resp.Body.Close()
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return response.Data, err
-	}
+
 	return response.Data, nil
 }
 
 func (client *Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, error) {
 	var response CouponsResponseObject
+
 	err := client.Version2Required()
 	if err != nil {
 		return response.Data, response.Meta, err
@@ -177,56 +158,35 @@ func (client *Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, 
 		return response.Data, response.Meta, err
 	}
 
-	resp, err := client.Get(path)
-	if err != nil {
+	if err := client.Get(path, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
-	defer resp.Body.Close()
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
+
 	return response.Data, response.Meta, nil
 }
 
 func (client *Client) GetCoupon(couponID int) (Coupon, error) {
 	var response CouponResponseObject
+
 	err := client.Version2Required()
 	if err != nil {
 		return response.Data, err
 	}
-	path := client.constructURL("coupons", fmt.Sprint(couponID))
-	resp, err := client.Get(path)
-	if err != nil {
+
+	path := client.constructURL("coupons", strconv.Itoa(couponID))
+	if err := client.Get(path, &response); err != nil {
 		return response.Data, err
 	}
-	defer resp.Body.Close()
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return response.Data, err
-	}
+
 	return response.Data, nil
 }
+
 func (client *Client) DeleteCoupon(couponID int) error {
-	path := client.constructURL("coupons", fmt.Sprint(couponID))
+	path := client.constructURL("coupons", strconv.Itoa(couponID))
 
-	resp, err := client.Delete(path)
-	if err != nil {
+	if err := client.Delete(path, nil); err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 
-	err = expectStatusCode(204, resp)
-	if err != nil {
-		return err
-	}
 	return nil
 }

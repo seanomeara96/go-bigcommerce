@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"strconv"
 )
 
@@ -44,19 +43,7 @@ func (client *Client) GetPages(queryParams GetPagesParams) ([]Page, MetaData, er
 		return response.Data, response.Meta, err
 	}
 
-	resp, err := client.Get(path)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
+	if err := client.Get(path, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 
@@ -72,36 +59,16 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 
 	path := client.constructURL("/content/pages")
 
-	resp, err := client.Post(path, params)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(201, resp)
-	if err != nil {
-		err = expectStatusCode(207, resp)
-		if err != nil {
-			return response.Data, err
-		}
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
+	if err := client.Post(path, params, &response); err != nil {
 		return response.Data, err
 	}
 
 	return response.Data, nil
-
 }
 
 func (client *Client) DeletePage(pageID int) error {
 	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
-	resp, err := client.Delete(path)
-	if err != nil {
-		return err
-	}
-	err = expectStatusCode(204, resp)
+	err := client.Delete(path, nil)
 	if err != nil {
 		return err
 	}
@@ -117,18 +84,7 @@ func (client *Client) GetPage(pageID int) (Page, error) {
 
 	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
 
-	resp, err := client.Get(path)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Get(path, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -145,18 +101,7 @@ func (client *Client) UpdatePage(pageID int, params UpdatePageParams) (Page, err
 
 	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
 
-	resp, err := client.Put(path, params)
-	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		return response.Data, err
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err := client.Put(path, params, &response)
 	if err != nil {
 		return response.Data, err
 	}

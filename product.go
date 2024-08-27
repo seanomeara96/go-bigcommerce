@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -19,17 +18,8 @@ func (client *Client) GetProduct(id int) (Product, error) {
 	getProductUrl := client.constructURL("/catalog/products/", strconv.Itoa(id))
 
 	// Send the request
-	resp, err := client.Get(getProductUrl)
+	err := client.Get(getProductUrl, &response)
 	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return response.Data, err
 	}
 
@@ -68,17 +58,7 @@ func (client *Client) GetProducts(params ProductQueryParams) ([]Product, MetaDat
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-	resp, err := client.Get(getProductsUrl)
-	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, response.Meta, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err := client.Get(getProductsUrl, &response); err != nil {
 		return response.Data, response.Meta, err
 	}
 
@@ -116,17 +96,8 @@ func (client *Client) UpdateProduct(productId int, params CreateUpdateProductPar
 
 	updateProductPath := client.constructURL("/catalog/products", strconv.Itoa(productId))
 
-	resp, err := client.Put(updateProductPath, params)
+	err := client.Put(updateProductPath, params, &response)
 	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return response.Data, err
 	}
 
@@ -150,22 +121,9 @@ func (client *Client) CreateProduct(params CreateUpdateProductParams) (Product, 
 
 	createProductPath := client.constructURL("/catalog/products")
 
-	resp, err := client.Post(createProductPath, params)
+	err := client.Post(createProductPath, params, &response)
 	if err != nil {
 		return response.Data, nil
-	}
-
-	err = expectStatusCode(200, resp)
-	if err != nil {
-		err = expectStatusCode(207, resp)
-		if err != nil {
-			return response.Data, err
-		}
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		return response.Data, err
 	}
 
 	return response.Data, nil
@@ -173,11 +131,7 @@ func (client *Client) CreateProduct(params CreateUpdateProductParams) (Product, 
 
 func (client *Client) DeleteProduct(productID int) error {
 	path := client.constructURL("/catalog/products", strconv.Itoa(productID))
-	resp, err := client.Delete(path)
-	if err != nil {
-		return err
-	}
-	err = expectStatusCode(204, resp)
+	err := client.Delete(path, nil)
 	if err != nil {
 		return err
 	}

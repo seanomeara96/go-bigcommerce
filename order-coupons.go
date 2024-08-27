@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"encoding/json"
 	"strconv"
 )
 
@@ -43,19 +42,10 @@ func (client *Client) ListOrderCoupons(orderID int) ([]OrderCoupon, error) {
 	}
 	var response ResponseObject
 
-	listOrderCouponsPath := client.constructURL("/orders/", strconv.Itoa(orderID), "/coupons")
+	listOrderCouponsPath := client.constructURL("orders", strconv.Itoa(orderID), "coupons")
 
-	resp, err := client.Get(listOrderCouponsPath)
+	err := client.Get(listOrderCouponsPath, &response)
 	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return response.Data, err
 	}
 

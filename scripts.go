@@ -1,10 +1,5 @@
 package bigcommerce
 
-import (
-	"encoding/json"
-	"log"
-)
-
 type Script struct {
 	Name            string `json:"name"`
 	UUID            string `json:"uuid"`
@@ -56,20 +51,8 @@ func (client *Client) GetScripts(params ScriptsQuery) ([]Script, MetaData, error
 
 	path := client.constructURL("/content/scripts")
 
-	resp, err := client.Get(path)
+	err := client.Get(path, &response)
 	if err != nil {
-		return response.Data, response.Meta, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		if resp.StatusCode == 404 {
-			log.Printf("Status %s", resp.Status)
-		}
-		return response.Data, response.Meta, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return response.Data, response.Meta, err
 	}
 
@@ -141,17 +124,8 @@ func (client *Client) CreateScript(params CreateScriptParams) (Script, error) {
 
 	path := client.constructURL("/content/scripts")
 
-	resp, err := client.Post(path, params)
+	err := client.Post(path, params, &response)
 	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return response.Data, err
 	}
 
@@ -167,22 +141,12 @@ func (client *Client) UpdateScript(uuid string, params UpdateScriptParams) (Scri
 
 	var response ResponseObject
 
-	updateScriptURL := client.constructURL("/content/scripts/" + uuid)
+	updateScriptURL := client.constructURL("content", "scripts", uuid)
 
-	resp, err := client.Put(updateScriptURL, params)
+	err := client.Put(updateScriptURL, params, &response)
 	if err != nil {
-		return response.Data, err
-	}
-	defer resp.Body.Close()
-
-	if err = expectStatusCode(200, resp); err != nil {
-		return response.Data, err
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return response.Data, err
 	}
 
 	return response.Data, nil
-
 }
