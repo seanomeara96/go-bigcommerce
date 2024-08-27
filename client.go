@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -118,7 +119,7 @@ func (c *Client) backoff() error {
 	return nil
 }
 
-func (c *Client) Request(httpMethod string, relativeUrl string, payload []byte, attempt int) (*http.Response, error) {
+func (c *Client) request(httpMethod string, relativeUrl string, payload []byte, attempt int) (*http.Response, error) {
 	if err := c.backoff(); err != nil {
 		return nil, err
 	}
@@ -133,7 +134,7 @@ func (c *Client) Request(httpMethod string, relativeUrl string, payload []byte, 
 		if attempt < 3 {
 			log.Printf("Request failed. Retrying in 3 seconds. Error: %v", err)
 			time.Sleep(3 * time.Second)
-			return c.Request(httpMethod, relativeUrl, payload, attempt+1)
+			return c.request(httpMethod, relativeUrl, payload, attempt+1)
 		}
 		return nil, err
 	}
@@ -148,7 +149,7 @@ func (c *Client) Request(httpMethod string, relativeUrl string, payload []byte, 
 			}
 			log.Printf("%s request to %s failed with status code %d. Retrying in %v.", httpMethod, relativeUrl, resp.StatusCode, waitTime)
 			time.Sleep(waitTime)
-			return c.Request(httpMethod, relativeUrl, payload, attempt+1)
+			return c.request(httpMethod, relativeUrl, payload, attempt+1)
 		}
 		if resp.StatusCode == 429 {
 			return nil, fmt.Errorf("429 - Rate limit exceeded. Max retries reached")
@@ -156,11 +157,22 @@ func (c *Client) Request(httpMethod string, relativeUrl string, payload []byte, 
 		return nil, fmt.Errorf("server error: %d. Max retries reached", resp.StatusCode)
 	}
 
+	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("Failed to read error response body: %v", err)
+		} else {
+			log.Printf("BigCommerce 4xx error response: %s", string(body))
+		}
+		// This line is recreating the response body after it has been read.
+		resp.Body = io.NopCloser(bytes.NewBuffer(body))
+	}
+
 	return resp, nil
 }
 
-func (client *Client) RequestAndDecode(httpMethod string, relativeUrl string, payload []byte, dest any) error {
-	res, err := client.Request(httpMethod, relativeUrl, payload, 0)
+func (client *Client) requestAndDecode(httpMethod string, relativeUrl string, payload []byte, dest any) error {
+	res, err := client.request(httpMethod, relativeUrl, payload, 0)
 	if err != nil {
 		return err
 	}
@@ -174,7 +186,7 @@ func (client *Client) RequestAndDecode(httpMethod string, relativeUrl string, pa
 	return nil
 }
 
-func (client *Client) MarshalJSONandRequestAndDecode(httpMethod string, relativeUrl string, params any, dest any) error {
+func (client *Client) marshalJSONandRequestAndDecode(httpMethod string, relativeUrl string, params any, dest any) error {
 	var payload []byte
 	if params != nil {
 		p, err := json.Marshal(params)
@@ -183,24 +195,24 @@ func (client *Client) MarshalJSONandRequestAndDecode(httpMethod string, relative
 		}
 		payload = p
 	}
-	return client.RequestAndDecode(httpMethod, relativeUrl, payload, dest)
+	return client.requestAndDecode(httpMethod, relativeUrl, payload, dest)
 }
 
 func (client *Client) Get(url *url.URL, dest any) error {
-	return client.MarshalJSONandRequestAndDecode("GET", url.String(), nil, dest)
+	return client.marshalJSONandRequestAndDecode("GET", url.String(), nil, dest)
 
 }
 
 func (client *Client) Put(url *url.URL, params any, dest any) error {
-	return client.MarshalJSONandRequestAndDecode("PUT", url.String(), params, dest)
+	return client.marshalJSONandRequestAndDecode("PUT", url.String(), params, dest)
 }
 
 func (client *Client) Post(url *url.URL, params any, dest any) error {
-	return client.MarshalJSONandRequestAndDecode("POST", url.String(), params, dest)
+	return client.marshalJSONandRequestAndDecode("POST", url.String(), params, dest)
 }
 
 func (client *Client) Delete(url *url.URL, dest any) error {
-	return client.MarshalJSONandRequestAndDecode("DELETE", url.String(), nil, dest)
+	return client.marshalJSONandRequestAndDecode("DELETE", url.String(), nil, dest)
 }
 
 // Helper functions
