@@ -54,8 +54,8 @@ func (client *Client) GetScripts(params ScriptsQuery) ([]Script, MetaData, error
 	}
 	var response ResponseObject
 
-	path := client.BaseURL().JoinPath("/content/scripts").String()
-	log.Printf("Sending get request to path %s", path)
+	path := client.constructURL("/content/scripts")
+
 	resp, err := client.Get(path)
 	if err != nil {
 		return response.Data, response.Meta, err
@@ -139,15 +139,9 @@ func (client *Client) CreateScript(params CreateScriptParams) (Script, error) {
 
 	var response ResponseObject
 
-	path := client.BaseURL().JoinPath("/content/scripts").String()
+	path := client.constructURL("/content/scripts")
 
-	bytes, err := json.Marshal(params)
-
-	if err != nil {
-		return response.Data, err
-	}
-
-	resp, err := client.Post(path, bytes)
+	resp, err := client.Post(path, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -173,14 +167,9 @@ func (client *Client) UpdateScript(uuid string, params UpdateScriptParams) (Scri
 
 	var response ResponseObject
 
-	updateScriptURL := client.BaseURL().JoinPath("/content/scripts/" + uuid).String()
+	updateScriptURL := client.constructURL("/content/scripts/" + uuid)
 
-	bytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
-
-	resp, err := client.Put(updateScriptURL, bytes)
+	resp, err := client.Put(updateScriptURL, params)
 	if err != nil {
 		return response.Data, err
 	}

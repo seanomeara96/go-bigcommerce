@@ -2,7 +2,7 @@ package bigcommerce
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 type ShippingAddressQueryParams struct {
@@ -72,7 +72,10 @@ func (client *Client) GetOrderShippingAddress(orderID int, params ShippingAddres
 		return response.Data, response.Meta, err
 	}
 
-	getOrdersURL := client.BaseURL().JoinPath(fmt.Sprintf("/orders/%d/shipping_addresses", orderID)).String() + queryParams
+	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders", strconv.Itoa(orderID), "shipping_addresses"), queryParams)
+	if err != nil {
+		return response.Data, response.Meta, err
+	}
 
 	resp, err := client.Get(getOrdersURL)
 	if err != nil {

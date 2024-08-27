@@ -52,17 +52,14 @@ func (client *Client) UpdateBlog(blogId int, params UpdateBlogParams) (Blog, err
 
 func (client *Client) blogOperation(method string, id int, params interface{}) (Blog, error) {
 	var blog Blog
-	path := client.BaseURL().JoinPath("/blog/posts", fmt.Sprint(id)).String()
+	path := client.constructURL("/blog/posts", fmt.Sprint(id))
 
 	var resp *http.Response
 	var err error
 
 	if method == http.MethodPut {
-		payloadBytes, err := json.Marshal(params)
-		if err != nil {
-			return blog, fmt.Errorf("error marshaling params: %w", err)
-		}
-		resp, err = client.Put(path, payloadBytes)
+
+		resp, err = client.Put(path, params)
 		if err != nil {
 			return blog, fmt.Errorf("error making request: %w", err)
 		}

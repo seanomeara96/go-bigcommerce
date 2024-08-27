@@ -3,6 +3,7 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 type Category struct {
@@ -54,7 +55,7 @@ func (client *Client) GetCategory(id int) (Category, error) {
 		Data Category `json:"data"`
 	}
 
-	categoryURL := client.BaseURL().JoinPath("/catalog/categories", fmt.Sprint(id)).String()
+	categoryURL := client.constructURL("/catalog/categories", fmt.Sprint(id))
 	if err := client.getAndDecode(categoryURL, &response); err != nil {
 		return Category{}, err
 	}
@@ -73,7 +74,11 @@ func (client *Client) GetCategories(params CategoryQueryParams) ([]Category, Met
 		return nil, MetaData{}, err
 	}
 
-	categoriesURL := client.BaseURL().JoinPath("/catalog/categories").String() + queryParams
+	categoriesURL, err := urlWithQueryParams(client.constructURL("/catalog/categories"), queryParams)
+	if err != nil {
+		return nil, MetaData{}, err
+	}
+
 	if err := client.getAndDecode(categoriesURL, &response); err != nil {
 		return nil, MetaData{}, err
 	}
@@ -138,7 +143,7 @@ func removeCategory(categories []int, id int) []int {
 }
 
 // Helper function to perform GET request and decode response
-func (client *Client) getAndDecode(url string, v interface{}) error {
+func (client *Client) getAndDecode(url *url.URL, v interface{}) error {
 	resp, err := client.Get(url)
 	if err != nil {
 		return err

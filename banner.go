@@ -106,14 +106,9 @@ func (client *Client) CreateBanner(params CreateUpdateBannerParams) (Banner, err
 		return response.Data, err
 	}
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
+	path := client.constructURL("banners")
 
-	path := client.BaseURL().JoinPath("banners").String()
-
-	resp, err := client.Post(path, paramBytes)
+	resp, err := client.Post(path, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -153,7 +148,7 @@ func (client *Client) UpdateClient(bannerID int, params CreateUpdateBannerParams
 		return response.Data, err
 	}
 
-	path := client.BaseURL().JoinPath("banners", fmt.Sprint(bannerID)).String()
+	path := client.constructURL("banners", fmt.Sprint(bannerID))
 
 	resp, err := client.Put(path, paramBytes)
 	if err != nil {
@@ -185,12 +180,10 @@ func (client *Client) GetBanners(params GetBannersParams) ([]Banner, MetaData, e
 		return response.Data, response.Meta, err
 	}
 
-	queryParams, err := paramString(params)
+	path, err := urlWithQueryParams(client.constructURL("banners"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-
-	path := client.BaseURL().JoinPath("banners").String() + queryParams
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -223,7 +216,7 @@ func (client *Client) GetBanner(bannerID int) (Banner, error) {
 		return response.Data, err
 	}
 
-	path := client.BaseURL().JoinPath("banners", fmt.Sprint(bannerID)).String()
+	path := client.constructURL("banners", fmt.Sprint(bannerID))
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -249,7 +242,7 @@ func (client *Client) DeleteBanner(bannerID int) error {
 	if err != nil {
 		return err
 	}
-	path := client.BaseURL().JoinPath("banners", fmt.Sprint(bannerID)).String()
+	path := client.constructURL("banners", fmt.Sprint(bannerID))
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err

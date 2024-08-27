@@ -39,7 +39,7 @@ func (client *Client) GetBrand(id int) (Brand, error) {
 
 	var response ResponseObject
 
-	brandURL := client.BaseURL().JoinPath("/catalog/brands", fmt.Sprint(id)).String()
+	brandURL := client.constructURL("/catalog/brands", fmt.Sprint(id))
 
 	resp, err := client.Get(brandURL)
 	if err != nil {
@@ -71,7 +71,10 @@ func (client *Client) GetBrands(params BrandQueryParams) ([]Brand, MetaData, err
 		return response.Data, response.Meta, err
 	}
 
-	brandsURL := client.BaseURL().JoinPath("/catalog/brands").String() + queryParams
+	brandsURL, err := urlWithQueryParams(client.constructURL("/catalog/brands"), queryParams)
+	if err != nil {
+		return response.Data, response.Meta, err
+	}
 
 	resp, err := client.Get(brandsURL)
 	if err != nil {

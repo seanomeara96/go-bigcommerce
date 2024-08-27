@@ -2,7 +2,7 @@ package bigcommerce
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 type OrderCoupon struct {
@@ -43,7 +43,7 @@ func (client *Client) ListOrderCoupons(orderID int) ([]OrderCoupon, error) {
 	}
 	var response ResponseObject
 
-	listOrderCouponsPath := client.BaseURL().JoinPath("/orders/", fmt.Sprint(orderID), "/coupons").String()
+	listOrderCouponsPath := client.constructURL("/orders/", strconv.Itoa(orderID), "/coupons")
 
 	resp, err := client.Get(listOrderCouponsPath)
 	if err != nil {

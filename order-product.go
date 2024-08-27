@@ -2,7 +2,7 @@ package bigcommerce
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 // OrderProductAppliedDiscount represents a discount applied to the product
@@ -105,12 +105,10 @@ func (client *Client) GetOrderProducts(orderID int, params OrderProductsQueryPar
 		return response.Data, response.Meta, err
 	}
 
-	queryParams, err := paramString(params)
+	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders", strconv.Itoa(orderID), "products"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-
-	getOrdersURL := client.BaseURL().JoinPath(fmt.Sprintf("/orders/%d/products", orderID)).String() + queryParams
 
 	resp, err := client.Get(getOrdersURL)
 	if err != nil {

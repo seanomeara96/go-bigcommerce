@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-
-	"github.com/google/go-querystring/query"
 )
 
 func (client *Client) GetOrderShipments(orderID int, params OrderShipmentQueryParams) ([]OrderShipment, MetaData, error) {
@@ -19,15 +17,12 @@ func (client *Client) GetOrderShipments(orderID int, params OrderShipmentQueryPa
 		return response.Data, response.Meta, err
 	}
 
-	vals, err := query.Values(params)
+	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders", strconv.Itoa(orderID), "shipments"), params)
 	if err != nil {
-		return response.Data, response.Meta, fmt.Errorf("could not encode query vals to get order shipments: %v", err)
+		return response.Data, response.Meta, err
 	}
 
-	getOrdersURL := client.BaseURL().JoinPath("orders", strconv.Itoa(orderID), "shipments")
-	getOrdersURL.RawQuery = vals.Encode()
-
-	resp, err := client.Get(getOrdersURL.String())
+	resp, err := client.Get(getOrdersURL)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}

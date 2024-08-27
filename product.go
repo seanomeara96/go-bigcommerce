@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 )
 
 //TODO add a GetBrand/GetCategories function that returns brand or slice of categories arg can be pointer and if nil can call the api
@@ -15,7 +16,7 @@ func (client *Client) GetProduct(id int) (Product, error) {
 	}
 	var response ResponseObject
 
-	getProductUrl := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(id)).String()
+	getProductUrl := client.constructURL("/catalog/products/", strconv.Itoa(id))
 
 	// Send the request
 	resp, err := client.Get(getProductUrl)
@@ -63,14 +64,10 @@ func (client *Client) GetProducts(params ProductQueryParams) ([]Product, MetaDat
 	}
 	var response ResponseObject
 
-	queryParams, err := paramString(params)
-
+	getProductsUrl, err := urlWithQueryParams(client.constructURL("/catalog/products"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-
-	getProductsUrl := client.BaseURL().JoinPath("/catalog/products").String() + queryParams
-
 	resp, err := client.Get(getProductsUrl)
 	if err != nil {
 		return response.Data, response.Meta, err
@@ -117,14 +114,9 @@ func (client *Client) UpdateProduct(productId int, params CreateUpdateProductPar
 	}
 	var response ResponseObject
 
-	updateProductPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productId)).String()
+	updateProductPath := client.constructURL("/catalog/products", strconv.Itoa(productId))
 
-	payloadBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
-
-	resp, err := client.Put(updateProductPath, payloadBytes)
+	resp, err := client.Put(updateProductPath, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -156,14 +148,9 @@ func (client *Client) CreateProduct(params CreateUpdateProductParams) (Product, 
 		return response.Data, fmt.Errorf("failed check of name, type and weight")
 	}
 
-	createProductPath := client.BaseURL().JoinPath("/catalog/products").String()
+	createProductPath := client.constructURL("/catalog/products")
 
-	payloadBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, nil
-	}
-
-	resp, err := client.Post(createProductPath, payloadBytes)
+	resp, err := client.Post(createProductPath, params)
 	if err != nil {
 		return response.Data, nil
 	}
@@ -185,7 +172,7 @@ func (client *Client) CreateProduct(params CreateUpdateProductParams) (Product, 
 }
 
 func (client *Client) DeleteProduct(productID int) error {
-	path := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID)).String()
+	path := client.constructURL("/catalog/products", strconv.Itoa(productID))
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err

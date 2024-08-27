@@ -2,7 +2,7 @@ package bigcommerce
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 type ProductVideo struct {
@@ -23,12 +23,10 @@ func (client *Client) GetAllProductVideos(productID int, params GetAllProductVid
 	}
 	var response ResponseObject
 
-	queryParams, err := paramString(params)
+	getProductVideosPath, err := urlWithQueryParams(client.constructURL("/catalog/products/", strconv.Itoa(productID), "/videos"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-
-	getProductVideosPath := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(productID), "/videos").String() + queryParams
 
 	resp, err := client.Get(getProductVideosPath)
 	if err != nil {
@@ -48,10 +46,11 @@ func (client *Client) GetAllProductVideos(productID int, params GetAllProductVid
 
 	return response.Data, response.Meta, nil
 }
-func (client *Client) CreateProductVideo() {}
+
+/*func (client *Client) CreateProductVideo() {}
 func (client *Client) GetProductVideo()    {}
 func (client *Client) UpdateProductVideo() {}
-func (client *Client) DeleteProductVideo() {}
+func (client *Client) DeleteProductVideo() {}*/
 
 type GetAllProductVideosQueryParams struct {
 	IncludeFields string `url:"include_fields,omitempty"`

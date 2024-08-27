@@ -2,6 +2,7 @@ package bigcommerce
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -53,6 +54,7 @@ func NewClient(storeHash string, authToken string, version int, config *RateLimi
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	client.baseURL = url
 	client.authToken = authToken
 	client.storeHash = storeHash
@@ -157,20 +159,32 @@ func (c *Client) Request(httpMethod string, relativeUrl string, payload []byte, 
 	return resp, nil
 }
 
-func (client *Client) Get(url string) (*http.Response, error) {
-	return client.Request("GET", url, nil, 0)
+func (client *Client) Get(url *url.URL) (*http.Response, error) {
+	return client.Request("GET", url.String(), nil, 0)
 }
 
-func (client *Client) Put(url string, payload []byte) (*http.Response, error) {
-	return client.Request("PUT", url, payload, 0)
+func (client *Client) Put(url *url.URL, params interface{}) (*http.Response, error) {
+
+	payload, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return client.Request("PUT", url.String(), payload, 0)
 }
 
-func (client *Client) Post(url string, payload []byte) (*http.Response, error) {
-	return client.Request("POST", url, payload, 0)
+func (client *Client) Post(url *url.URL, params interface{}) (*http.Response, error) {
+
+	payload, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return client.Request("POST", url.String(), payload, 0)
 }
 
-func (client *Client) Delete(url string) (*http.Response, error) {
-	return client.Request("DELETE", url, nil, 0)
+func (client *Client) Delete(url *url.URL) (*http.Response, error) {
+	return client.Request("DELETE", url.String(), nil, 0)
 }
 
 // Helper functions

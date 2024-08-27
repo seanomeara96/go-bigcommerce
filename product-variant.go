@@ -3,6 +3,7 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 func (c *Client) GetAllVariants(queryParams AllProductVariantsQueryParams) ([]ProductVariant, error) {
@@ -34,13 +35,10 @@ func (c *Client) GetVariants(queryParams AllProductVariantsQueryParams) ([]Produ
 	}
 	var response ResponseObject
 
-	params, err := paramString(queryParams)
+	path, err := urlWithQueryParams(c.constructURL("/catalog/variants"), queryParams)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-
-	path := c.BaseURL().JoinPath("/catalog/variants").String() + params
-
 	resp, err := c.Get(path)
 	if err != nil {
 		return response.Data, response.Meta, err
@@ -66,12 +64,10 @@ func (client *Client) GetProductVariants(productID int, params ProductVariantQue
 	}
 	var response ResponseObject
 
-	queryParams, err := paramString(params)
+	getProductVariantsURL, err := urlWithQueryParams(client.constructURL("/catalog/products", strconv.Itoa(productID), "/variants"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-
-	getProductVariantsURL := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "/variants").String() + queryParams
 
 	resp, err := client.Get(getProductVariantsURL)
 	if err != nil {
@@ -97,14 +93,9 @@ func (client *Client) CreateProductVariant(productID int, params ProductVariantC
 	}
 	var response ResponseObject
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
+	createProductVariantPath := client.constructURL("/catalog/products", fmt.Sprint(productID), "variants")
 
-	createProductVariantPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "variants").String()
-
-	resp, err := client.Post(createProductVariantPath, paramBytes)
+	resp, err := client.Post(createProductVariantPath, params)
 	if err != nil {
 		return response.Data, err
 	}

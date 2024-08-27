@@ -3,7 +3,7 @@ package bigcommerce
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"strconv"
 )
 
 type ProductVariantOption struct {
@@ -138,7 +138,7 @@ func (client *Client) GetProductVariantOptions(product_id int) ([]ProductVariant
 		Meta MetaData               `json:"meta"`
 	}
 	var response ResponseObject
-	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options").String()
+	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options")
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -170,14 +170,9 @@ func (client *Client) CreateProductVariantOption(product_id int, params CreateUp
 		return response.Data, err
 	}
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
+	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options")
 
-	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options").String()
-
-	resp, err := client.Post(path, paramBytes)
+	resp, err := client.Post(path, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -201,7 +196,7 @@ func (client *Client) GetProductVariantOption(product_id, option_id int) (Produc
 		Meta MetaData             `json:"meta"`
 	}
 	var response ResponseObject
-	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
+	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options", strconv.Itoa(option_id))
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -233,13 +228,9 @@ func (client *Client) UpdateProductVariantOption(product_id, option_id int, para
 		return response.Data, err
 	}
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
-	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
+	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options", strconv.Itoa(option_id))
 
-	resp, err := client.Put(path, paramBytes)
+	resp, err := client.Put(path, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -257,7 +248,7 @@ func (client *Client) UpdateProductVariantOption(product_id, option_id int, para
 	return response.Data, nil
 }
 func (client *Client) DeleteProductVariantOption(product_id, option_id int) error {
-	path := client.BaseURL().JoinPath("/catalog/products/", fmt.Sprint(product_id), "/options", fmt.Sprint(option_id)).String()
+	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options", strconv.Itoa(option_id))
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err

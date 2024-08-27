@@ -2,7 +2,7 @@ package bigcommerce
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 type Page struct {
@@ -39,12 +39,10 @@ func (client *Client) GetPages(queryParams GetPagesParams) ([]Page, MetaData, er
 	}
 	var response ResponseObject
 
-	queryString, err := paramString(queryParams)
+	path, err := urlWithQueryParams(client.constructURL("/content/pages"), queryParams)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-
-	path := client.BaseURL().JoinPath("/content/pages").String() + queryString
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -72,14 +70,9 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 	}
 	var response ResponseObject
 
-	path := client.BaseURL().JoinPath("/content/pages").String()
+	path := client.constructURL("/content/pages")
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
-
-	resp, err := client.Post(path, paramBytes)
+	resp, err := client.Post(path, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -103,7 +96,7 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 }
 
 func (client *Client) DeletePage(pageID int) error {
-	path := client.BaseURL().JoinPath("/content/pages", fmt.Sprint(pageID)).String()
+	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err
@@ -122,7 +115,7 @@ func (client *Client) GetPage(pageID int) (Page, error) {
 	}
 	var response ResponseObject
 
-	path := client.BaseURL().JoinPath("/content/pages", fmt.Sprint(pageID)).String()
+	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
 
 	resp, err := client.Get(path)
 	if err != nil {
@@ -150,14 +143,9 @@ func (client *Client) UpdatePage(pageID int, params UpdatePageParams) (Page, err
 	}
 	var response ResponseObject
 
-	path := client.BaseURL().JoinPath("/content/pages", fmt.Sprint(pageID)).String()
+	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
-
-	resp, err := client.Put(path, paramBytes)
+	resp, err := client.Put(path, params)
 	if err != nil {
 		return response.Data, err
 	}

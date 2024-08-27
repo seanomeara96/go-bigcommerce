@@ -3,6 +3,7 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 // SortField represents a field that can be used to sort orders
@@ -193,7 +194,7 @@ func (client *Client) GetOrder(orderID int) (Order, error) {
 		return Order{}, nil
 	}
 
-	getOrderURL := client.BaseURL().JoinPath("/storefront/orders", fmt.Sprint(orderID)).String()
+	getOrderURL := client.constructURL("storefront", "orders", strconv.Itoa(orderID))
 
 	resp, err := client.Get(getOrderURL)
 	if err != nil {
@@ -220,12 +221,10 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 		return response.Data, response.Meta, err
 	}
 
-	queryParams, err := paramString(params)
+	getOrdersURL, err := urlWithQueryParams(client.constructURL("/orders"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-
-	getOrdersURL := client.BaseURL().JoinPath("/orders").String() + queryParams
 
 	resp, err := client.Get(getOrdersURL)
 	if err != nil {

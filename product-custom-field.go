@@ -3,6 +3,7 @@ package bigcommerce
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type ProductCustomField struct {
@@ -18,13 +19,10 @@ func (client *Client) GetCustomFields(productID int, params ProductCustomFieldsR
 	}
 	var response ResponseObject
 	// /catalog/products/{product_id}/custom-fields
-	queryString, err := paramString(params)
+	getCustomFieldPath, err := urlWithQueryParams(client.constructURL("/catalog/products", strconv.Itoa(productID), "/custom-fields"), params)
 	if err != nil {
 		return response.Data, err
 	}
-
-	getCustomFieldPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "/custom-fields").String() + queryString
-
 	resp, err := client.Get(getCustomFieldPath)
 	if err != nil {
 		return response.Data, err
@@ -54,14 +52,9 @@ func (client *Client) CreateCustomField(productID int, params CreateCustomFieldP
 		return response.Data, fmt.Errorf("check params, no empty values allowed name: %s, value: %s", params.Name, params.Value)
 	}
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
+	createCustomFieldpath := client.constructURL("catalog", "products", strconv.Itoa(productID), "custom-fields")
 
-	createCustomFieldpath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "/custom-fields").String()
-
-	resp, err := client.Post(createCustomFieldpath, paramBytes)
+	resp, err := client.Post(createCustomFieldpath, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -86,7 +79,7 @@ func (client *Client) GetCustomField(productID int, customFieldID int) (ProductC
 	}
 	var response ResponseObject
 	// /catalog/products/{product_id}/custom-fields/{custom_field_id}
-	getCustomFieldPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
+	getCustomFieldPath := client.constructURL("catalog", "products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
 
 	resp, err := client.Get(getCustomFieldPath)
 	if err != nil {
@@ -113,14 +106,9 @@ func (client *Client) UpdateCustomField(productID int, customFieldID int, params
 	}
 	var response ResponseObject
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
+	updateCustomFieldPath := client.constructURL("/catalog/products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
 
-	updateCustomFieldPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
-
-	resp, err := client.Put(updateCustomFieldPath, paramBytes)
+	resp, err := client.Put(updateCustomFieldPath, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -140,7 +128,7 @@ func (client *Client) UpdateCustomField(productID int, customFieldID int, params
 
 }
 func (client *Client) DeleteCustomField(productID int, customFieldID int) error {
-	deleteCustomFieldPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "custom-fields", fmt.Sprint(customFieldID)).String()
+	deleteCustomFieldPath := client.constructURL("/catalog/products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
 	resp, err := client.Delete(deleteCustomFieldPath)
 	if err != nil {
 		return err

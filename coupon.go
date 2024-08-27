@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 )
 
 type CouponQueryParams struct {
@@ -120,7 +121,7 @@ func (client *Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, err
 	if err != nil {
 		return response.Data, err
 	}
-	path := client.BaseURL().JoinPath("coupons").String()
+	path := client.constructURL("coupons")
 	resp, err := client.Post(path, paramBytes)
 	if err != nil {
 		return response.Data, err
@@ -146,12 +147,9 @@ func (client *Client) UpdateCoupon(couponID int, params CreateUpdateCouponParams
 	if err != nil {
 		return response.Data, err
 	}
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
-	path := client.BaseURL().JoinPath("coupons", fmt.Sprint(couponID)).String()
-	resp, err := client.Put(path, paramBytes)
+
+	path := client.constructURL("coupons", strconv.Itoa(couponID))
+	resp, err := client.Put(path, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -173,11 +171,12 @@ func (client *Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, 
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-	queryParams, err := paramString(params)
+
+	path, err := urlWithQueryParams(client.constructURL("coupons"), params)
 	if err != nil {
 		return response.Data, response.Meta, err
 	}
-	path := client.BaseURL().JoinPath("coupons").String() + queryParams
+
 	resp, err := client.Get(path)
 	if err != nil {
 		return response.Data, response.Meta, err
@@ -200,7 +199,7 @@ func (client *Client) GetCoupon(couponID int) (Coupon, error) {
 	if err != nil {
 		return response.Data, err
 	}
-	path := client.BaseURL().JoinPath("coupons", fmt.Sprint(couponID)).String()
+	path := client.constructURL("coupons", fmt.Sprint(couponID))
 	resp, err := client.Get(path)
 	if err != nil {
 		return response.Data, err
@@ -217,12 +216,14 @@ func (client *Client) GetCoupon(couponID int) (Coupon, error) {
 	return response.Data, nil
 }
 func (client *Client) DeleteCoupon(couponID int) error {
-	path := client.BaseURL().JoinPath("coupons", fmt.Sprint(couponID)).String()
+	path := client.constructURL("coupons", fmt.Sprint(couponID))
+
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
+
 	err = expectStatusCode(204, resp)
 	if err != nil {
 		return err

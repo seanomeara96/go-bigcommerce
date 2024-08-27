@@ -2,7 +2,7 @@ package bigcommerce
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 type ProductImage struct {
@@ -27,7 +27,7 @@ func (client *Client) GetAllProductImages(productID int) ([]ProductImage, error)
 	}
 	var response ResponseObject
 
-	getAllImagesPath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "images").String()
+	getAllImagesPath := client.constructURL("/catalog/products", strconv.Itoa(productID), "images")
 
 	resp, err := client.Get(getAllImagesPath)
 	if err != nil {
@@ -52,7 +52,7 @@ func (client *Client) GetProductImage(productID int, imageID int) (ProductImage,
 	}
 	var response ResponseObject
 
-	getProductImagePath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "images", fmt.Sprint(imageID)).String()
+	getProductImagePath := client.constructURL("/catalog/products", strconv.Itoa(productID), "images", strconv.Itoa(imageID))
 
 	resp, err := client.Get(getProductImagePath)
 	if err != nil {
@@ -77,7 +77,7 @@ func (client *Client) CreateProductImage(productID int, params CreateProductImag
 	}
 	var response ResponseObject
 	// POST /catalog/products/{product_id}/images
-	createProductImagePath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "images").String()
+	createProductImagePath := client.constructURL("catalog", "products", strconv.Itoa(productID), "images")
 
 	paramBytes, err := json.Marshal(params)
 	if err != nil {
@@ -109,14 +109,9 @@ func (client *Client) UpdateProductImage(productID int, imageID int, params Upda
 	}
 	var response ResponseObject
 	// PUT /catalog/products/{product_id}/images/{image_id}
-	updateProductImagePath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "images", fmt.Sprint(imageID)).String()
+	updateProductImagePath := client.constructURL("catalog", "products", strconv.Itoa(productID), "images", strconv.Itoa(imageID))
 
-	paramBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
-
-	resp, err := client.Put(updateProductImagePath, paramBytes)
+	resp, err := client.Put(updateProductImagePath, params)
 	if err != nil {
 		return response.Data, err
 	}
@@ -138,7 +133,7 @@ func (client *Client) UpdateProductImage(productID int, imageID int, params Upda
 
 }
 func (client *Client) DeleteProductImage(productID int, imageID int) (bool, error) {
-	deleteProductImagePath := client.BaseURL().JoinPath("/catalog/products", fmt.Sprint(productID), "images", fmt.Sprint(imageID)).String()
+	deleteProductImagePath := client.constructURL("catalog", "products", strconv.Itoa(productID), "images", strconv.Itoa(imageID))
 
 	resp, err := client.Delete(deleteProductImagePath)
 	if err != nil {

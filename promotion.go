@@ -89,7 +89,7 @@ func (c *Client) GetPromotion(id int) (Promotion, error) {
 		Meta MetaData  `json:"meta"`
 	}
 	var response Response
-	path := c.BaseURL().JoinPath("/promotions/" + strconv.Itoa(id)).String()
+	path := c.constructURL("promotions", strconv.Itoa(id))
 	resp, err := c.Get(path)
 	if err != nil {
 		return response.Data, err
@@ -185,13 +185,9 @@ func (c *Client) UpdatePromotion(id int, params PromotionUpdateParams) (Promotio
 	}
 	var response Response
 
-	path := c.BaseURL().JoinPath("/promotions/" + strconv.Itoa(id)).String()
-	payloadBytes, err := json.Marshal(params)
-	if err != nil {
-		return response.Data, err
-	}
+	path := c.constructURL("promotions", strconv.Itoa(id))
 
-	resp, err := c.Put(path, payloadBytes)
+	resp, err := c.Put(path, params)
 	if err != nil {
 		return response.Data, err
 	}

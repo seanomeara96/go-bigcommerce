@@ -34,7 +34,7 @@ func (client *Client) GetAllRedirects(params RedirectQueryParams) ([]Redirect, e
 	for {
 		res, err := client.GetRedirects(params)
 		if err != nil {
-			return []Redirect{}, err
+			return nil, err
 		}
 		if len(res) < params.Limit {
 			return redirects, nil
@@ -53,12 +53,10 @@ func (client *Client) GetRedirects(params RedirectQueryParams) ([]Redirect, erro
 	}
 	var response ResponseObject
 
-	queryParams, err := paramString(params)
+	getRedirectsURL, err := urlWithQueryParams(client.constructURL("/storefront/redirects"), params)
 	if err != nil {
 		return response.Data, err
 	}
-
-	getRedirectsURL := client.BaseURL().JoinPath("/storefront/redirects").String() + queryParams
 
 	resp, err := client.Get(getRedirectsURL)
 	if err != nil {
@@ -143,14 +141,9 @@ func (client *Client) UpsertRedirects(redirects []RedirectUpsert) ([]Redirect, e
 		}
 	}
 
-	paramBytes, err := json.Marshal(redirects)
-	if err != nil {
-		return response.Data, err
-	}
+	path := client.constructURL("/storefront/redirects")
 
-	path := client.BaseURL().JoinPath("/storefront/redirects").String()
-
-	resp, err := client.Put(path, paramBytes)
+	resp, err := client.Put(path, redirects)
 	if err != nil {
 		return response.Data, err
 	}
@@ -175,11 +168,10 @@ type DeleteRedirectsParams struct {
 }
 
 func (client *Client) DeleteRedirect(params DeleteRedirectsParams) error {
-	queryParams, err := paramString(params)
+	path, err := urlWithQueryParams(client.constructURL("/storefront/redirects"), params)
 	if err != nil {
 		return err
 	}
-	path := client.BaseURL().JoinPath("/storefront/redirects").String() + queryParams
 	resp, err := client.Delete(path)
 	if err != nil {
 		return err

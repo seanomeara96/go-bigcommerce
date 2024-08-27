@@ -26,7 +26,7 @@ func (client *Client) GetOrderStatuses() ([]OrderStatus, error) {
 		return []OrderStatus{}, nil
 	}
 
-	path := client.BaseURL().JoinPath("/order_statuses").String()
+	path := client.constructURL("/order_statuses")
 
 	resp, err := client.Get(path)
 	if err != nil {
