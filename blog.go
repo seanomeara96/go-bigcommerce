@@ -41,7 +41,7 @@ type Date struct {
 	Timezone     string `json:"timezone"`
 }
 
-func (client *V3Client) GetBlog(id int) (Blog, error) {
+func (client *V2Client) GetBlog(id int) (Blog, error) {
 	type ResponseObject struct {
 		Data Blog     `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -58,7 +58,7 @@ func (client *V3Client) GetBlog(id int) (Blog, error) {
 	return response.Data, nil
 }
 
-func (client *V3Client) UpdateBlog(blogId int, params UpdateBlogParams) (Blog, error) {
+func (client *V2Client) UpdateBlog(blogId int, params UpdateBlogParams) (Blog, error) {
 	type ResponseObject struct {
 		Data Blog     `json:"data"`
 		Meta MetaData `json:"meta"`
