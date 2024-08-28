@@ -219,7 +219,7 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 		return response.Data, response.Meta, err
 	}
 
-	if err := client.Get(getOrdersURL, &response); err != nil {
+	if err := client.Get(getOrdersURL, &response.Data); err != nil {
 		return response.Data, response.Meta, err
 	}
 
