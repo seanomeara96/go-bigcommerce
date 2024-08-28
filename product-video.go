@@ -15,7 +15,7 @@ type ProductVideo struct {
 	Length      string `json:"length"`
 }
 
-func (client *Client) GetAllProductVideos(productID int, params GetAllProductVideosQueryParams) ([]ProductVideo, MetaData, error) {
+func (client *V3Client) GetAllProductVideos(productID int, params GetAllProductVideosQueryParams) ([]ProductVideo, MetaData, error) {
 	type ResponseObject struct {
 		Data []ProductVideo `json:"data"`
 		Meta MetaData       `json:"meta"`

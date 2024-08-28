@@ -20,7 +20,7 @@ type ProductImage struct {
 	DateModified string `json:"date_modified"`
 }
 
-func (client *Client) GetAllProductImages(productID int) ([]ProductImage, error) {
+func (client *V3Client) GetAllProductImages(productID int) ([]ProductImage, error) {
 	type ResponseObject struct {
 		Data []ProductImage `json:"data"`
 		Meta MetaData       `json:"meta"`
@@ -37,7 +37,7 @@ func (client *Client) GetAllProductImages(productID int) ([]ProductImage, error)
 	return response.Data, nil
 }
 
-func (client *Client) GetProductImage(productID int, imageID int) (ProductImage, error) {
+func (client *V3Client) GetProductImage(productID int, imageID int) (ProductImage, error) {
 	type ResponseObject struct {
 		Data ProductImage `json:"data"`
 		Meta MetaData     `json:"meta"`
@@ -54,7 +54,7 @@ func (client *Client) GetProductImage(productID int, imageID int) (ProductImage,
 	return response.Data, nil
 }
 
-func (client *Client) CreateProductImage(productID int, params CreateProductImageParams) (ProductImage, error) {
+func (client *V3Client) CreateProductImage(productID int, params CreateProductImageParams) (ProductImage, error) {
 	type ResponseObject struct {
 		Data ProductImage `json:"data"`
 		Meta MetaData     `json:"meta"`
@@ -72,7 +72,7 @@ func (client *Client) CreateProductImage(productID int, params CreateProductImag
 
 }
 
-func (client *Client) UpdateProductImage(productID int, imageID int, params UpdateProductImageParams) (ProductImage, error) {
+func (client *V3Client) UpdateProductImage(productID int, imageID int, params UpdateProductImageParams) (ProductImage, error) {
 	type ResponseObject struct {
 		Data ProductImage `json:"data"`
 		Meta MetaData     `json:"meta"`
@@ -90,7 +90,7 @@ func (client *Client) UpdateProductImage(productID int, imageID int, params Upda
 
 }
 
-func (client *Client) DeleteProductImage(productID int, imageID int) (bool, error) {
+func (client *V3Client) DeleteProductImage(productID int, imageID int) (bool, error) {
 	deleteProductImagePath := client.constructURL("catalog", "products", strconv.Itoa(productID), "images", strconv.Itoa(imageID))
 
 	err := client.Delete(deleteProductImagePath, nil)

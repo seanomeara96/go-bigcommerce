@@ -9,7 +9,7 @@ func TestGetBrand(t *testing.T) {
 
 	brandId := 49
 
-	brand, err := fs.GetBrand(brandId)
+	brand, err := fs.V3.GetBrand(brandId)
 
 	if err != nil {
 		t.Error(err)
@@ -23,7 +23,7 @@ func TestGetBrand(t *testing.T) {
 func TestGetBrands(t *testing.T) {
 	fs, _ := getClient()
 
-	brands, _, err := fs.GetBrands(BrandQueryParams{})
+	brands, _, err := fs.V3.GetBrands(BrandQueryParams{})
 
 	if err != nil {
 		t.Error(err)

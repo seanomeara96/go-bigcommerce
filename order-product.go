@@ -93,24 +93,19 @@ type OrderProductsQueryParams struct {
 	Limit int `url:"limit,omitempty"`
 }
 
-func (client *Client) GetOrderProducts(orderID int, params OrderProductsQueryParams) ([]OrderProduct, MetaData, error) {
+func (client *V2Client) GetOrderProducts(orderID int, params OrderProductsQueryParams) ([]OrderProduct, MetaData, error) {
 	type ResponseData struct {
 		Data []OrderProduct `json:"data"`
 		Meta MetaData       `json:"meta"`
 	}
 	var response ResponseData
 
-	err := client.Version2Required()
-	if err != nil {
-		return nil, MetaData{}, fmt.Errorf("version 2 required for GetOrderProducts: %w", err)
-	}
-
 	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders", strconv.Itoa(orderID), "products"), params)
 	if err != nil {
 		return nil, MetaData{}, fmt.Errorf("failed to construct URL for GetOrderProducts (order ID: %d): %w", orderID, err)
 	}
 
-	if err := client.Get(getOrdersURL, &response); err != nil {
+	if err := client.Get(getOrdersURL, &response.Data); err != nil {
 		return nil, MetaData{}, fmt.Errorf("failed to get products for order %d: %w", orderID, err)
 	}
 

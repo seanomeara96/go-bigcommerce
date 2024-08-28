@@ -49,7 +49,7 @@ type CategoryQueryParams struct {
 	ExcludeFields   string   `url:"exclude_fields,omitempty"`
 }
 
-func (client *Client) GetCategory(id int) (Category, error) {
+func (client *V3Client) GetCategory(id int) (Category, error) {
 	var response struct {
 		Data Category `json:"data"`
 	}
@@ -62,7 +62,7 @@ func (client *Client) GetCategory(id int) (Category, error) {
 	return response.Data, nil
 }
 
-func (client *Client) GetCategories(params CategoryQueryParams) ([]Category, MetaData, error) {
+func (client *V3Client) GetCategories(params CategoryQueryParams) ([]Category, MetaData, error) {
 	var response struct {
 		Data []Category `json:"data"`
 		Meta MetaData   `json:"meta"`
@@ -80,7 +80,7 @@ func (client *Client) GetCategories(params CategoryQueryParams) ([]Category, Met
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, error) {
+func (client *V3Client) GetAllCategories(params CategoryQueryParams) ([]Category, error) {
 	var allCategories []Category
 
 	if params.Page < 1 {
@@ -108,7 +108,7 @@ func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, 
 	return allCategories, nil
 }
 
-func (client *Client) EmptyCategory(id int) error {
+func (client *V3Client) EmptyCategory(id int) error {
 	products, _, err := client.GetProducts(ProductQueryParams{CategoriesIn: []int{id}})
 	if err != nil {
 		return fmt.Errorf("failed to get products for category %d: %w", id, err)

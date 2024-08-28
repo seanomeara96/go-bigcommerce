@@ -181,17 +181,12 @@ type OrderQueryParams struct {
 	ChannelID       int      `url:"channel_id,omitempty"`
 }
 
-func (client *Client) GetOrder(orderID int) (Order, error) {
+func (client *V2Client) GetOrder(orderID int) (Order, error) {
 	type ResponseObject struct {
 		Data Order    `json:"data"`
 		Meta MetaData `json:"meta"`
 	}
 	var response ResponseObject
-
-	err := client.Version2Required()
-	if err != nil {
-		return Order{}, fmt.Errorf("API version 2 is required: %w", err)
-	}
 
 	getOrderURL := client.constructURL("storefront", "orders", strconv.Itoa(orderID))
 
@@ -202,17 +197,12 @@ func (client *Client) GetOrder(orderID int) (Order, error) {
 	return response.Data, nil
 }
 
-func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, error) {
+func (client *V2Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, error) {
 	type ResponseData struct {
 		Data []Order  `json:"data"`
 		Meta MetaData `json:"meta"`
 	}
 	var response ResponseData
-
-	err := client.Version2Required()
-	if err != nil {
-		return nil, MetaData{}, fmt.Errorf("API version 2 is required: %w", err)
-	}
 
 	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders"), params)
 	if err != nil {

@@ -34,7 +34,7 @@ func (product *Product) ToVariantCreateParamsWithOptions(parentProductID int, op
 	return createVariantParams
 }
 
-func (client *Client) ProductToProductVariant(parentProductID int, product Product, options *[]VariantOption) (ProductVariant, error) {
+func (client *V3Client) ProductToProductVariant(parentProductID int, product Product, options *[]VariantOption) (ProductVariant, error) {
 	var params ProductVariantCreateParams
 	if options != nil {
 		params = product.ToVariantCreateParamsWithOptions(parentProductID, options)

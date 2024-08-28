@@ -55,17 +55,12 @@ type ShippingAddress struct {
 	ShippingMethod         string                     `json:"shipping_method"`
 }
 
-func (client *Client) GetOrderShippingAddress(orderID int, params ShippingAddressQueryParams) ([]ShippingAddress, MetaData, error) {
+func (client *V2Client) GetOrderShippingAddress(orderID int, params ShippingAddressQueryParams) ([]ShippingAddress, MetaData, error) {
 	type ResponseData struct {
 		Data []ShippingAddress `json:"data"`
 		Meta MetaData          `json:"meta"`
 	}
 	var response ResponseData
-
-	err := client.Version2Required()
-	if err != nil {
-		return nil, MetaData{}, fmt.Errorf("version 2 required for GetOrderShippingAddress: %w", err)
-	}
 
 	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders", strconv.Itoa(orderID), "shipping_addresses"), params)
 	if err != nil {

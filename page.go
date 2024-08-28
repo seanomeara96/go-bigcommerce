@@ -32,7 +32,7 @@ type GetPagesParams struct {
 	Include   string `url:"include,omitempty"`
 }
 
-func (client *Client) GetPages(queryParams GetPagesParams) ([]Page, MetaData, error) {
+func (client *V3Client) GetPages(queryParams GetPagesParams) ([]Page, MetaData, error) {
 	type ResponseObject struct {
 		Data []Page   `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -51,7 +51,7 @@ func (client *Client) GetPages(queryParams GetPagesParams) ([]Page, MetaData, er
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
+func (client *V3Client) CreatePage(params CreatePageParams) (Page, error) {
 	type ResponseObject struct {
 		Data Page     `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -67,7 +67,7 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 	return response.Data, nil
 }
 
-func (client *Client) DeletePage(pageID int) error {
+func (client *V3Client) DeletePage(pageID int) error {
 	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
 
 	if err := client.Delete(path, nil); err != nil {
@@ -77,7 +77,7 @@ func (client *Client) DeletePage(pageID int) error {
 	return nil
 }
 
-func (client *Client) GetPage(pageID int) (Page, error) {
+func (client *V3Client) GetPage(pageID int) (Page, error) {
 	type ResponseObject struct {
 		Data Page     `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -93,7 +93,7 @@ func (client *Client) GetPage(pageID int) (Page, error) {
 	return response.Data, nil
 }
 
-func (client *Client) UpdatePage(pageID int, params UpdatePageParams) (Page, error) {
+func (client *V3Client) UpdatePage(pageID int, params UpdatePageParams) (Page, error) {
 	type ResponseObject struct {
 		Data Page     `json:"data"`
 		Meta MetaData `json:"meta"`

@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func (c *Client) GetAllVariants(queryParams AllProductVariantsQueryParams) ([]ProductVariant, error) {
+func (c *V3Client) GetAllVariants(queryParams AllProductVariantsQueryParams) ([]ProductVariant, error) {
 	page := 1
 	if queryParams.Limit == 0 {
 		queryParams.Limit = 250
@@ -27,7 +27,7 @@ func (c *Client) GetAllVariants(queryParams AllProductVariantsQueryParams) ([]Pr
 	}
 }
 
-func (c *Client) GetVariants(queryParams AllProductVariantsQueryParams) ([]ProductVariant, MetaData, error) {
+func (c *V3Client) GetVariants(queryParams AllProductVariantsQueryParams) ([]ProductVariant, MetaData, error) {
 	type ResponseObject struct {
 		Data []ProductVariant `json:"data"`
 		Meta MetaData         `json:"meta"`
@@ -46,7 +46,7 @@ func (c *Client) GetVariants(queryParams AllProductVariantsQueryParams) ([]Produ
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetProductVariants(productID int, params ProductVariantQueryParams) ([]ProductVariant, MetaData, error) {
+func (client *V3Client) GetProductVariants(productID int, params ProductVariantQueryParams) ([]ProductVariant, MetaData, error) {
 	type ResponseObject struct {
 		Data []ProductVariant `json:"data"`
 		Meta MetaData         `json:"meta"`
@@ -65,7 +65,7 @@ func (client *Client) GetProductVariants(productID int, params ProductVariantQue
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) CreateProductVariant(productID int, params ProductVariantCreateParams) (ProductVariant, error) {
+func (client *V3Client) CreateProductVariant(productID int, params ProductVariantCreateParams) (ProductVariant, error) {
 	type ResponseObject struct {
 		Data ProductVariant `json:"data"`
 		Meta MetaData       `json:"meta"`

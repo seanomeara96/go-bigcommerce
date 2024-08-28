@@ -19,7 +19,7 @@ func TestCreateCoupon(t *testing.T) {
 		},
 	}
 
-	coupon, err := client.CreateCoupon(params)
+	coupon, err := client.V2.CreateCoupon(params)
 	if err != nil {
 		t.Fatalf("Failed to create coupon: %v", err)
 	}
@@ -29,7 +29,7 @@ func TestCreateCoupon(t *testing.T) {
 	}
 
 	// Clean up
-	err = client.DeleteCoupon(coupon.ID)
+	err = client.V2.DeleteCoupon(coupon.ID)
 	if err != nil {
 		t.Fatalf("Failed to delete test coupon: %v", err)
 	}
@@ -51,7 +51,7 @@ func TestUpdateCoupon(t *testing.T) {
 		},
 	}
 
-	coupon, err := client.CreateCoupon(createParams)
+	coupon, err := client.V2.CreateCoupon(createParams)
 	if err != nil {
 		t.Fatalf("Failed to create test coupon: %v", err)
 	}
@@ -62,7 +62,7 @@ func TestUpdateCoupon(t *testing.T) {
 		Amount: "15.00",
 	}
 
-	updatedCoupon, err := client.UpdateCoupon(coupon.ID, updateParams)
+	updatedCoupon, err := client.V2.UpdateCoupon(coupon.ID, updateParams)
 	if err != nil {
 		t.Fatalf("Failed to update coupon: %v", err)
 	}
@@ -76,7 +76,7 @@ func TestUpdateCoupon(t *testing.T) {
 	}
 
 	// Clean up
-	err = client.DeleteCoupon(coupon.ID)
+	err = client.V2.DeleteCoupon(coupon.ID)
 	if err != nil {
 		t.Fatalf("Failed to delete test coupon: %v", err)
 	}
@@ -89,7 +89,7 @@ func TestGetCoupons(t *testing.T) {
 		Limit: 10,
 	}
 
-	coupons, meta, err := client.GetCoupons(params)
+	coupons, meta, err := client.V2.GetCoupons(params)
 	if err != nil {
 		t.Fatalf("Failed to get coupons: %v", err)
 	}
@@ -119,13 +119,13 @@ func TestGetCoupon(t *testing.T) {
 		},
 	}
 
-	createdCoupon, err := client.CreateCoupon(createParams)
+	createdCoupon, err := client.V2.CreateCoupon(createParams)
 	if err != nil {
 		t.Fatalf("Failed to create test coupon: %v", err)
 	}
 
 	// Get the coupon
-	coupon, err := client.GetCoupon(createdCoupon.ID)
+	coupon, err := client.V2.GetCoupon(createdCoupon.ID)
 	if err != nil {
 		t.Fatalf("Failed to get coupon: %v", err)
 	}
@@ -139,7 +139,7 @@ func TestGetCoupon(t *testing.T) {
 	}
 
 	// Clean up
-	err = client.DeleteCoupon(createdCoupon.ID)
+	err = client.V2.DeleteCoupon(createdCoupon.ID)
 	if err != nil {
 		t.Fatalf("Failed to delete test coupon: %v", err)
 	}
@@ -161,19 +161,19 @@ func TestDeleteCoupon(t *testing.T) {
 		},
 	}
 
-	coupon, err := client.CreateCoupon(createParams)
+	coupon, err := client.V2.CreateCoupon(createParams)
 	if err != nil {
 		t.Fatalf("Failed to create test coupon: %v", err)
 	}
 
 	// Delete the coupon
-	err = client.DeleteCoupon(coupon.ID)
+	err = client.V2.DeleteCoupon(coupon.ID)
 	if err != nil {
 		t.Fatalf("Failed to delete coupon: %v", err)
 	}
 
 	// Try to get the deleted coupon (should fail)
-	_, err = client.GetCoupon(coupon.ID)
+	_, err = client.V2.GetCoupon(coupon.ID)
 	if err == nil {
 		t.Errorf("Expected error when getting deleted coupon, got nil")
 	}

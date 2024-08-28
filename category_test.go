@@ -18,11 +18,11 @@ func TestGetCategory(t *testing.T) {
 	storeHash := os.Getenv("FS_STORE_HASH")
 	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
 
-	fs := NewClient(storeHash, xAuthToken, 3, nil)
+	fs := NewClient(storeHash, xAuthToken, nil)
 
 	categoryIdDoesNotExist := 11
 
-	_, err = fs.GetCategory(categoryIdDoesNotExist)
+	_, err = fs.V3.GetCategory(categoryIdDoesNotExist)
 
 	if err == nil {
 		t.Error("Expected Error")
@@ -30,7 +30,7 @@ func TestGetCategory(t *testing.T) {
 
 	categoryIdDoesExist := 27
 
-	category, err := fs.GetCategory(categoryIdDoesExist)
+	category, err := fs.V3.GetCategory(categoryIdDoesExist)
 
 	if err != nil {
 		t.Error(err)
@@ -53,9 +53,9 @@ func TestGetCategories(t *testing.T) {
 	storeHash := os.Getenv("FS_STORE_HASH")
 	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
 
-	fs := NewClient(storeHash, xAuthToken, 3, nil)
+	fs := NewClient(storeHash, xAuthToken, nil)
 
-	categories, _, err := fs.GetCategories(CategoryQueryParams{})
+	categories, _, err := fs.V3.GetCategories(CategoryQueryParams{})
 
 	if err != nil {
 		t.Error(err)
@@ -69,7 +69,7 @@ func TestGetCategories(t *testing.T) {
 func TestGetAllCategories(t *testing.T) {
 
 	fs, _ := getClient()
-	categories, err := fs.GetAllCategories(CategoryQueryParams{})
+	categories, err := fs.V3.GetAllCategories(CategoryQueryParams{})
 	if err != nil {
 		t.Error(err)
 		return
@@ -85,7 +85,7 @@ func TestEmptyCategory(t *testing.T) {
 
 	fs, _ := getClient()
 
-	products, err := fs.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
+	products, err := fs.V3.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
 	if err != nil {
 		return
 	}
@@ -97,13 +97,13 @@ func TestEmptyCategory(t *testing.T) {
 		return
 	}
 
-	err = fs.EmptyCategory(24)
+	err = fs.V3.EmptyCategory(24)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	products, err = fs.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
+	products, err = fs.V3.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
 	if err != nil {
 		return
 	}
@@ -126,7 +126,7 @@ func TestEmptyCategory(t *testing.T) {
 			return
 		}
 
-		_, err = fs.UpdateProduct(product.ID, CreateUpdateProductParams{
+		_, err = fs.V3.UpdateProduct(product.ID, CreateUpdateProductParams{
 			Categories: newCategories,
 		})
 		if err != nil {

@@ -1,9 +1,5 @@
 package bigcommerce
 
-import (
-	"fmt"
-)
-
 type CustomURL struct {
 	URL          string `json:"url,omitempty"`
 	IsCustomized bool   `json:"is_customized,omitempty"`
@@ -31,11 +27,4 @@ type ErrorPayload struct {
 	Title    string `json:"title"`
 	Type     string `json:"type"`
 	Instance string `json:"instance"`
-}
-
-func (client *Client) Version2Required() error {
-	if client.Version() != 2 {
-		return fmt.Errorf("need to be using version 2 api for this function")
-	}
-	return nil
 }

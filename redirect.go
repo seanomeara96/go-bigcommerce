@@ -26,7 +26,7 @@ type RedirectToObject struct {
 	URL      string `json:"url"`
 }
 
-func (client *Client) GetAllRedirects(params RedirectQueryParams) ([]Redirect, error) {
+func (client *V3Client) GetAllRedirects(params RedirectQueryParams) ([]Redirect, error) {
 	redirects := []Redirect{}
 	params.Page = 1
 	params.Limit = 250
@@ -45,7 +45,7 @@ func (client *Client) GetAllRedirects(params RedirectQueryParams) ([]Redirect, e
 	}
 }
 
-func (client *Client) GetRedirects(params RedirectQueryParams) ([]Redirect, error) {
+func (client *V3Client) GetRedirects(params RedirectQueryParams) ([]Redirect, error) {
 	type ResponseObject struct {
 		Data []Redirect `json:"data"`
 		Meta MetaData   `json:"meta"`
@@ -116,7 +116,7 @@ type RedirectTarget struct {
 	URL      string `json:"url"`
 }
 
-func (client *Client) UpsertRedirects(redirects []RedirectUpsert) ([]Redirect, error) {
+func (client *V3Client) UpsertRedirects(redirects []RedirectUpsert) ([]Redirect, error) {
 	type ResponseObject struct {
 		Data []Redirect `json:"data"`
 		Meta MetaData   `json:"meta"`
@@ -145,7 +145,7 @@ type DeleteRedirectsParams struct {
 	SiteID int   `url:"site_id,omitempty"`
 }
 
-func (client *Client) DeleteRedirect(params DeleteRedirectsParams) error {
+func (client *V3Client) DeleteRedirect(params DeleteRedirectsParams) error {
 	path, err := urlWithQueryParams(client.constructURL("/storefront/redirects"), params)
 	if err != nil {
 		return err

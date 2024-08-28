@@ -82,7 +82,7 @@ type PromotionCustomer struct {
 	ExcludedGroupIDs  []int `json:"excluded_group_ids"`
 }
 
-func (c *Client) GetPromotion(id int) (Promotion, error) {
+func (c *V3Client) GetPromotion(id int) (Promotion, error) {
 	type Response struct {
 		Data Promotion `json:"data"`
 		Meta MetaData  `json:"meta"`
@@ -178,7 +178,7 @@ type ScheduleParams struct {
 	DailyEndTime   string   `json:"daily_end_time,omitempty" url:"daily_end_time,omitempty"`
 }
 
-func (c *Client) UpdatePromotion(id int, params PromotionUpdateParams) (Promotion, error) {
+func (c *V3Client) UpdatePromotion(id int, params PromotionUpdateParams) (Promotion, error) {
 	type Response struct {
 		Data Promotion `json:"data"`
 		Meta MetaData  `json:"meta"`

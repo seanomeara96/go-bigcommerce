@@ -90,18 +90,14 @@ func validateBannerParams(params CreateUpdateBannerParams) error {
 	return nil
 }
 
-func (client *Client) CreateBanner(params CreateUpdateBannerParams) (Banner, error) {
+func (client *V2Client) CreateBanner(params CreateUpdateBannerParams) (Banner, error) {
 	type ResponseObject struct {
 		Data Banner   `json:"data"`
 		Meta MetaData `json:"meta"`
 	}
 	var response ResponseObject
-	err := client.Version2Required()
-	if err != nil {
-		return response.Data, fmt.Errorf("CreateBanner: version 2 API required: %w", err)
-	}
 
-	err = validateBannerParams(params)
+	err := validateBannerParams(params)
 	if err != nil {
 		return response.Data, fmt.Errorf("CreateBanner: invalid parameters: %w", err)
 	}
@@ -116,16 +112,12 @@ func (client *Client) CreateBanner(params CreateUpdateBannerParams) (Banner, err
 	return response.Data, nil
 }
 
-func (client *Client) UpdateBanner(bannerID int, params CreateUpdateBannerParams) (Banner, error) {
+func (client *V2Client) UpdateBanner(bannerID int, params CreateUpdateBannerParams) (Banner, error) {
 	type ResponseObject struct {
 		Data Banner   `json:"data"`
 		Meta MetaData `json:"meta"`
 	}
 	var response ResponseObject
-
-	if err := client.Version2Required(); err != nil {
-		return response.Data, fmt.Errorf("UpdateClient: version 2 API required: %w", err)
-	}
 
 	if err := validateBannerParams(params); err != nil {
 		return response.Data, fmt.Errorf("UpdateClient: invalid parameters: %w", err)
@@ -140,17 +132,12 @@ func (client *Client) UpdateBanner(bannerID int, params CreateUpdateBannerParams
 	return response.Data, nil
 }
 
-func (client *Client) GetBanners(params GetBannersParams) ([]Banner, MetaData, error) {
+func (client *V2Client) GetBanners(params GetBannersParams) ([]Banner, MetaData, error) {
 	type ResponseObject struct {
 		Data []Banner `json:"data"`
 		Meta MetaData `json:"meta"`
 	}
 	var response ResponseObject
-
-	err := client.Version2Required()
-	if err != nil {
-		return response.Data, response.Meta, fmt.Errorf("GetBanners: version 2 API required: %w", err)
-	}
 
 	path, err := urlWithQueryParams(client.constructURL("banners"), params)
 	if err != nil {
@@ -164,17 +151,12 @@ func (client *Client) GetBanners(params GetBannersParams) ([]Banner, MetaData, e
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetBanner(bannerID int) (Banner, error) {
+func (client *V2Client) GetBanner(bannerID int) (Banner, error) {
 	type ResponseObject struct {
 		Data Banner   `json:"data"`
 		Meta MetaData `json:"meta"`
 	}
 	var response ResponseObject
-
-	err := client.Version2Required()
-	if err != nil {
-		return response.Data, fmt.Errorf("GetBanner: version 2 API required: %w", err)
-	}
 
 	path := client.constructURL("banners", strconv.Itoa(bannerID))
 
@@ -185,11 +167,8 @@ func (client *Client) GetBanner(bannerID int) (Banner, error) {
 	return response.Data, nil
 }
 
-func (client *Client) DeleteBanner(bannerID int) error {
-	err := client.Version2Required()
-	if err != nil {
-		return fmt.Errorf("DeleteBanner: version 2 API required: %w", err)
-	}
+func (client *V2Client) DeleteBanner(bannerID int) error {
+
 	path := client.constructURL("banners", strconv.Itoa(bannerID))
 	if err := client.Delete(path, nil); err != nil {
 		return fmt.Errorf("DeleteBanner: failed to delete banner %d: %w", bannerID, err)

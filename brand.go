@@ -31,7 +31,7 @@ type BrandQueryParams struct {
 	ExcludeFields string `url:"exclude_fields,omitempty"`
 }
 
-func (client *Client) GetBrand(id int) (Brand, error) {
+func (client *V3Client) GetBrand(id int) (Brand, error) {
 	type ResponseObject struct {
 		Data Brand    `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -48,7 +48,7 @@ func (client *Client) GetBrand(id int) (Brand, error) {
 	return response.Data, nil
 }
 
-func (client *Client) GetBrands(params BrandQueryParams) ([]Brand, MetaData, error) {
+func (client *V3Client) GetBrands(params BrandQueryParams) ([]Brand, MetaData, error) {
 	type ResponseObject struct {
 		Data []Brand  `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -67,7 +67,7 @@ func (client *Client) GetBrands(params BrandQueryParams) ([]Brand, MetaData, err
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetAllBrands(params BrandQueryParams) ([]Brand, error) {
+func (client *V3Client) GetAllBrands(params BrandQueryParams) ([]Brand, error) {
 	var brands []Brand
 	params.Page = 1
 	params.Limit = 250

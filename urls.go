@@ -16,7 +16,7 @@ func urlWithQueryParams(u *url.URL, params interface{}) (*url.URL, error) {
 	return u, nil
 }
 
-func (c *Client) constructURL(pathComponents ...string) *url.URL {
+func (c *BaseVersionClient) constructURL(pathComponents ...string) *url.URL {
 	u := c.BaseURL().JoinPath(pathComponents...)
 	return u
 }

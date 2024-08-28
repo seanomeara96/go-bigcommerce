@@ -132,7 +132,7 @@ func containsValidOptionType(slice [6]string, value string) bool {
 	return false
 }
 
-func (client *Client) GetProductVariantOptions(product_id int) ([]ProductVariantOption, error) {
+func (client *V3Client) GetProductVariantOptions(product_id int) ([]ProductVariantOption, error) {
 	type ResponseObject struct {
 		Data []ProductVariantOption `json:"data"`
 		Meta MetaData               `json:"meta"`
@@ -147,7 +147,7 @@ func (client *Client) GetProductVariantOptions(product_id int) ([]ProductVariant
 
 	return response.Data, nil
 }
-func (client *Client) CreateProductVariantOption(product_id int, params CreateUpdateProductVariantOptions) (ProductVariantOption, error) {
+func (client *V3Client) CreateProductVariantOption(product_id int, params CreateUpdateProductVariantOptions) (ProductVariantOption, error) {
 	type ResponseObject struct {
 		Data ProductVariantOption `json:"data"`
 		Meta MetaData             `json:"meta"`
@@ -167,7 +167,7 @@ func (client *Client) CreateProductVariantOption(product_id int, params CreateUp
 
 	return response.Data, nil
 }
-func (client *Client) GetProductVariantOption(product_id, option_id int) (ProductVariantOption, error) {
+func (client *V3Client) GetProductVariantOption(product_id, option_id int) (ProductVariantOption, error) {
 	type ResponseObject struct {
 		Data ProductVariantOption `json:"data"`
 		Meta MetaData             `json:"meta"`
@@ -182,7 +182,7 @@ func (client *Client) GetProductVariantOption(product_id, option_id int) (Produc
 
 	return response.Data, nil
 }
-func (client *Client) UpdateProductVariantOption(product_id, option_id int, params CreateUpdateProductVariantOptions) (ProductVariantOption, error) {
+func (client *V3Client) UpdateProductVariantOption(product_id, option_id int, params CreateUpdateProductVariantOptions) (ProductVariantOption, error) {
 	type ResponseObject struct {
 		Data ProductVariantOption `json:"data"`
 		Meta MetaData             `json:"meta"`
@@ -202,7 +202,7 @@ func (client *Client) UpdateProductVariantOption(product_id, option_id int, para
 
 	return response.Data, nil
 }
-func (client *Client) DeleteProductVariantOption(product_id, option_id int) error {
+func (client *V3Client) DeleteProductVariantOption(product_id, option_id int) error {
 	path := client.constructURL("catalog", "products", strconv.Itoa(product_id), "options", strconv.Itoa(option_id))
 	err := client.Delete(path, nil)
 	if err != nil {

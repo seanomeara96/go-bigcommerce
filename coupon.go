@@ -103,14 +103,10 @@ func validateCreateUpdateCoupon(coupon CreateUpdateCouponParams) error {
 	return nil
 }
 
-func (client *Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, error) {
+func (client *V2Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, error) {
 	var response CouponResponseObject
-	err := client.Version2Required()
-	if err != nil {
-		return response.Data, fmt.Errorf("version 2 required: %w", err)
-	}
 
-	err = validateCreateUpdateCoupon(params)
+	err := validateCreateUpdateCoupon(params)
 	if err != nil {
 		return response.Data, fmt.Errorf("coupon validation failed: %w", err)
 	}
@@ -123,12 +119,8 @@ func (client *Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, err
 	return response.Data, nil
 }
 
-func (client *Client) UpdateCoupon(couponID int, params CreateUpdateCouponParams) (Coupon, error) {
+func (client *V2Client) UpdateCoupon(couponID int, params CreateUpdateCouponParams) (Coupon, error) {
 	var response CouponResponseObject
-
-	if err := client.Version2Required(); err != nil {
-		return response.Data, fmt.Errorf("version 2 required: %w", err)
-	}
 
 	err := validateCreateUpdateCoupon(params)
 	if err != nil {
@@ -143,13 +135,8 @@ func (client *Client) UpdateCoupon(couponID int, params CreateUpdateCouponParams
 	return response.Data, nil
 }
 
-func (client *Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, error) {
+func (client *V2Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, error) {
 	var response CouponsResponseObject
-
-	err := client.Version2Required()
-	if err != nil {
-		return response.Data, response.Meta, fmt.Errorf("version 2 required: %w", err)
-	}
 
 	path, err := urlWithQueryParams(client.constructURL("coupons"), params)
 	if err != nil {
@@ -163,13 +150,8 @@ func (client *Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, 
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetCoupon(couponID int) (Coupon, error) {
+func (client *V2Client) GetCoupon(couponID int) (Coupon, error) {
 	var response CouponResponseObject
-
-	err := client.Version2Required()
-	if err != nil {
-		return response.Data, fmt.Errorf("version 2 required: %w", err)
-	}
 
 	path := client.constructURL("coupons", strconv.Itoa(couponID))
 	if err := client.Get(path, &response.Data); err != nil {
@@ -179,12 +161,7 @@ func (client *Client) GetCoupon(couponID int) (Coupon, error) {
 	return response.Data, nil
 }
 
-func (client *Client) DeleteCoupon(couponID int) error {
-
-	err := client.Version2Required()
-	if err != nil {
-		return fmt.Errorf("version 2 required: %w", err)
-	}
+func (client *V2Client) DeleteCoupon(couponID int) error {
 
 	path := client.constructURL("coupons", strconv.Itoa(couponID))
 

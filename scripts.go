@@ -42,7 +42,7 @@ type ScriptsQuery struct {
 	ChannelIDs []string `json:"channel_id,omitempty"`
 }
 
-func (client *Client) GetScripts(params ScriptsQuery) ([]Script, MetaData, error) {
+func (client *V3Client) GetScripts(params ScriptsQuery) ([]Script, MetaData, error) {
 	type ResponseObject struct {
 		Data []Script `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -59,7 +59,7 @@ func (client *Client) GetScripts(params ScriptsQuery) ([]Script, MetaData, error
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetAllScripts(limit int) ([]Script, error) {
+func (client *V3Client) GetAllScripts(limit int) ([]Script, error) {
 	var scripts []Script
 	page := 1
 
@@ -114,7 +114,7 @@ func StorefrontFooterHTMLScript(Name string, HTML string) CreateScriptParams {
 	return p
 }
 
-func (client *Client) CreateScript(params CreateScriptParams) (Script, error) {
+func (client *V3Client) CreateScript(params CreateScriptParams) (Script, error) {
 	type ResponseObject struct {
 		Data Script   `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -133,7 +133,7 @@ func (client *Client) CreateScript(params CreateScriptParams) (Script, error) {
 
 }
 
-func (client *Client) UpdateScript(uuid string, params UpdateScriptParams) (Script, error) {
+func (client *V3Client) UpdateScript(uuid string, params UpdateScriptParams) (Script, error) {
 	type ResponseObject struct {
 		Data Script   `json:"data"`
 		Meta MetaData `json:"meta"`

@@ -5,16 +5,12 @@ import (
 	"strconv"
 )
 
-func (client *Client) GetOrderShipments(orderID int, params OrderShipmentQueryParams) ([]OrderShipment, MetaData, error) {
+func (client *V2Client) GetOrderShipments(orderID int, params OrderShipmentQueryParams) ([]OrderShipment, MetaData, error) {
 	type ResponseData struct {
 		Data []OrderShipment `json:"data"`
 		Meta MetaData        `json:"meta"`
 	}
 	var response ResponseData
-
-	if err := client.Version2Required(); err != nil {
-		return nil, MetaData{}, fmt.Errorf("version 2 required for GetOrderShipments: %w", err)
-	}
 
 	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders", strconv.Itoa(orderID), "shipments"), params)
 	if err != nil {

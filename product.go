@@ -8,7 +8,7 @@ import (
 
 //TODO add a GetBrand/GetCategories function that returns brand or slice of categories arg can be pointer and if nil can call the api
 
-func (client *Client) GetProduct(id int) (Product, error) {
+func (client *V3Client) GetProduct(id int) (Product, error) {
 	type ResponseObject struct {
 		Data Product  `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -26,7 +26,7 @@ func (client *Client) GetProduct(id int) (Product, error) {
 	return response.Data, nil
 }
 
-func (client *Client) GetProductBySKU(sku string) (Product, error) {
+func (client *V3Client) GetProductBySKU(sku string) (Product, error) {
 	// this needs to be a call to /catalog/variants
 	variants, err := client.GetAllVariants(AllProductVariantsQueryParams{SKU: sku})
 	if err != nil {
@@ -47,7 +47,7 @@ func (client *Client) GetProductBySKU(sku string) (Product, error) {
 
 //TODO maybe change this to getproduct, getproducts and getAllProducts, and have the ability to pass params to get all products
 
-func (client *Client) GetProducts(params ProductQueryParams) ([]Product, MetaData, error) {
+func (client *V3Client) GetProducts(params ProductQueryParams) ([]Product, MetaData, error) {
 	type ResponseObject struct {
 		Data []Product `json:"data"`
 		Meta MetaData  `json:"meta"`
@@ -65,7 +65,7 @@ func (client *Client) GetProducts(params ProductQueryParams) ([]Product, MetaDat
 	return response.Data, response.Meta, nil
 }
 
-func (client *Client) GetAllProducts(params ProductQueryParams) ([]Product, error) {
+func (client *V3Client) GetAllProducts(params ProductQueryParams) ([]Product, error) {
 	var products []Product
 	params.Page = 1
 	params.Limit = 250
@@ -87,7 +87,7 @@ func (client *Client) GetAllProducts(params ProductQueryParams) ([]Product, erro
 
 }
 
-func (client *Client) UpdateProduct(productId int, params CreateUpdateProductParams) (Product, error) {
+func (client *V3Client) UpdateProduct(productId int, params CreateUpdateProductParams) (Product, error) {
 	type ResponseObject struct {
 		Data Product  `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -104,7 +104,7 @@ func (client *Client) UpdateProduct(productId int, params CreateUpdateProductPar
 	return response.Data, nil
 }
 
-func (client *Client) CreateProduct(params CreateUpdateProductParams) (Product, error) {
+func (client *V3Client) CreateProduct(params CreateUpdateProductParams) (Product, error) {
 	type ResponseObject struct {
 		Data Product  `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -129,7 +129,7 @@ func (client *Client) CreateProduct(params CreateUpdateProductParams) (Product, 
 	return response.Data, nil
 }
 
-func (client *Client) DeleteProduct(productID int) error {
+func (client *V3Client) DeleteProduct(productID int) error {
 	path := client.constructURL("/catalog/products", strconv.Itoa(productID))
 	err := client.Delete(path, nil)
 	if err != nil {
@@ -139,7 +139,7 @@ func (client *Client) DeleteProduct(productID int) error {
 	return nil
 }
 
-func (client *Client) RemoveCategoryFromProduct(productID, categoryToRemoveID int) (Product, error) {
+func (client *V3Client) RemoveCategoryFromProduct(productID, categoryToRemoveID int) (Product, error) {
 	product, err := client.GetProduct(productID)
 	if err != nil {
 		return product, err
@@ -157,7 +157,7 @@ func (client *Client) RemoveCategoryFromProduct(productID, categoryToRemoveID in
 	return client.UpdateProduct(productID, CreateUpdateProductParams{Categories: categoriesToKeep})
 }
 
-func (client *Client) AddCategoryToProduct(productID, categoryToAddID int) (Product, error) {
+func (client *V3Client) AddCategoryToProduct(productID, categoryToAddID int) (Product, error) {
 	product, err := client.GetProduct(productID)
 	if err != nil {
 		return product, err

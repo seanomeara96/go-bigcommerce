@@ -13,18 +13,13 @@ type OrderStatus struct {
 	SystemDescription string `json:"system_description"`
 }
 
-func (client *Client) GetOrderStatuses() ([]OrderStatus, error) {
+func (client *V2Client) GetOrderStatuses() ([]OrderStatus, error) {
 
 	type ResponseObject struct {
 		Data []OrderStatus `json:"data"`
 		Meta MetaData      `json:"meta"`
 	}
 	var response ResponseObject
-
-	err := client.Version2Required()
-	if err != nil {
-		return nil, fmt.Errorf("version 2 required for GetOrderStatuses: %w", err)
-	}
 
 	path := client.constructURL("order_statuses")
 

@@ -19,7 +19,7 @@ func getClient() (*Client, error) {
 	storeHash := os.Getenv("FS_STORE_HASH")
 	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
 
-	client = NewClient(storeHash, xAuthToken, 3, nil)
+	client = NewClient(storeHash, xAuthToken, nil)
 
 	return client, nil
 }
@@ -29,7 +29,7 @@ func TestGetProductById(t *testing.T) {
 
 	productId := 193
 
-	product, err := fs.GetProduct(productId)
+	product, err := fs.V3.GetProduct(productId)
 
 	if err != nil {
 		t.Error(err)
@@ -45,7 +45,7 @@ func TestGetProductBySKU(t *testing.T) {
 
 	productSKU := "7600"
 
-	product, err := fs.GetProductBySKU(productSKU)
+	product, err := fs.V3.GetProductBySKU(productSKU)
 
 	if err != nil {
 		t.Error(err)
@@ -61,7 +61,7 @@ func TestGetAllProducts(t *testing.T) {
 		t.Error("error getting client")
 	}
 
-	products, err := fs.GetAllProducts(ProductQueryParams{})
+	products, err := fs.V3.GetAllProducts(ProductQueryParams{})
 	if err != nil {
 		t.Error(err)
 		return
@@ -76,7 +76,7 @@ func TestGetAllProducts(t *testing.T) {
 func TestGetFullProductCatalog(t *testing.T) {
 	fs, _ := getClient()
 
-	products, err := fs.GetAllProducts(ProductQueryParams{})
+	products, err := fs.V3.GetAllProducts(ProductQueryParams{})
 	if err != nil {
 		t.Error(err)
 		return

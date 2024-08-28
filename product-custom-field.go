@@ -11,7 +11,7 @@ type ProductCustomField struct {
 	Value string `json:"value"`
 }
 
-func (client *Client) GetCustomFields(productID int, params ProductCustomFieldsRequestParams) ([]ProductCustomField, error) {
+func (client *V3Client) GetCustomFields(productID int, params ProductCustomFieldsRequestParams) ([]ProductCustomField, error) {
 	type ResponseObject struct {
 		Data []ProductCustomField `json:"data"`
 		Meta MetaData             `json:"meta"`
@@ -30,7 +30,7 @@ func (client *Client) GetCustomFields(productID int, params ProductCustomFieldsR
 	return response.Data, nil
 }
 
-func (client *Client) CreateCustomField(productID int, params CreateCustomFieldParams) (ProductCustomField, error) {
+func (client *V3Client) CreateCustomField(productID int, params CreateCustomFieldParams) (ProductCustomField, error) {
 	type ResponseObject struct {
 		Data ProductCustomField `json:"data"`
 		Meta MetaData           `json:"meta"`
@@ -51,7 +51,7 @@ func (client *Client) CreateCustomField(productID int, params CreateCustomFieldP
 	return response.Data, nil
 }
 
-func (client *Client) GetCustomField(productID int, customFieldID int) (ProductCustomField, error) {
+func (client *V3Client) GetCustomField(productID int, customFieldID int) (ProductCustomField, error) {
 	type ResponseObject struct {
 		Data ProductCustomField `json:"data"`
 		Meta MetaData           `json:"meta"`
@@ -68,7 +68,7 @@ func (client *Client) GetCustomField(productID int, customFieldID int) (ProductC
 	return response.Data, nil
 }
 
-func (client *Client) UpdateCustomField(productID int, customFieldID int, params UpdateCustomFieldParams) (ProductCustomField, error) {
+func (client *V3Client) UpdateCustomField(productID int, customFieldID int, params UpdateCustomFieldParams) (ProductCustomField, error) {
 	type ResponseObject struct {
 		Data ProductCustomField `json:"data"`
 		Meta MetaData           `json:"meta"`
@@ -85,7 +85,7 @@ func (client *Client) UpdateCustomField(productID int, customFieldID int, params
 	return response.Data, nil
 }
 
-func (client *Client) DeleteCustomField(productID int, customFieldID int) error {
+func (client *V3Client) DeleteCustomField(productID int, customFieldID int) error {
 	deleteCustomFieldPath := client.constructURL("/catalog/products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
 	err := client.Delete(deleteCustomFieldPath, nil)
 	if err != nil {
