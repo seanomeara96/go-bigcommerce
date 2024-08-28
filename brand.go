@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -41,7 +42,7 @@ func (client *Client) GetBrand(id int) (Brand, error) {
 	brandURL := client.constructURL("/catalog/brands", strconv.Itoa(id))
 
 	if err := client.Get(brandURL, &response); err != nil {
-		return response.Data, nil
+		return Brand{}, fmt.Errorf("failed to get brand with ID %d: %w", id, err)
 	}
 
 	return response.Data, nil
@@ -56,11 +57,11 @@ func (client *Client) GetBrands(params BrandQueryParams) ([]Brand, MetaData, err
 
 	brandsURL, err := urlWithQueryParams(client.constructURL("/catalog/brands"), params)
 	if err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to construct URL for GetBrands: %w", err)
 	}
 
 	if err := client.Get(brandsURL, &response); err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to get brands: %w", err)
 	}
 
 	return response.Data, response.Meta, nil
@@ -74,11 +75,9 @@ func (client *Client) GetAllBrands(params BrandQueryParams) ([]Brand, error) {
 	for {
 		b, _, err := client.GetBrands(params)
 		if err != nil {
-			return brands, err
+			return nil, fmt.Errorf("failed to get all brands at page %d: %w", params.Page, err)
 		}
-		for i := 0; i < len(b); i++ {
-			brands = append(brands, b[i])
-		}
+		brands = append(brands, b...)
 
 		if len(b) < params.Limit {
 			break

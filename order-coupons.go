@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -46,7 +47,7 @@ func (client *Client) ListOrderCoupons(orderID int) ([]OrderCoupon, error) {
 
 	err := client.Get(listOrderCouponsPath, &response)
 	if err != nil {
-		return response.Data, err
+		return nil, fmt.Errorf("failed to list coupons for order %d: %w", orderID, err)
 	}
 
 	return response.Data, nil

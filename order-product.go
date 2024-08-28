@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -101,16 +102,16 @@ func (client *Client) GetOrderProducts(orderID int, params OrderProductsQueryPar
 
 	err := client.Version2Required()
 	if err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("version 2 required for GetOrderProducts: %w", err)
 	}
 
 	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders", strconv.Itoa(orderID), "products"), params)
 	if err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to construct URL for GetOrderProducts (order ID: %d): %w", orderID, err)
 	}
 
 	if err := client.Get(getOrdersURL, &response); err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to get products for order %d: %w", orderID, err)
 	}
 
 	return response.Data, response.Meta, nil

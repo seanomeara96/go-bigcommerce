@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -55,7 +56,7 @@ func (client *Client) GetCategory(id int) (Category, error) {
 
 	categoryURL := client.constructURL("/catalog/categories", strconv.Itoa(id))
 	if err := client.Get(categoryURL, &response); err != nil {
-		return Category{}, err
+		return Category{}, fmt.Errorf("failed to get category with ID %d: %w", id, err)
 	}
 
 	return response.Data, nil
@@ -69,11 +70,11 @@ func (client *Client) GetCategories(params CategoryQueryParams) ([]Category, Met
 
 	categoriesURL, err := urlWithQueryParams(client.constructURL("/catalog/categories"), params)
 	if err != nil {
-		return nil, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to construct URL for GetCategories: %w", err)
 	}
 
 	if err := client.Get(categoriesURL, &response); err != nil {
-		return nil, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to get categories: %w", err)
 	}
 
 	return response.Data, response.Meta, nil
@@ -92,7 +93,7 @@ func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, 
 	for {
 		categories, meta, err := client.GetCategories(params)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to get all categories at page %d: %w", params.Page, err)
 		}
 
 		allCategories = append(allCategories, categories...)
@@ -110,14 +111,14 @@ func (client *Client) GetAllCategories(params CategoryQueryParams) ([]Category, 
 func (client *Client) EmptyCategory(id int) error {
 	products, _, err := client.GetProducts(ProductQueryParams{CategoriesIn: []int{id}})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get products for category %d: %w", id, err)
 	}
 
 	for _, product := range products {
 		categories := removeCategory(product.Categories, id)
 		_, err = client.UpdateProduct(product.ID, CreateUpdateProductParams{Categories: categories})
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to update product %d while emptying category %d: %w", product.ID, id, err)
 		}
 	}
 

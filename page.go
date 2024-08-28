@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -40,11 +41,11 @@ func (client *Client) GetPages(queryParams GetPagesParams) ([]Page, MetaData, er
 
 	path, err := urlWithQueryParams(client.constructURL("/content/pages"), queryParams)
 	if err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to construct URL for GetPages: %w", err)
 	}
 
 	if err := client.Get(path, &response); err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to get pages: %w", err)
 	}
 
 	return response.Data, response.Meta, nil
@@ -60,7 +61,7 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 	path := client.constructURL("/content/pages")
 
 	if err := client.Post(path, params, &response); err != nil {
-		return response.Data, err
+		return Page{}, fmt.Errorf("failed to create page: %w", err)
 	}
 
 	return response.Data, nil
@@ -68,10 +69,11 @@ func (client *Client) CreatePage(params CreatePageParams) (Page, error) {
 
 func (client *Client) DeletePage(pageID int) error {
 	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
-	err := client.Delete(path, nil)
-	if err != nil {
-		return err
+
+	if err := client.Delete(path, nil); err != nil {
+		return fmt.Errorf("failed to delete page with ID %d: %w", pageID, err)
 	}
+
 	return nil
 }
 
@@ -84,9 +86,8 @@ func (client *Client) GetPage(pageID int) (Page, error) {
 
 	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
 
-	err := client.Get(path, &response)
-	if err != nil {
-		return response.Data, err
+	if err := client.Get(path, &response); err != nil {
+		return Page{}, fmt.Errorf("failed to get page with ID %d: %w", pageID, err)
 	}
 
 	return response.Data, nil
@@ -101,9 +102,8 @@ func (client *Client) UpdatePage(pageID int, params UpdatePageParams) (Page, err
 
 	path := client.constructURL("/content/pages", strconv.Itoa(pageID))
 
-	err := client.Put(path, params, &response)
-	if err != nil {
-		return response.Data, err
+	if err := client.Put(path, params, &response); err != nil {
+		return Page{}, fmt.Errorf("failed to update page with ID %d: %w", pageID, err)
 	}
 
 	return response.Data, nil

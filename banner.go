@@ -98,25 +98,25 @@ func (client *Client) CreateBanner(params CreateUpdateBannerParams) (Banner, err
 	var response ResponseObject
 	err := client.Version2Required()
 	if err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("CreateBanner: version 2 API required: %w", err)
 	}
 
 	err = validateBannerParams(params)
 	if err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("CreateBanner: invalid parameters: %w", err)
 	}
 
 	path := client.constructURL("banners")
 
 	err = client.Post(path, params, &response)
 	if err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("CreateBanner: failed to create banner: %w", err)
 	}
 
 	return response.Data, nil
 }
 
-func (client *Client) UpdateClient(bannerID int, params CreateUpdateBannerParams) (Banner, error) {
+func (client *Client) UpdateBanner(bannerID int, params CreateUpdateBannerParams) (Banner, error) {
 	type ResponseObject struct {
 		Data Banner   `json:"data"`
 		Meta MetaData `json:"meta"`
@@ -124,17 +124,17 @@ func (client *Client) UpdateClient(bannerID int, params CreateUpdateBannerParams
 	var response ResponseObject
 
 	if err := client.Version2Required(); err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("UpdateClient: version 2 API required: %w", err)
 	}
 
 	if err := validateBannerParams(params); err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("UpdateClient: invalid parameters: %w", err)
 	}
 
 	path := client.constructURL("banners", strconv.Itoa(bannerID))
 
 	if err := client.Put(path, params, &response); err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("UpdateClient: failed to update banner %d: %w", bannerID, err)
 	}
 
 	return response.Data, nil
@@ -149,16 +149,16 @@ func (client *Client) GetBanners(params GetBannersParams) ([]Banner, MetaData, e
 
 	err := client.Version2Required()
 	if err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("GetBanners: version 2 API required: %w", err)
 	}
 
 	path, err := urlWithQueryParams(client.constructURL("banners"), params)
 	if err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("GetBanners: failed to construct URL with query params: %w", err)
 	}
 
 	if err := client.Get(path, &response); err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("GetBanners: failed to retrieve banners: %w", err)
 	}
 
 	return response.Data, response.Meta, nil
@@ -173,13 +173,13 @@ func (client *Client) GetBanner(bannerID int) (Banner, error) {
 
 	err := client.Version2Required()
 	if err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("GetBanner: version 2 API required: %w", err)
 	}
 
 	path := client.constructURL("banners", strconv.Itoa(bannerID))
 
 	if err := client.Get(path, &response); err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("GetBanner: failed to retrieve banner %d: %w", bannerID, err)
 	}
 
 	return response.Data, nil
@@ -188,11 +188,11 @@ func (client *Client) GetBanner(bannerID int) (Banner, error) {
 func (client *Client) DeleteBanner(bannerID int) error {
 	err := client.Version2Required()
 	if err != nil {
-		return err
+		return fmt.Errorf("DeleteBanner: version 2 API required: %w", err)
 	}
 	path := client.constructURL("banners", strconv.Itoa(bannerID))
 	if err := client.Delete(path, nil); err != nil {
-		return err
+		return fmt.Errorf("DeleteBanner: failed to delete banner %d: %w", bannerID, err)
 	}
 
 	return nil

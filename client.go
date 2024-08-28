@@ -51,11 +51,11 @@ func (c *Client) Version() int {
 
 func NewClient(storeHash string, authToken string, version int, config *RateLimitConfig) *Client {
 	url, err := url.Parse(fmt.Sprintf("https://api.bigcommerce.com/stores/%s/v%d", storeHash, version))
-	var client Client
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to parse BigCommerce API URL: %v", err)
 	}
 
+	var client Client
 	client.baseURL = url
 	client.authToken = authToken
 	client.storeHash = storeHash
@@ -77,7 +77,7 @@ func NewClient(storeHash string, authToken string, version int, config *RateLimi
 func (c *Client) configureRequest(httpMethod string, relativeUrl string, payload []byte) (*http.Request, error) {
 	req, err := http.NewRequest(httpMethod, relativeUrl, bytes.NewBuffer(payload))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}
 
 	req.Header.Set("x-auth-token", c.authToken)
@@ -121,12 +121,12 @@ func (c *Client) backoff() error {
 
 func (c *Client) request(httpMethod string, relativeUrl string, payload []byte, attempt int) (*http.Response, error) {
 	if err := c.backoff(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("backoff failed: %w", err)
 	}
 
 	req, err := c.configureRequest(httpMethod, relativeUrl, payload)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to configure request: %w", err)
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -136,7 +136,7 @@ func (c *Client) request(httpMethod string, relativeUrl string, payload []byte, 
 			time.Sleep(3 * time.Second)
 			return c.request(httpMethod, relativeUrl, payload, attempt+1)
 		}
-		return nil, err
+		return nil, fmt.Errorf("request failed after 3 attempts: %w", err)
 	}
 
 	c.setRateLimitStatus(resp.Header)
@@ -152,9 +152,9 @@ func (c *Client) request(httpMethod string, relativeUrl string, payload []byte, 
 			return c.request(httpMethod, relativeUrl, payload, attempt+1)
 		}
 		if resp.StatusCode == 429 {
-			return nil, fmt.Errorf("429 - Rate limit exceeded. Max retries reached")
+			return nil, fmt.Errorf("429 - Rate limit exceeded. Max retries reached for %s request to %s", httpMethod, relativeUrl)
 		}
-		return nil, fmt.Errorf("server error: %d. Max retries reached", resp.StatusCode)
+		return nil, fmt.Errorf("server error: %d. Max retries reached for %s request to %s", resp.StatusCode, httpMethod, relativeUrl)
 	}
 
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
@@ -164,7 +164,6 @@ func (c *Client) request(httpMethod string, relativeUrl string, payload []byte, 
 		} else {
 			log.Printf("BigCommerce 4xx error response: %s", string(body))
 		}
-		// This line is recreating the response body after it has been read.
 		resp.Body = io.NopCloser(bytes.NewBuffer(body))
 	}
 
@@ -174,13 +173,13 @@ func (c *Client) request(httpMethod string, relativeUrl string, payload []byte, 
 func (client *Client) requestAndDecode(httpMethod string, relativeUrl string, payload []byte, dest any) error {
 	res, err := client.request(httpMethod, relativeUrl, payload, 0)
 	if err != nil {
-		return err
+		return fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	if dest != nil {
 		if err := json.NewDecoder(res.Body).Decode(dest); err != nil {
-			return err
+			return fmt.Errorf("failed to decode response: %w", err)
 		}
 	}
 	return nil
@@ -191,7 +190,7 @@ func (client *Client) marshalJSONandRequestAndDecode(httpMethod string, relative
 	if params != nil {
 		p, err := json.Marshal(params)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to marshal params: %w", err)
 		}
 		payload = p
 	}
@@ -200,7 +199,6 @@ func (client *Client) marshalJSONandRequestAndDecode(httpMethod string, relative
 
 func (client *Client) Get(url *url.URL, dest any) error {
 	return client.marshalJSONandRequestAndDecode("GET", url.String(), nil, dest)
-
 }
 
 func (client *Client) Put(url *url.URL, params any, dest any) error {

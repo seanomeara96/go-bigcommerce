@@ -2,6 +2,7 @@ package bigcommerce
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -141,7 +142,7 @@ func (client *Client) GetProductVariantOptions(product_id int) ([]ProductVariant
 
 	err := client.Get(path, &response)
 	if err != nil {
-		return response.Data, err
+		return nil, fmt.Errorf("failed to get product variant options for product ID %d: %w", product_id, err)
 	}
 
 	return response.Data, nil
@@ -155,13 +156,13 @@ func (client *Client) CreateProductVariantOption(product_id int, params CreateUp
 
 	err := ValidateCreateUpdateProductVariantOptions(params)
 	if err != nil {
-		return response.Data, err
+		return ProductVariantOption{}, fmt.Errorf("invalid params for CreateProductVariantOption (product ID: %d): %w", product_id, err)
 	}
 
 	path := client.constructURL("catalog", "products", strconv.Itoa(product_id), "options")
 
 	if err := client.Post(path, params, &response); err != nil {
-		return response.Data, err
+		return ProductVariantOption{}, fmt.Errorf("failed to create product variant option for product ID %d: %w", product_id, err)
 	}
 
 	return response.Data, nil
@@ -176,7 +177,7 @@ func (client *Client) GetProductVariantOption(product_id, option_id int) (Produc
 
 	err := client.Get(path, &response)
 	if err != nil {
-		return response.Data, err
+		return ProductVariantOption{}, fmt.Errorf("failed to get product variant option ID %d for product ID %d: %w", option_id, product_id, err)
 	}
 
 	return response.Data, nil
@@ -190,13 +191,13 @@ func (client *Client) UpdateProductVariantOption(product_id, option_id int, para
 
 	err := ValidateCreateUpdateProductVariantOptions(params)
 	if err != nil {
-		return response.Data, err
+		return ProductVariantOption{}, fmt.Errorf("invalid params for UpdateProductVariantOption (product ID: %d, option ID: %d): %w", product_id, option_id, err)
 	}
 
 	path := client.constructURL("/catalog/products/", strconv.Itoa(product_id), "/options", strconv.Itoa(option_id))
 
 	if err := client.Put(path, params, &response); err != nil {
-		return response.Data, err
+		return ProductVariantOption{}, fmt.Errorf("failed to update product variant option ID %d for product ID %d: %w", option_id, product_id, err)
 	}
 
 	return response.Data, nil
@@ -205,7 +206,7 @@ func (client *Client) DeleteProductVariantOption(product_id, option_id int) erro
 	path := client.constructURL("catalog", "products", strconv.Itoa(product_id), "options", strconv.Itoa(option_id))
 	err := client.Delete(path, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to delete product variant option ID %d for product ID %d: %w", option_id, product_id, err)
 	}
 
 	return nil

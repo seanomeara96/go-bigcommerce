@@ -190,13 +190,13 @@ func (client *Client) GetOrder(orderID int) (Order, error) {
 
 	err := client.Version2Required()
 	if err != nil {
-		return Order{}, nil
+		return Order{}, fmt.Errorf("API version 2 is required: %w", err)
 	}
 
 	getOrderURL := client.constructURL("storefront", "orders", strconv.Itoa(orderID))
 
 	if err := client.Get(getOrderURL, &response); err != nil {
-		return response.Data, err
+		return Order{}, fmt.Errorf("failed to get order with ID %d: %w", orderID, err)
 	}
 
 	return response.Data, nil
@@ -211,16 +211,16 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 
 	err := client.Version2Required()
 	if err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("API version 2 is required: %w", err)
 	}
 
 	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders"), params)
 	if err != nil {
-		return response.Data, response.Meta, err
+		return nil, MetaData{}, fmt.Errorf("failed to construct URL with query params: %w", err)
 	}
 
-	if err := client.Get(getOrdersURL, &response.Data); err != nil {
-		return response.Data, response.Meta, err
+	if err := client.Get(getOrdersURL, &response); err != nil {
+		return nil, MetaData{}, fmt.Errorf("failed to get orders: %w", err)
 	}
 
 	return response.Data, response.Meta, nil

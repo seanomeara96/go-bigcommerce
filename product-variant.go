@@ -15,7 +15,7 @@ func (c *Client) GetAllVariants(queryParams AllProductVariantsQueryParams) ([]Pr
 		queryParams.Page = page
 		res, _, err := c.GetVariants(queryParams)
 		if err != nil {
-			return []ProductVariant{}, fmt.Errorf("error calling getvariants from getallvariants %w", err)
+			return []ProductVariant{}, fmt.Errorf("GetAllVariants: failed to get variants for page %d: %w", page, err)
 		}
 		if len(res) < 1 {
 			return all, nil
@@ -36,11 +36,11 @@ func (c *Client) GetVariants(queryParams AllProductVariantsQueryParams) ([]Produ
 
 	path, err := urlWithQueryParams(c.constructURL("/catalog/variants"), queryParams)
 	if err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("GetVariants: failed to construct URL with query params: %w", err)
 	}
 
 	if err := c.Get(path, &response); err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("GetVariants: failed to make GET request: %w", err)
 	}
 
 	return response.Data, response.Meta, nil
@@ -55,11 +55,11 @@ func (client *Client) GetProductVariants(productID int, params ProductVariantQue
 
 	getProductVariantsURL, err := urlWithQueryParams(client.constructURL("/catalog/products", strconv.Itoa(productID), "/variants"), params)
 	if err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("GetProductVariants: failed to construct URL with query params for product ID %d: %w", productID, err)
 	}
 
 	if err := client.Get(getProductVariantsURL, &response); err != nil {
-		return response.Data, response.Meta, err
+		return response.Data, response.Meta, fmt.Errorf("GetProductVariants: failed to make GET request for product ID %d: %w", productID, err)
 	}
 
 	return response.Data, response.Meta, nil
@@ -75,7 +75,7 @@ func (client *Client) CreateProductVariant(productID int, params ProductVariantC
 	createProductVariantPath := client.constructURL("/catalog/products", fmt.Sprint(productID), "variants")
 
 	if err := client.Post(createProductVariantPath, params, &response); err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("CreateProductVariant: failed to create variant for product ID %d: %w", productID, err)
 	}
 
 	return response.Data, nil

@@ -17,14 +17,14 @@ func (client *Client) GetCustomFields(productID int, params ProductCustomFieldsR
 		Meta MetaData             `json:"meta"`
 	}
 	var response ResponseObject
-	// /catalog/products/{product_id}/custom-fields
+
 	getCustomFieldPath, err := urlWithQueryParams(client.constructURL("catalog", "products", strconv.Itoa(productID), "custom-fields"), params)
 	if err != nil {
-		return response.Data, err
+		return nil, fmt.Errorf("failed to construct URL for GetCustomFields (product ID: %d): %w", productID, err)
 	}
 
 	if err := client.Get(getCustomFieldPath, &response); err != nil {
-		return response.Data, err
+		return nil, fmt.Errorf("failed to get custom fields for product ID %d: %w", productID, err)
 	}
 
 	return response.Data, nil
@@ -38,30 +38,31 @@ func (client *Client) CreateCustomField(productID int, params CreateCustomFieldP
 	var response ResponseObject
 
 	if params.Name == "" || params.Value == "" {
-		return response.Data, fmt.Errorf("check params, no empty values allowed name: %s, value: %s", params.Name, params.Value)
+		return response.Data, fmt.Errorf("invalid params for CreateCustomField: name and value cannot be empty (product ID: %d)", productID)
 	}
 
 	createCustomFieldpath := client.constructURL("catalog", "products", strconv.Itoa(productID), "custom-fields")
 
 	err := client.Post(createCustomFieldpath, params, &response)
 	if err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("failed to create custom field for product ID %d: %w", productID, err)
 	}
 
 	return response.Data, nil
 }
+
 func (client *Client) GetCustomField(productID int, customFieldID int) (ProductCustomField, error) {
 	type ResponseObject struct {
 		Data ProductCustomField `json:"data"`
 		Meta MetaData           `json:"meta"`
 	}
 	var response ResponseObject
-	// /catalog/products/{product_id}/custom-fields/{custom_field_id}
+
 	getCustomFieldPath := client.constructURL("catalog", "products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
 
 	err := client.Get(getCustomFieldPath, &response)
 	if err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("failed to get custom field ID %d for product ID %d: %w", customFieldID, productID, err)
 	}
 
 	return response.Data, nil
@@ -78,17 +79,17 @@ func (client *Client) UpdateCustomField(productID int, customFieldID int, params
 
 	err := client.Put(updateCustomFieldPath, params, &response)
 	if err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("failed to update custom field ID %d for product ID %d: %w", customFieldID, productID, err)
 	}
 
 	return response.Data, nil
-
 }
+
 func (client *Client) DeleteCustomField(productID int, customFieldID int) error {
 	deleteCustomFieldPath := client.constructURL("/catalog/products", strconv.Itoa(productID), "custom-fields", strconv.Itoa(customFieldID))
 	err := client.Delete(deleteCustomFieldPath, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to delete custom field ID %d for product ID %d: %w", customFieldID, productID, err)
 	}
 
 	return nil

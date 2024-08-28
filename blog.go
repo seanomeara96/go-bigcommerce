@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -51,7 +52,7 @@ func (client *Client) GetBlog(id int) (Blog, error) {
 	path := client.constructURL("/blog/posts", strconv.Itoa(id))
 
 	if err := client.Get(path, &response); err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("failed to get blog with ID %d: %w", id, err)
 	}
 
 	return response.Data, nil
@@ -67,7 +68,7 @@ func (client *Client) UpdateBlog(blogId int, params UpdateBlogParams) (Blog, err
 	path := client.constructURL("/blog/posts", strconv.Itoa(blogId))
 
 	if err := client.Put(path, params, &response); err != nil {
-		return response.Data, err
+		return response.Data, fmt.Errorf("failed to update blog with ID %d: %w", blogId, err)
 	}
 
 	return response.Data, nil

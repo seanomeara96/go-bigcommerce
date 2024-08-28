@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -30,11 +31,12 @@ func (client *Client) GetAllProductImages(productID int) ([]ProductImage, error)
 
 	err := client.Get(getAllImagesPath, &response)
 	if err != nil {
-		return response.Data, err
+		return nil, fmt.Errorf("failed to get all images for product ID %d: %w", productID, err)
 	}
 
 	return response.Data, nil
 }
+
 func (client *Client) GetProductImage(productID int, imageID int) (ProductImage, error) {
 	type ResponseObject struct {
 		Data ProductImage `json:"data"`
@@ -46,11 +48,12 @@ func (client *Client) GetProductImage(productID int, imageID int) (ProductImage,
 
 	err := client.Get(getProductImagePath, &response)
 	if err != nil {
-		return response.Data, err
+		return ProductImage{}, fmt.Errorf("failed to get image ID %d for product ID %d: %w", imageID, productID, err)
 	}
 
 	return response.Data, nil
 }
+
 func (client *Client) CreateProductImage(productID int, params CreateProductImageParams) (ProductImage, error) {
 	type ResponseObject struct {
 		Data ProductImage `json:"data"`
@@ -62,12 +65,13 @@ func (client *Client) CreateProductImage(productID int, params CreateProductImag
 
 	err := client.Post(createProductImagePath, params, &response)
 	if err != nil {
-		return response.Data, err
+		return ProductImage{}, fmt.Errorf("failed to create image for product ID %d: %w", productID, err)
 	}
 
 	return response.Data, nil
 
 }
+
 func (client *Client) UpdateProductImage(productID int, imageID int, params UpdateProductImageParams) (ProductImage, error) {
 	type ResponseObject struct {
 		Data ProductImage `json:"data"`
@@ -79,18 +83,19 @@ func (client *Client) UpdateProductImage(productID int, imageID int, params Upda
 
 	err := client.Put(updateProductImagePath, params, &response)
 	if err != nil {
-		return response.Data, err
+		return ProductImage{}, fmt.Errorf("failed to update image ID %d for product ID %d: %w", imageID, productID, err)
 	}
 
 	return response.Data, nil
 
 }
+
 func (client *Client) DeleteProductImage(productID int, imageID int) (bool, error) {
 	deleteProductImagePath := client.constructURL("catalog", "products", strconv.Itoa(productID), "images", strconv.Itoa(imageID))
 
 	err := client.Delete(deleteProductImagePath, nil)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to delete image ID %d for product ID %d: %w", imageID, productID, err)
 	}
 
 	return true, nil
