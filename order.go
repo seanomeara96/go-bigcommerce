@@ -195,7 +195,7 @@ func (client *Client) GetOrder(orderID int) (Order, error) {
 
 	getOrderURL := client.constructURL("storefront", "orders", strconv.Itoa(orderID))
 
-	if err := client.Get(getOrderURL, &response); err != nil {
+	if err := client.Get(getOrderURL, &response.Data); err != nil {
 		return Order{}, fmt.Errorf("failed to get order with ID %d: %w", orderID, err)
 	}
 
@@ -219,7 +219,7 @@ func (client *Client) GetOrders(params OrderQueryParams) ([]Order, MetaData, err
 		return nil, MetaData{}, fmt.Errorf("failed to construct URL with query params: %w", err)
 	}
 
-	if err := client.Get(getOrdersURL, &response); err != nil {
+	if err := client.Get(getOrdersURL, &response.Data); err != nil {
 		return nil, MetaData{}, fmt.Errorf("failed to get orders: %w", err)
 	}
 

@@ -108,7 +108,7 @@ func (client *Client) CreateBanner(params CreateUpdateBannerParams) (Banner, err
 
 	path := client.constructURL("banners")
 
-	err = client.Post(path, params, &response)
+	err = client.Post(path, params, &response.Data)
 	if err != nil {
 		return response.Data, fmt.Errorf("CreateBanner: failed to create banner: %w", err)
 	}
@@ -133,7 +133,7 @@ func (client *Client) UpdateBanner(bannerID int, params CreateUpdateBannerParams
 
 	path := client.constructURL("banners", strconv.Itoa(bannerID))
 
-	if err := client.Put(path, params, &response); err != nil {
+	if err := client.Put(path, params, &response.Data); err != nil {
 		return response.Data, fmt.Errorf("UpdateClient: failed to update banner %d: %w", bannerID, err)
 	}
 
@@ -157,7 +157,7 @@ func (client *Client) GetBanners(params GetBannersParams) ([]Banner, MetaData, e
 		return response.Data, response.Meta, fmt.Errorf("GetBanners: failed to construct URL with query params: %w", err)
 	}
 
-	if err := client.Get(path, &response); err != nil {
+	if err := client.Get(path, &response.Data); err != nil {
 		return response.Data, response.Meta, fmt.Errorf("GetBanners: failed to retrieve banners: %w", err)
 	}
 
@@ -178,7 +178,7 @@ func (client *Client) GetBanner(bannerID int) (Banner, error) {
 
 	path := client.constructURL("banners", strconv.Itoa(bannerID))
 
-	if err := client.Get(path, &response); err != nil {
+	if err := client.Get(path, &response.Data); err != nil {
 		return response.Data, fmt.Errorf("GetBanner: failed to retrieve banner %d: %w", bannerID, err)
 	}
 

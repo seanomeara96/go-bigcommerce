@@ -37,15 +37,21 @@ func (orderCoupon *OrderCoupon) TypeName() string {
 }
 
 func (client *Client) ListOrderCoupons(orderID int) ([]OrderCoupon, error) {
+
 	type ResponseObject struct {
 		Data []OrderCoupon `json:"data"`
 		Meta MetaData      `json:"meta"`
 	}
 	var response ResponseObject
 
+	err := client.Version2Required()
+	if err != nil {
+		return nil, fmt.Errorf("version 2 required for GetOrderProducts: %w", err)
+	}
+
 	listOrderCouponsPath := client.constructURL("orders", strconv.Itoa(orderID), "coupons")
 
-	err := client.Get(listOrderCouponsPath, &response)
+	err = client.Get(listOrderCouponsPath, &response.Data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list coupons for order %d: %w", orderID, err)
 	}

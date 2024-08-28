@@ -116,7 +116,7 @@ func (client *Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, err
 	}
 
 	path := client.constructURL("coupons")
-	if err := client.Post(path, params, &response); err != nil {
+	if err := client.Post(path, params, &response.Data); err != nil {
 		return response.Data, fmt.Errorf("failed to create coupon: %w", err)
 	}
 
@@ -136,7 +136,7 @@ func (client *Client) UpdateCoupon(couponID int, params CreateUpdateCouponParams
 	}
 
 	path := client.constructURL("coupons", strconv.Itoa(couponID))
-	if err := client.Put(path, params, &response); err != nil {
+	if err := client.Put(path, params, &response.Data); err != nil {
 		return response.Data, fmt.Errorf("failed to update coupon with ID %d: %w", couponID, err)
 	}
 
@@ -156,7 +156,7 @@ func (client *Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, 
 		return response.Data, response.Meta, fmt.Errorf("failed to construct URL with query params: %w", err)
 	}
 
-	if err := client.Get(path, &response); err != nil {
+	if err := client.Get(path, &response.Data); err != nil {
 		return response.Data, response.Meta, fmt.Errorf("failed to get coupons: %w", err)
 	}
 
@@ -172,7 +172,7 @@ func (client *Client) GetCoupon(couponID int) (Coupon, error) {
 	}
 
 	path := client.constructURL("coupons", strconv.Itoa(couponID))
-	if err := client.Get(path, &response); err != nil {
+	if err := client.Get(path, &response.Data); err != nil {
 		return response.Data, fmt.Errorf("failed to get coupon with ID %d: %w", couponID, err)
 	}
 
@@ -180,6 +180,12 @@ func (client *Client) GetCoupon(couponID int) (Coupon, error) {
 }
 
 func (client *Client) DeleteCoupon(couponID int) error {
+
+	err := client.Version2Required()
+	if err != nil {
+		return fmt.Errorf("version 2 required: %w", err)
+	}
+
 	path := client.constructURL("coupons", strconv.Itoa(couponID))
 
 	if err := client.Delete(path, nil); err != nil {
