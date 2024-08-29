@@ -29,14 +29,14 @@ func TestGetProductById(t *testing.T) {
 
 	productId := 193
 
-	product, err := fs.V3.GetProduct(productId)
+	product, err := fs.V3.GetProduct(productId, LimitedProductQueryParams{})
 
 	if err != nil {
 		t.Error(err)
 	}
 
 	if product.ID != productId {
-		t.Error("Response-product id does not match repquest product id")
+		t.Error("Response-product id does not match request product id")
 	}
 }
 
