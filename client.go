@@ -26,6 +26,10 @@ type RateLimitConfig struct {
 	EnableWait           bool
 }
 
+type Logger interface {
+	Printf(format string, v ...interface{})
+}
+
 type BaseVersionClient struct {
 	baseURL         *url.URL
 	version         int
@@ -34,6 +38,7 @@ type BaseVersionClient struct {
 	rateLimitConfig *RateLimitConfig
 	rateLimitStatus *RateLimitStatus
 	mu              sync.Mutex
+	logger          Logger
 }
 
 func (c *BaseVersionClient) BaseURL() *url.URL {
@@ -53,7 +58,7 @@ type Client struct {
 	V2 *V2Client
 }
 
-func NewClient(storeHash string, authToken string, config *RateLimitConfig) *Client {
+func NewClient(storeHash string, authToken string, config *RateLimitConfig, logger Logger) *Client {
 	v2URL, err := url.Parse(fmt.Sprintf("https://api.bigcommerce.com/stores/%s/v%d", storeHash, 2))
 	if err != nil {
 		log.Fatalf("Failed to parse BigCommerce API URL: %v", err)
@@ -73,8 +78,27 @@ func NewClient(storeHash string, authToken string, config *RateLimitConfig) *Cli
 		}
 	}
 
-	client.V2 = &V2Client{BaseVersionClient{baseURL: v2URL, version: 2, authToken: authToken, storeHash: storeHash, rateLimitConfig: config}}
-	client.V3 = &V3Client{BaseVersionClient{baseURL: v3URL, version: 3, authToken: authToken, storeHash: storeHash, rateLimitConfig: config}}
+	client.V2 = &V2Client{
+		BaseVersionClient: BaseVersionClient{
+			baseURL:         v2URL,
+			version:         2,
+			authToken:       authToken,
+			storeHash:       storeHash,
+			rateLimitConfig: config,
+			logger:          logger,
+		},
+	}
+
+	client.V3 = &V3Client{
+		BaseVersionClient: BaseVersionClient{
+			baseURL:         v3URL,
+			version:         3,
+			authToken:       authToken,
+			storeHash:       storeHash,
+			rateLimitConfig: config,
+			logger:          logger,
+		},
+	}
 
 	return &client
 }
@@ -125,6 +149,10 @@ func (c *BaseVersionClient) backoff() error {
 }
 
 func (c *BaseVersionClient) request(httpMethod string, relativeUrl string, payload []byte, attempt int) (*http.Response, error) {
+	if c.logger != nil {
+		c.logger.Printf("Attempting %s request to %s (attempt %d)", httpMethod, relativeUrl, attempt+1)
+	}
+
 	if err := c.backoff(); err != nil {
 		return nil, fmt.Errorf("backoff failed: %w", err)
 	}
@@ -136,12 +164,19 @@ func (c *BaseVersionClient) request(httpMethod string, relativeUrl string, paylo
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		if c.logger != nil {
+			c.logger.Printf("Request failed: %v", err)
+		}
 		if attempt < 3 {
 			log.Printf("Request failed. Retrying in 3 seconds. Error: %v", err)
 			time.Sleep(3 * time.Second)
 			return c.request(httpMethod, relativeUrl, payload, attempt+1)
 		}
 		return nil, fmt.Errorf("request failed after 3 attempts: %w", err)
+	}
+
+	if c.logger != nil {
+		c.logger.Printf("Response received: Status %d", resp.StatusCode)
 	}
 
 	c.setRateLimitStatus(resp.Header)
@@ -180,14 +215,20 @@ func (client *BaseVersionClient) requestAndDecode(httpMethod string, relativeUrl
 	}
 	defer res.Body.Close()
 
-	if dest != nil {
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read response body: %w", err)
-		}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
 
+	if client.logger != nil {
+		client.logger.Printf("Response body: %s", string(body))
+	}
+
+	if dest != nil {
 		if err := json.Unmarshal(body, dest); err != nil {
-			log.Printf("Failed to decode response: %s", string(body))
+			if client.logger != nil {
+				client.logger.Printf("Failed to decode response: %s", string(body))
+			}
 			return fmt.Errorf("failed to decode response: %w", err)
 		}
 	}

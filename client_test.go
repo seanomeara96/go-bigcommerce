@@ -17,11 +17,11 @@ func getTestClient() (*Client, error) {
 	storeHash := os.Getenv("FS_STORE_HASH")
 	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
 
-	client = NewClient(storeHash, xAuthToken, nil)
+	client = NewClient(storeHash, xAuthToken, nil, nil)
 
 	return client, nil
 }
 
 func TestNewClient(t *testing.T) {
-	NewClient("adsd", "adssda", nil)
+	NewClient("adsd", "adssda", nil, nil)
 }
