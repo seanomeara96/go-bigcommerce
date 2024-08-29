@@ -61,7 +61,7 @@ func TestGetAllProducts(t *testing.T) {
 		t.Error("error getting client")
 	}
 
-	products, err := fs.V3.GetAllProducts(ProductQueryParams{})
+	products, err := fs.V3.GetAllProducts(ProductQueryParams{Include: []string{"images"}})
 	if err != nil {
 		t.Error(err)
 		return
@@ -69,6 +69,11 @@ func TestGetAllProducts(t *testing.T) {
 
 	if len(products) < 1 {
 		t.Error("no products")
+		return
+	}
+
+	if len(products[1].Images) < 1 {
+		t.Error("Expected images")
 	}
 
 }
