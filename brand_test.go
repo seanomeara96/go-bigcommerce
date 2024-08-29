@@ -5,7 +5,7 @@ import (
 )
 
 func TestGetBrand(t *testing.T) {
-	fs, _ := getClient()
+	fs, _ := getTestClient()
 
 	brandId := 49
 
@@ -21,7 +21,7 @@ func TestGetBrand(t *testing.T) {
 }
 
 func TestGetBrands(t *testing.T) {
-	fs, _ := getClient()
+	fs, _ := getTestClient()
 
 	brands, _, err := fs.V3.GetBrands(BrandQueryParams{})
 

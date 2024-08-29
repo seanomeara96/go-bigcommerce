@@ -1,28 +1,15 @@
 package bigcommerce
 
 import (
-	"os"
 	"testing"
-
-	"github.com/joho/godotenv"
 )
 
 func TestGetCategory(t *testing.T) {
-
-	err := godotenv.Load()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	storeHash := os.Getenv("FS_STORE_HASH")
-	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
-
-	fs := NewClient(storeHash, xAuthToken, nil)
+	fs, _ := getTestClient()
 
 	categoryIdDoesNotExist := 11
 
-	_, err = fs.V3.GetCategory(categoryIdDoesNotExist)
+	_, err := fs.V3.GetCategory(categoryIdDoesNotExist)
 
 	if err == nil {
 		t.Error("Expected Error")
@@ -44,16 +31,8 @@ func TestGetCategory(t *testing.T) {
 }
 
 func TestGetCategories(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Error(err)
-		return
-	}
 
-	storeHash := os.Getenv("FS_STORE_HASH")
-	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
-
-	fs := NewClient(storeHash, xAuthToken, nil)
+	fs, _ := getTestClient()
 
 	categories, _, err := fs.V3.GetCategories(CategoryQueryParams{})
 
@@ -68,7 +47,7 @@ func TestGetCategories(t *testing.T) {
 
 func TestGetAllCategories(t *testing.T) {
 
-	fs, _ := getClient()
+	fs, _ := getTestClient()
 	categories, err := fs.V3.GetAllCategories(CategoryQueryParams{})
 	if err != nil {
 		t.Error(err)
@@ -83,7 +62,7 @@ func TestGetAllCategories(t *testing.T) {
 
 func TestEmptyCategory(t *testing.T) {
 
-	fs, _ := getClient()
+	fs, _ := getTestClient()
 
 	products, err := fs.V3.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
 	if err != nil {

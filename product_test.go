@@ -2,30 +2,11 @@ package bigcommerce
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
 	"testing"
-
-	"github.com/joho/godotenv"
 )
 
-func getClient() (*Client, error) {
-	var client *Client
-	err := godotenv.Load()
-	if err != nil {
-		return client, err
-	}
-
-	storeHash := os.Getenv("FS_STORE_HASH")
-	xAuthToken := os.Getenv("FS_XAUTHTOKEN")
-
-	client = NewClient(storeHash, xAuthToken, nil)
-
-	return client, nil
-}
-
 func TestGetProductById(t *testing.T) {
-	fs, _ := getClient()
+	fs, _ := getTestClient()
 
 	productId := 193
 
@@ -41,21 +22,23 @@ func TestGetProductById(t *testing.T) {
 }
 
 func TestGetProductBySKU(t *testing.T) {
-	fs, _ := getClient()
+	fs, _ := getTestClient()
 
-	productSKU := "7600"
+	productSKU := "14613"
 
 	product, err := fs.V3.GetProductBySKU(productSKU)
 
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(product.Name)
-	t.Error()
+
+	if product.ID != 211 {
+		t.Errorf("expected id 211. received %d instead", product.ID)
+	}
 }
 
 func TestGetAllProducts(t *testing.T) {
-	fs, err := getClient()
+	fs, err := getTestClient()
 
 	if err != nil {
 		t.Error("error getting client")
@@ -79,7 +62,7 @@ func TestGetAllProducts(t *testing.T) {
 }
 
 func TestGetFullProductCatalog(t *testing.T) {
-	fs, _ := getClient()
+	fs, _ := getTestClient()
 
 	products, err := fs.V3.GetAllProducts(ProductQueryParams{})
 	if err != nil {
@@ -87,7 +70,7 @@ func TestGetFullProductCatalog(t *testing.T) {
 		return
 	}
 
-	if len(products) != 69 {
+	if len(products) != 87 {
 		t.Error("did not fetch all products")
 	}
 }

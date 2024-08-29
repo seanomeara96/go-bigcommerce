@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 )
@@ -18,20 +17,20 @@ type CouponQueryParams struct {
 	ExcludeType string `url:"exclude_type,omitempty"`
 }
 type Coupon struct {
-	ID                 int                 `json:"id"`
-	DateCreated        string              `json:"date_created"`
-	NumUses            int                 `json:"num_uses"`
-	Name               string              `json:"name"`
-	Type               string              `json:"type"`
-	Amount             string              `json:"amount"`
-	MinPurchase        string              `json:"min_purchase"`
-	Expires            string              `json:"expires"`
-	Enabled            bool                `json:"enabled"`
-	Code               string              `json:"code"`
-	AppliesTo          CouponAppliesTo     `json:"applies_to"`
-	MaxUses            int                 `json:"max_uses"`
-	MaxUsesPerCustomer int                 `json:"max_uses_per_customer"`
-	RestrictedTo       *CouponRestrictedTo `json:"restricted_to,omitempty"`
+	ID                 int                  `json:"id"`
+	DateCreated        string               `json:"date_created"`
+	NumUses            int                  `json:"num_uses"`
+	Name               string               `json:"name"`
+	Type               string               `json:"type"`
+	Amount             string               `json:"amount"`
+	MinPurchase        string               `json:"min_purchase"`
+	Expires            string               `json:"expires"`
+	Enabled            bool                 `json:"enabled"`
+	Code               string               `json:"code"`
+	AppliesTo          CouponAppliesTo      `json:"applies_to"`
+	MaxUses            int                  `json:"max_uses"`
+	MaxUsesPerCustomer int                  `json:"max_uses_per_customer"`
+	RestrictedTo       []CouponRestrictedTo `json:"restricted_to"`
 }
 
 type CouponAppliesTo struct {
@@ -54,7 +53,7 @@ type CouponsResponseObject struct {
 	Data []Coupon `json:"data"`
 	Meta MetaData `json:"meta"`
 }
-type CreateUpdateCouponParams struct {
+type CreateCouponParams struct {
 	Name               string        `json:"name"`
 	Type               string        `json:"type"`
 	Amount             string        `json:"amount"`
@@ -62,7 +61,21 @@ type CreateUpdateCouponParams struct {
 	Expires            string        `json:"expires,omitempty"`
 	Enabled            bool          `json:"enabled"`
 	Code               string        `json:"code"`
-	AppliesTo          AppliesTo     `json:"applies_to"`
+	AppliesTo          *AppliesTo    `json:"applies_to"`
+	MaxUses            int           `json:"max_uses,omitempty"`
+	MaxUsesPerCustomer int           `json:"max_uses_per_customer,omitempty"`
+	RestrictedTo       *RestrictedTo `json:"restricted_to,omitempty"`
+}
+
+type UpdateCouponParams struct {
+	Name               string        `json:"name,omitempty"`
+	Type               string        `json:"type,omitempty"`
+	Amount             string        `json:"amount,omitempty"`
+	MinPurchase        string        `json:"min_purchase,omitempty"`
+	Expires            string        `json:"expires,omitempty"`
+	Enabled            bool          `json:"enabled,omitempty"`
+	Code               string        `json:"code,omitempty"`
+	AppliesTo          *AppliesTo    `json:"applies_to,omitempty"`
 	MaxUses            int           `json:"max_uses,omitempty"`
 	MaxUsesPerCustomer int           `json:"max_uses_per_customer,omitempty"`
 	RestrictedTo       *RestrictedTo `json:"restricted_to,omitempty"`
@@ -77,39 +90,8 @@ type RestrictedTo struct {
 	ShippingMethods []string `json:"shipping_methods,omitempty"`
 }
 
-func validateCreateUpdateCoupon(coupon CreateUpdateCouponParams) error {
-	if coupon.Name == "" {
-		return errors.New("name is required")
-	}
-	if coupon.Type == "" {
-		return errors.New("type is required")
-	}
-	if coupon.Amount == "" {
-		return errors.New("amount is required")
-	}
-	if coupon.Enabled && coupon.Code == "" {
-		return errors.New("code is required when the coupon is enabled")
-	}
-	if len(coupon.AppliesTo.IDs) == 0 {
-		return errors.New("at least one ID is required in AppliesTo")
-	}
-	if coupon.MaxUses < 0 {
-		return errors.New("maxUses must be a non-negative value")
-	}
-	if coupon.MaxUsesPerCustomer < 0 {
-		return errors.New("maxUsesPerCustomer must be a non-negative value")
-	}
-
-	return nil
-}
-
-func (client *V2Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, error) {
+func (client *V2Client) CreateCoupon(params CreateCouponParams) (Coupon, error) {
 	var response CouponResponseObject
-
-	err := validateCreateUpdateCoupon(params)
-	if err != nil {
-		return response.Data, fmt.Errorf("coupon validation failed: %w", err)
-	}
 
 	path := client.constructURL("coupons")
 	if err := client.Post(path, params, &response.Data); err != nil {
@@ -119,13 +101,8 @@ func (client *V2Client) CreateCoupon(params CreateUpdateCouponParams) (Coupon, e
 	return response.Data, nil
 }
 
-func (client *V2Client) UpdateCoupon(couponID int, params CreateUpdateCouponParams) (Coupon, error) {
+func (client *V2Client) UpdateCoupon(couponID int, params UpdateCouponParams) (Coupon, error) {
 	var response CouponResponseObject
-
-	err := validateCreateUpdateCoupon(params)
-	if err != nil {
-		return response.Data, fmt.Errorf("coupon validation failed: %w", err)
-	}
 
 	path := client.constructURL("coupons", strconv.Itoa(couponID))
 	if err := client.Put(path, params, &response.Data); err != nil {
@@ -135,19 +112,19 @@ func (client *V2Client) UpdateCoupon(couponID int, params CreateUpdateCouponPara
 	return response.Data, nil
 }
 
-func (client *V2Client) GetCoupons(params CouponQueryParams) ([]Coupon, MetaData, error) {
+func (client *V2Client) GetCoupons(params CouponQueryParams) ([]Coupon, error) {
 	var response CouponsResponseObject
 
 	path, err := urlWithQueryParams(client.constructURL("coupons"), params)
 	if err != nil {
-		return response.Data, response.Meta, fmt.Errorf("failed to construct URL with query params: %w", err)
+		return response.Data, fmt.Errorf("failed to construct URL with query params: %w", err)
 	}
 
 	if err := client.Get(path, &response.Data); err != nil {
-		return response.Data, response.Meta, fmt.Errorf("failed to get coupons: %w", err)
+		return response.Data, fmt.Errorf("failed to get coupons: %w", err)
 	}
 
-	return response.Data, response.Meta, nil
+	return response.Data, nil
 }
 
 func (client *V2Client) GetCoupon(couponID int) (Coupon, error) {

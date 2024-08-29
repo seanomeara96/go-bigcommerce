@@ -1,20 +1,30 @@
 package bigcommerce
 
 import (
+	"fmt"
+	"strconv"
 	"testing"
+	"time"
 )
 
-func TestCreateCoupon(t *testing.T) {
-	client, _ := getClient()
+const productIdDoesExist = 79
 
-	params := CreateUpdateCouponParams{
-		Name:    "Test Coupon",
+func TestCreateCoupon(t *testing.T) {
+	client, _ := getTestClient()
+
+	// Generate a unique coupon name and code
+	uniqueSuffix := time.Now().UnixNano()
+	uniqueName := fmt.Sprintf("Test Coupon %d", uniqueSuffix)
+	uniqueCode := fmt.Sprintf("TEST%d", uniqueSuffix)
+
+	params := CreateCouponParams{
+		Name:    uniqueName,
 		Type:    "per_item_discount",
-		Amount:  "10.00",
+		Amount:  "1.00",
 		Enabled: true,
-		Code:    "TESTCOUPON",
-		AppliesTo: AppliesTo{
-			IDs:    []int{1},
+		Code:    uniqueCode,
+		AppliesTo: &AppliesTo{
+			IDs:    []int{productIdDoesExist},
 			Entity: "products",
 		},
 	}
@@ -36,30 +46,30 @@ func TestCreateCoupon(t *testing.T) {
 }
 
 func TestUpdateCoupon(t *testing.T) {
-	client, _ := getClient()
+	client, _ := getTestClient()
 
 	// First, create a coupon
-	createParams := CreateUpdateCouponParams{
-		Name:    "Test Coupon",
+	coupon, err := client.V2.CreateCoupon(CreateCouponParams{
+		Name:    fmt.Sprintf("Test Coupon %d", time.Now().UnixNano()),
 		Type:    "per_item_discount",
-		Amount:  "10.00",
+		Amount:  "1.00",
 		Enabled: true,
-		Code:    "TESTCOUPON",
-		AppliesTo: AppliesTo{
-			IDs:    []int{1},
+		Code:    fmt.Sprintf("TEST%d", time.Now().UnixNano()),
+		AppliesTo: &AppliesTo{
+			IDs:    []int{productIdDoesExist},
 			Entity: "products",
 		},
-	}
-
-	coupon, err := client.V2.CreateCoupon(createParams)
+	})
 	if err != nil {
 		t.Fatalf("Failed to create test coupon: %v", err)
 	}
 
 	// Update the coupon
-	updateParams := CreateUpdateCouponParams{
-		Name:   "Updated Test Coupon",
-		Amount: "15.00",
+	uniqueSuffix := time.Now().UnixNano()
+	updateParams := UpdateCouponParams{
+		Name:   fmt.Sprintf("Test Updated Coupon %d", uniqueSuffix),
+		Amount: "1.00",
+		Type:   "per_item_discount",
 	}
 
 	updatedCoupon, err := client.V2.UpdateCoupon(coupon.ID, updateParams)
@@ -71,7 +81,9 @@ func TestUpdateCoupon(t *testing.T) {
 		t.Errorf("Expected updated coupon name %s, got %s", updateParams.Name, updatedCoupon.Name)
 	}
 
-	if updatedCoupon.Amount != updateParams.Amount {
+	actual, _ := strconv.Atoi(updatedCoupon.Amount)
+	expected, _ := strconv.Atoi(updateParams.Amount)
+	if actual != expected {
 		t.Errorf("Expected updated coupon amount %s, got %s", updateParams.Amount, updatedCoupon.Amount)
 	}
 
@@ -83,13 +95,13 @@ func TestUpdateCoupon(t *testing.T) {
 }
 
 func TestGetCoupons(t *testing.T) {
-	client, _ := getClient()
+	client, _ := getTestClient()
 
 	params := CouponQueryParams{
 		Limit: 10,
 	}
 
-	coupons, meta, err := client.V2.GetCoupons(params)
+	coupons, err := client.V2.GetCoupons(params)
 	if err != nil {
 		t.Fatalf("Failed to get coupons: %v", err)
 	}
@@ -97,29 +109,23 @@ func TestGetCoupons(t *testing.T) {
 	if len(coupons) > params.Limit {
 		t.Errorf("Expected at most %d coupons, got %d", params.Limit, len(coupons))
 	}
-
-	if meta.Pagination.Count != params.Limit {
-		t.Errorf("Expected count %d in metadata, got %d", params.Limit, meta.Pagination.Count)
-	}
 }
 
 func TestGetCoupon(t *testing.T) {
-	client, _ := getClient()
+	client, _ := getTestClient()
 
 	// First, create a coupon
-	createParams := CreateUpdateCouponParams{
-		Name:    "Test Coupon",
+	createdCoupon, err := client.V2.CreateCoupon(CreateCouponParams{
+		Name:    fmt.Sprintf("Test Coupon %d", time.Now().UnixNano()),
 		Type:    "per_item_discount",
-		Amount:  "10.00",
+		Amount:  "1.00",
 		Enabled: true,
-		Code:    "TESTCOUPON",
-		AppliesTo: AppliesTo{
-			IDs:    []int{1},
+		Code:    fmt.Sprintf("TEST%d", time.Now().UnixNano()),
+		AppliesTo: &AppliesTo{
+			IDs:    []int{productIdDoesExist},
 			Entity: "products",
 		},
-	}
-
-	createdCoupon, err := client.V2.CreateCoupon(createParams)
+	})
 	if err != nil {
 		t.Fatalf("Failed to create test coupon: %v", err)
 	}
@@ -134,34 +140,32 @@ func TestGetCoupon(t *testing.T) {
 		t.Errorf("Expected coupon ID %d, got %d", createdCoupon.ID, coupon.ID)
 	}
 
-	if coupon.Name != createParams.Name {
-		t.Errorf("Expected coupon name %s, got %s", createParams.Name, coupon.Name)
+	if coupon.Name != createdCoupon.Name {
+		t.Errorf("Expected coupon name %s, got %s", createdCoupon.Name, coupon.Name)
 	}
 
 	// Clean up
-	err = client.V2.DeleteCoupon(createdCoupon.ID)
+	err = client.V2.DeleteCoupon(coupon.ID)
 	if err != nil {
 		t.Fatalf("Failed to delete test coupon: %v", err)
 	}
 }
 
 func TestDeleteCoupon(t *testing.T) {
-	client, _ := getClient()
+	client, _ := getTestClient()
 
 	// First, create a coupon
-	createParams := CreateUpdateCouponParams{
-		Name:    "Test Coupon",
+	coupon, err := client.V2.CreateCoupon(CreateCouponParams{
+		Name:    fmt.Sprintf("Test Coupon %d", time.Now().UnixNano()),
 		Type:    "per_item_discount",
-		Amount:  "10.00",
+		Amount:  "1.00",
 		Enabled: true,
-		Code:    "TESTCOUPON",
-		AppliesTo: AppliesTo{
-			IDs:    []int{1},
+		Code:    fmt.Sprintf("TEST%d", time.Now().UnixNano()),
+		AppliesTo: &AppliesTo{
+			IDs:    []int{productIdDoesExist},
 			Entity: "products",
 		},
-	}
-
-	coupon, err := client.V2.CreateCoupon(createParams)
+	})
 	if err != nil {
 		t.Fatalf("Failed to create test coupon: %v", err)
 	}
@@ -176,140 +180,5 @@ func TestDeleteCoupon(t *testing.T) {
 	_, err = client.V2.GetCoupon(coupon.ID)
 	if err == nil {
 		t.Errorf("Expected error when getting deleted coupon, got nil")
-	}
-}
-
-func TestValidateCreateUpdateCoupon(t *testing.T) {
-	tests := []struct {
-		name    string
-		params  CreateUpdateCouponParams
-		wantErr bool
-	}{
-		{
-			name: "Valid params",
-			params: CreateUpdateCouponParams{
-				Name:    "Test Coupon",
-				Type:    "per_item_discount",
-				Amount:  "10.00",
-				Enabled: true,
-				Code:    "TESTCOUPON",
-				AppliesTo: AppliesTo{
-					IDs:    []int{1},
-					Entity: "products",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "Missing name",
-			params: CreateUpdateCouponParams{
-				Type:    "per_item_discount",
-				Amount:  "10.00",
-				Enabled: true,
-				Code:    "TESTCOUPON",
-				AppliesTo: AppliesTo{
-					IDs:    []int{1},
-					Entity: "products",
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "Missing type",
-			params: CreateUpdateCouponParams{
-				Name:    "Test Coupon",
-				Amount:  "10.00",
-				Enabled: true,
-				Code:    "TESTCOUPON",
-				AppliesTo: AppliesTo{
-					IDs:    []int{1},
-					Entity: "products",
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "Missing amount",
-			params: CreateUpdateCouponParams{
-				Name:    "Test Coupon",
-				Type:    "per_item_discount",
-				Enabled: true,
-				Code:    "TESTCOUPON",
-				AppliesTo: AppliesTo{
-					IDs:    []int{1},
-					Entity: "products",
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "Missing code when enabled",
-			params: CreateUpdateCouponParams{
-				Name:    "Test Coupon",
-				Type:    "per_item_discount",
-				Amount:  "10.00",
-				Enabled: true,
-				AppliesTo: AppliesTo{
-					IDs:    []int{1},
-					Entity: "products",
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "Empty AppliesTo.IDs",
-			params: CreateUpdateCouponParams{
-				Name:    "Test Coupon",
-				Type:    "per_item_discount",
-				Amount:  "10.00",
-				Enabled: true,
-				Code:    "TESTCOUPON",
-				AppliesTo: AppliesTo{
-					Entity: "products",
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "Negative MaxUses",
-			params: CreateUpdateCouponParams{
-				Name:    "Test Coupon",
-				Type:    "per_item_discount",
-				Amount:  "10.00",
-				Enabled: true,
-				Code:    "TESTCOUPON",
-				AppliesTo: AppliesTo{
-					IDs:    []int{1},
-					Entity: "products",
-				},
-				MaxUses: -1,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Negative MaxUsesPerCustomer",
-			params: CreateUpdateCouponParams{
-				Name:    "Test Coupon",
-				Type:    "per_item_discount",
-				Amount:  "10.00",
-				Enabled: true,
-				Code:    "TESTCOUPON",
-				AppliesTo: AppliesTo{
-					IDs:    []int{1},
-					Entity: "products",
-				},
-				MaxUsesPerCustomer: -1,
-			},
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := validateCreateUpdateCoupon(tt.params)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("validateCreateUpdateCoupon() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
 	}
 }

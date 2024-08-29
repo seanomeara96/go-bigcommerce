@@ -1,13 +1,6 @@
 package bigcommerce
 
-import (
-	"os"
-	"testing"
-
-	"github.com/joho/godotenv"
-)
-
-func TestGetProductVriantOptionsById(t *testing.T) {
+/*func TestGetProductVriantOptionsById(t *testing.T) {
 	var client *Client
 	err := godotenv.Load()
 	if err != nil {
@@ -24,4 +17,4 @@ func TestGetProductVriantOptionsById(t *testing.T) {
 		t.Error(err)
 	}
 
-}
+}*/

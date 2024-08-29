@@ -165,11 +165,9 @@ func (c *BaseVersionClient) request(httpMethod string, relativeUrl string, paylo
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Printf("Failed to read error response body: %v", err)
-		} else {
-			log.Printf("BigCommerce 4xx error response: %s", string(body))
+			return nil, fmt.Errorf("failed to read error response body: %v", err)
 		}
-		resp.Body = io.NopCloser(bytes.NewBuffer(body))
+		return nil, fmt.Errorf("bigCommerce 4xx error response: %s", string(body))
 	}
 
 	return resp, nil
@@ -183,7 +181,13 @@ func (client *BaseVersionClient) requestAndDecode(httpMethod string, relativeUrl
 	defer res.Body.Close()
 
 	if dest != nil {
-		if err := json.NewDecoder(res.Body).Decode(dest); err != nil {
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %w", err)
+		}
+
+		if err := json.Unmarshal(body, dest); err != nil {
+			log.Printf("Failed to decode response: %s", string(body))
 			return fmt.Errorf("failed to decode response: %w", err)
 		}
 	}

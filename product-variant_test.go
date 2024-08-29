@@ -5,7 +5,7 @@ import (
 )
 
 func TestGetProductVariants(t *testing.T) {
-	fs, _ := getClient()
+	fs, _ := getTestClient()
 
 	_, _, err := fs.V3.GetProductVariants(193, ProductVariantQueryParams{})
 	if err != nil {
