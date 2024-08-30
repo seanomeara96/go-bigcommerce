@@ -116,7 +116,7 @@ func (client *V3Client) EmptyCategory(id int) error {
 
 	for _, product := range products {
 		categories := removeCategory(product.Categories, id)
-		_, err = client.UpdateProduct(product.ID, CreateUpdateProductParams{Categories: categories})
+		_, err = client.UpdateProduct(product.ID, UpdateProductParams{Categories: categories})
 		if err != nil {
 			return fmt.Errorf("failed to update product %d while emptying category %d: %w", product.ID, id, err)
 		}

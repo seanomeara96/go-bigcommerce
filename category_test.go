@@ -105,7 +105,7 @@ func TestEmptyCategory(t *testing.T) {
 			return
 		}
 
-		_, err = fs.V3.UpdateProduct(product.ID, CreateUpdateProductParams{
+		_, err = fs.V3.UpdateProduct(product.ID, UpdateProductParams{
 			Categories: newCategories,
 		})
 		if err != nil {

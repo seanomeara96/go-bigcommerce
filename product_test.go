@@ -76,7 +76,7 @@ func TestGetFullProductCatalog(t *testing.T) {
 }
 
 func TestMarshalUpdateProductParams(t *testing.T) {
-	paramsStruct := CreateUpdateProductParams{Name: "updated name"}
+	paramsStruct := UpdateProductParams{Name: "updated name"}
 	paramBytes, err := json.Marshal(paramsStruct)
 	if err != nil {
 		t.Error(err)
@@ -89,7 +89,7 @@ func TestMarshalUpdateProductParams(t *testing.T) {
 		return
 	}
 
-	paramsStruct = CreateUpdateProductParams{Description: "updated description"}
+	paramsStruct = UpdateProductParams{Description: "updated description"}
 	paramBytes, err = json.Marshal(paramsStruct)
 	if err != nil {
 		t.Error(err)
@@ -102,10 +102,11 @@ func TestMarshalUpdateProductParams(t *testing.T) {
 		return
 	}
 
-	paramsStruct = CreateUpdateProductParams{CustomURL: &CustomURL{
+	paramsStruct = UpdateProductParams{CustomURL: &CustomURL{
 		URL:          "/new-url",
 		IsCustomized: true,
 	}}
+
 	paramBytes, err = json.Marshal(paramsStruct)
 	if err != nil {
 		t.Error(err)
@@ -117,4 +118,20 @@ func TestMarshalUpdateProductParams(t *testing.T) {
 		t.Errorf("expected %s but received %s instead", expectedJsonString, jsonString)
 		return
 	}
+}
+
+func TestForEach(t *testing.T) {
+	client, _ := getTestClient()
+
+	modifiers := []func(p *Product) bool{
+		/*func(p *Product) bool {
+			p.MetaDescription = p.MetaDescription + " Shop Now"
+			return true
+		},*/
+	}
+
+	if err := client.V3.ForEachProduct(modifiers); err != nil {
+		t.Error(err)
+	}
+
 }

@@ -4,80 +4,86 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 )
 
+type ResponseObject struct {
+	Data Product  `json:"data"`
+	Meta MetaData `json:"meta"`
+}
+
 type Product struct {
-	ID                      int                      `json:"id"`
-	Name                    string                   `json:"name"`
-	Type                    string                   `json:"type"`
-	SKU                     string                   `json:"sku"`
-	Description             string                   `json:"description"`
-	Weight                  float64                  `json:"weight"`
-	Width                   float64                  `json:"width"`
-	Depth                   float64                  `json:"depth"`
-	Height                  float64                  `json:"height"`
-	Price                   float64                  `json:"price"`
-	CostPrice               float64                  `json:"cost_price"`
-	RetailPrice             float64                  `json:"retail_price"`
-	SalePrice               float64                  `json:"sale_price"`
-	MapPrice                float64                  `json:"map_price"`
-	TaxClassID              float64                  `json:"tax_class_id"`
-	ProductTaxCode          string                   `json:"product_tax_code"`
-	CalculatedPrice         float64                  `json:"calculated_price"`
-	Categories              []int                    `json:"categories"`
-	BrandID                 int                      `json:"brand_id"`
-	OptionSetID             int                      `json:"option_set_id"`
-	OptionSetDisplay        string                   `json:"option_set_display"`
-	InventoryLevel          int                      `json:"inventory_level"`
-	InventoryWarningLevel   int                      `json:"inventory_warning_level"`
-	InventoryTracking       string                   `json:"inventory_tracking"`
-	ReviewsRatingSum        float64                  `json:"reviews_rating_sum"`
-	ReviewsCount            int                      `json:"reviews_count"`
-	TotalSold               int                      `json:"total_sold"`
-	FixedCostShippingPrice  float64                  `json:"fixed_cost_shipping_price"`
-	IsFreeShipping          bool                     `json:"is_free_shipping"`
-	IsVisible               bool                     `json:"is_visible"`
-	IsFeatured              bool                     `json:"is_featured"`
-	RelatedProducts         []int                    `json:"related_products"`
-	Warranty                string                   `json:"warranty"`
-	BinPickingNumber        string                   `json:"bin_picking_number"`
-	LayoutFile              string                   `json:"layout_file"`
-	UPC                     string                   `json:"upc"`
-	MPN                     string                   `json:"mpn"`
-	GTIN                    string                   `json:"gtin"`
-	SearchKeywords          string                   `json:"search_keywords"`
-	Availability            string                   `json:"availability"`
-	AvailabilityDescription string                   `json:"availability_description"`
-	GiftWrappingOptionsType string                   `json:"gift_wrapping_options_type"`
-	GiftWrappingOptionsList []string                 `json:"gift_wrapping_options_list"`
-	SortOrder               int                      `json:"sort_order"`
-	Condition               string                   `json:"condition"`
-	IsConditionShown        bool                     `json:"is_condition_shown"`
-	OrderQuantityMinimum    int                      `json:"order_quantity_minimum"`
-	OrderQuantityMaximum    int                      `json:"order_quantity_maximum"`
-	PageTitle               string                   `json:"page_title"`
-	MetaKeywords            []string                 `json:"meta_keywords"`
-	MetaDescription         string                   `json:"meta_description"`
-	DateCreated             string                   `json:"date_created"`
-	DateModified            string                   `json:"date_modified"`
-	ViewCount               int                      `json:"view_count"`
-	PreorderReleaseDate     string                   `json:"preorder_release_date"`
-	PreorderMessage         string                   `json:"preorder_message"`
-	IsPreorderOnly          bool                     `json:"is_preorder_only"`
-	IsPriceHidden           bool                     `json:"is_price_hidden"`
-	PriceHiddenLabel        string                   `json:"price_hidden_label"`
-	CustomURL               CustomURL                `json:"custom_url"`
-	BaseVariantID           int                      `json:"base_variant_id"`
-	OpenGraphType           string                   `json:"open_graph_type"`
-	OpenGraphTitle          string                   `json:"open_graph_title"`
-	OpenGraphDescription    string                   `json:"open_graph_description"`
-	OpenGraphUseMetaDesc    bool                     `json:"open_graph_use_meta_description"`
-	OpenGraphUseProductName bool                     `json:"open_graph_use_product_name"`
-	OpenGraphUseImage       bool                     `json:"open_graph_use_image"`
-	Variants                []ProductVariant         `json:"variants"`
-	Images                  []ProductImage           `json:"images"`
-	CustomFields            []ProductCustomField     `json:"custom_fields"`
-	BulkPricingRules        []ProductBulkPricingRule `json:"bulk_pricing_rules"`
+	ID                          int                      `json:"id"`
+	Name                        string                   `json:"name"`
+	Type                        string                   `json:"type"`
+	SKU                         string                   `json:"sku"`
+	Description                 string                   `json:"description"`
+	Weight                      float64                  `json:"weight"`
+	Width                       float64                  `json:"width"`
+	Depth                       float64                  `json:"depth"`
+	Height                      float64                  `json:"height"`
+	Price                       float64                  `json:"price"`
+	CostPrice                   float64                  `json:"cost_price"`
+	RetailPrice                 float64                  `json:"retail_price"`
+	SalePrice                   float64                  `json:"sale_price"`
+	MapPrice                    float64                  `json:"map_price"`
+	TaxClassID                  int                      `json:"tax_class_id"`
+	ProductTaxCode              string                   `json:"product_tax_code"`
+	CalculatedPrice             float64                  `json:"calculated_price"`
+	Categories                  []int                    `json:"categories"`
+	BrandID                     int                      `json:"brand_id"`
+	OptionSetID                 int                      `json:"option_set_id"`
+	OptionSetDisplay            string                   `json:"option_set_display"`
+	InventoryLevel              int                      `json:"inventory_level"`
+	InventoryWarningLevel       int                      `json:"inventory_warning_level"`
+	InventoryTracking           string                   `json:"inventory_tracking"`
+	ReviewsRatingSum            int                      `json:"reviews_rating_sum"`
+	ReviewsCount                int                      `json:"reviews_count"`
+	TotalSold                   int                      `json:"total_sold"`
+	FixedCostShippingPrice      float64                  `json:"fixed_cost_shipping_price"`
+	IsFreeShipping              bool                     `json:"is_free_shipping"`
+	IsVisible                   bool                     `json:"is_visible"`
+	IsFeatured                  bool                     `json:"is_featured"`
+	RelatedProducts             []int                    `json:"related_products"`
+	Warranty                    string                   `json:"warranty"`
+	BinPickingNumber            string                   `json:"bin_picking_number"`
+	LayoutFile                  string                   `json:"layout_file"`
+	UPC                         string                   `json:"upc"`
+	MPN                         string                   `json:"mpn"`
+	GTIN                        string                   `json:"gtin"`
+	SearchKeywords              string                   `json:"search_keywords"`
+	Availability                string                   `json:"availability"`
+	AvailabilityDescription     string                   `json:"availability_description"`
+	GiftWrappingOptionsType     string                   `json:"gift_wrapping_options_type"`
+	GiftWrappingOptionsList     []int                    `json:"gift_wrapping_options_list"`
+	SortOrder                   int                      `json:"sort_order"`
+	Condition                   string                   `json:"condition"`
+	IsConditionShown            bool                     `json:"is_condition_shown"`
+	OrderQuantityMinimum        int                      `json:"order_quantity_minimum"`
+	OrderQuantityMaximum        int                      `json:"order_quantity_maximum"`
+	PageTitle                   string                   `json:"page_title"`
+	MetaKeywords                []string                 `json:"meta_keywords"`
+	MetaDescription             string                   `json:"meta_description"`
+	DateCreated                 string                   `json:"date_created"`
+	DateModified                string                   `json:"date_modified"`
+	ViewCount                   int                      `json:"view_count"`
+	PreorderReleaseDate         string                   `json:"preorder_release_date"`
+	PreorderMessage             string                   `json:"preorder_message"`
+	IsPreorderOnly              bool                     `json:"is_preorder_only"`
+	IsPriceHidden               bool                     `json:"is_price_hidden"`
+	PriceHiddenLabel            string                   `json:"price_hidden_label"`
+	CustomURL                   CustomURL                `json:"custom_url"`
+	BaseVariantID               int                      `json:"base_variant_id"`
+	OpenGraphType               string                   `json:"open_graph_type"`
+	OpenGraphTitle              string                   `json:"open_graph_title"`
+	OpenGraphDescription        string                   `json:"open_graph_description"`
+	OpenGraphUseMetaDescription bool                     `json:"open_graph_use_meta_description"`
+	OpenGraphUseProductName     bool                     `json:"open_graph_use_product_name"`
+	OpenGraphUseImage           bool                     `json:"open_graph_use_image"`
+	Variants                    []ProductVariant         `json:"variants"`
+	Images                      []ProductImage           `json:"images"`
+	CustomFields                []ProductCustomField     `json:"custom_fields"`
+	BulkPricingRules            []ProductBulkPricingRule `json:"bulk_pricing_rules"`
 	// TODO need appr. type
 	PrimaryImage string `json:"primary_image"`
 	// TODO need appr. type
@@ -143,73 +149,145 @@ type ProductQueryParams struct {
 	SKUIn                 []string `url:"sku:in,omitempty,comma"`
 }
 
-type CreateUpdateProductParams struct {
-	Name                    string                   `json:"name,omitempty" validate:"required,min=1,max=250"`
-	Type                    string                   `json:"type,omitempty" validate:"required,oneof=physical digital"`
-	SKU                     string                   `json:"sku,omitempty" validate:"max=255"`
-	Description             string                   `json:"description,omitempty"`
-	Weight                  float64                  `json:"weight,omitempty" validate:"required"`
-	Width                   float64                  `json:"width,omitempty"`
-	Depth                   float64                  `json:"depth,omitempty"`
-	Height                  float64                  `json:"height,omitempty"`
-	Price                   float64                  `json:"price,omitempty" validate:"required"`
-	CostPrice               float64                  `json:"cost_price,omitempty"`
-	RetailPrice             float64                  `json:"retail_price,omitempty"`
-	SalePrice               float64                  `json:"sale_price,omitempty"`
-	MapPrice                float64                  `json:"map_price,omitempty"`
-	TaxClassID              int                      `json:"tax_class_id,omitempty"`
-	ProductTaxCode          string                   `json:"product_tax_code,omitempty" validate:"max=255"`
-	Categories              []int                    `json:"categories,omitempty"`
-	BrandID                 int                      `json:"brand_id,omitempty"`
-	InventoryLevel          int                      `json:"inventory_level,omitempty"`
-	InventoryWarningLevel   int                      `json:"inventory_warning_level,omitempty"`
-	InventoryTracking       string                   `json:"inventory_tracking,omitempty"`
-	FixedCostShippingPrice  float64                  `json:"fixed_cost_shipping_price,omitempty"`
+type CreateProductParams struct {
+	// Required Fields
+	Name   string  `json:"name"`   // >= 1 character, <= 250 characters
+	Type   string  `json:"type"`   // Allowed: physical, digital
+	Weight float64 `json:"weight"` // Min: 0, Max: 9999999999
+	Price  float64 `json:"price"`  // Min: 0
+
+	// Optional Fields
+	SKU                     string                   `json:"sku,omitempty"`                       // <= 255 characters
+	Description             string                   `json:"description,omitempty"`               // HTML formatting allowed
+	Width                   float64                  `json:"width,omitempty"`                     // Min: 0, Max: 9999999999
+	Depth                   float64                  `json:"depth,omitempty"`                     // Min: 0, Max: 9999999999
+	Height                  float64                  `json:"height,omitempty"`                    // Min: 0, Max: 9999999999
+	CostPrice               float64                  `json:"cost_price,omitempty"`                // Min: 0
+	RetailPrice             float64                  `json:"retail_price,omitempty"`              // Min: 0
+	SalePrice               float64                  `json:"sale_price,omitempty"`                // Min: 0
+	MAPPrice                float64                  `json:"map_price,omitempty"`                 // Min: 0
+	TaxClassID              int                      `json:"tax_class_id,omitempty"`              // Min: 0, Max: 255
+	ProductTaxCode          string                   `json:"product_tax_code,omitempty"`          // <= 255 characters
+	Categories              []int                    `json:"categories,omitempty"`                // Max: 1000
+	BrandID                 int                      `json:"brand_id,omitempty"`                  // Min: 0, Max: 1000000000
+	BrandName               string                   `json:"brand_name,omitempty"`                // Non-case sensitive
+	InventoryLevel          int                      `json:"inventory_level,omitempty"`           // Min: 0, Max: 2147483647
+	InventoryWarningLevel   int                      `json:"inventory_warning_level,omitempty"`   // Min: 0, Max: 2147483647
+	InventoryTracking       string                   `json:"inventory_tracking,omitempty"`        // Allowed: none, product, variant
+	FixedCostShippingPrice  float64                  `json:"fixed_cost_shipping_price,omitempty"` // Min: 0
 	IsFreeShipping          bool                     `json:"is_free_shipping,omitempty"`
 	IsVisible               bool                     `json:"is_visible,omitempty"`
 	IsFeatured              bool                     `json:"is_featured,omitempty"`
 	RelatedProducts         []int                    `json:"related_products,omitempty"`
-	Warranty                string                   `json:"warranty,omitempty"`
-	BinPickingNumber        string                   `json:"bin_picking_number,omitempty"`
-	LayoutFile              string                   `json:"layout_file,omitempty"`
-	UPC                     string                   `json:"upc,omitempty"`
-	SearchKeywords          string                   `json:"search_keywords,omitempty"`
-	AvailabilityDescription string                   `json:"availability_description,omitempty"`
-	Availability            string                   `json:"availability,omitempty"`
-	GiftWrappingOptionsType string                   `json:"gift_wrapping_options_type,omitempty"`
+	Warranty                string                   `json:"warranty,omitempty"`                   // <= 65535 characters
+	BinPickingNumber        string                   `json:"bin_picking_number,omitempty"`         // <= 255 characters
+	LayoutFile              string                   `json:"layout_file,omitempty"`                // <= 500 characters
+	UPC                     string                   `json:"upc,omitempty"`                        // <= 14 characters
+	SearchKeywords          string                   `json:"search_keywords,omitempty"`            // <= 65535 characters
+	AvailabilityDescription string                   `json:"availability_description,omitempty"`   // <= 255 characters
+	Availability            string                   `json:"availability,omitempty"`               // Allowed: available, disabled, preorder
+	GiftWrappingOptionsType string                   `json:"gift_wrapping_options_type,omitempty"` // Allowed: any, none, list
 	GiftWrappingOptionsList []int                    `json:"gift_wrapping_options_list,omitempty"`
-	SortOrder               int                      `json:"sort_order,omitempty"`
-	Condition               string                   `json:"condition,omitempty"`
+	SortOrder               int                      `json:"sort_order,omitempty"` // Min: -2147483648, Max: 2147483647
+	Condition               string                   `json:"condition,omitempty"`  // Allowed: New, Used, Refurbished
 	IsConditionShown        bool                     `json:"is_condition_shown,omitempty"`
-	OrderQuantityMinimum    int                      `json:"order_quantity_minimum,omitempty"`
-	OrderQuantityMaximum    int                      `json:"order_quantity_maximum,omitempty"`
-	PageTitle               string                   `json:"page_title,omitempty"`
-	MetaKeywords            []string                 `json:"meta_keywords,omitempty"`
-	MetaDescription         string                   `json:"meta_description,omitempty"`
-	ViewCount               int                      `json:"view_count,omitempty"`
-	PreorderReleaseDate     string                   `json:"preorder_release_date,omitempty"`
-	Message                 string                   `json:"preorder_message,omitempty"`
+	OrderQuantityMinimum    int                      `json:"order_quantity_minimum,omitempty"` // Min: 0, Max: 1000000000
+	OrderQuantityMaximum    int                      `json:"order_quantity_maximum,omitempty"` // Min: 0, Max: 1000000000
+	PageTitle               string                   `json:"page_title,omitempty"`             // <= 255 characters
+	MetaKeywords            []string                 `json:"meta_keywords,omitempty"`          // <= 65535 characters
+	MetaDescription         string                   `json:"meta_description,omitempty"`       // <= 65535 characters
+	PreorderReleaseDate     *time.Time               `json:"preorder_release_date,omitempty"`
+	PreorderMessage         string                   `json:"preorder_message,omitempty"` // <= 255 characters
 	IsPreorderOnly          bool                     `json:"is_preorder_only,omitempty"`
 	IsPriceHidden           bool                     `json:"is_price_hidden,omitempty"`
-	PriceHiddenLabel        string                   `json:"price_hidden_label,omitempty"`
+	PriceHiddenLabel        string                   `json:"price_hidden_label,omitempty"` // <= 200 characters
 	CustomURL               *CustomURL               `json:"custom_url,omitempty"`
-	OpenGraphType           string                   `json:"open_graph_type,omitempty"`
+	OpenGraphType           string                   `json:"open_graph_type,omitempty"` // Allowed: product, album, book, etc.
 	OpenGraphTitle          string                   `json:"open_graph_title,omitempty"`
 	OpenGraphDescription    string                   `json:"open_graph_description,omitempty"`
 	OpenGraphUseMetaDesc    bool                     `json:"open_graph_use_meta_description,omitempty"`
 	OpenGraphUseProductName bool                     `json:"open_graph_use_product_name,omitempty"`
 	OpenGraphUseImage       bool                     `json:"open_graph_use_image,omitempty"`
-	BrandName               string                   `json:"brand_name,omitempty"`
-	GTIN                    string                   `json:"gtin,omitempty"`
+	GTIN                    string                   `json:"gtin,omitempty"` // <= 14 characters
 	MPN                     string                   `json:"mpn,omitempty"`
+	DateLastImported        string                   `json:"date_last_imported,omitempty"`
 	ReviewsRatingSum        int                      `json:"reviews_rating_sum,omitempty"`
 	ReviewsCount            int                      `json:"reviews_count,omitempty"`
 	TotalSold               int                      `json:"total_sold,omitempty"`
-	CustomFields            []ProductCustomField     `json:"custom_fields,omitempty"`
+	CustomFields            []ProductCustomField     `json:"custom_fields,omitempty"` // 200 maximum custom fields per product
 	BulkPricingRules        []ProductBulkPricingRule `json:"bulk_pricing_rules,omitempty"`
-	Images                  []ProductImage           `json:"images,omitempty"`
+	Images                  []ProductImage           `json:"images,omitempty"` // A product can have up to 1000 images
 	Videos                  []ProductVideo           `json:"videos,omitempty"`
 	Variants                []ProductVariant         `json:"variants,omitempty"`
+}
+
+type UpdateProductParams struct {
+	Name                        string                   `json:"name,omitempty" validate:"required,min=1,max=250"`
+	Type                        string                   `json:"type,omitempty" validate:"required,oneof=physical digital"`
+	SKU                         string                   `json:"sku,omitempty" validate:"omitempty,min=0,max=255"`
+	Description                 string                   `json:"description,omitempty"`
+	Weight                      float64                  `json:"weight,omitempty" validate:"required,min=0,max=9999999999"`
+	Width                       float64                  `json:"width,omitempty" validate:"omitempty,min=0,max=9999999999"`
+	Depth                       float64                  `json:"depth,omitempty" validate:"omitempty,min=0,max=9999999999"`
+	Height                      float64                  `json:"height,omitempty" validate:"omitempty,min=0,max=9999999999"`
+	Price                       float64                  `json:"price,omitempty" validate:"required,min=0"`
+	CostPrice                   float64                  `json:"cost_price,omitempty" validate:"omitempty,min=0"`
+	RetailPrice                 float64                  `json:"retail_price,omitempty" validate:"omitempty,min=0"`
+	SalePrice                   float64                  `json:"sale_price,omitempty" validate:"omitempty,min=0"`
+	MapPrice                    float64                  `json:"map_price,omitempty" validate:"omitempty,min=0"`
+	TaxClassID                  int                      `json:"tax_class_id,omitempty" validate:"omitempty,min=0,max=255"`
+	ProductTaxCode              string                   `json:"product_tax_code,omitempty" validate:"omitempty,min=0,max=255"`
+	Categories                  []int                    `json:"categories,omitempty" validate:"omitempty,min=0,max=1000,dive,min=0"`
+	BrandID                     int                      `json:"brand_id,omitempty" validate:"omitempty,min=0,max=1000000000"`
+	BrandName                   string                   `json:"brand_name,omitempty"`
+	InventoryLevel              int                      `json:"inventory_level,omitempty" validate:"omitempty,min=0,max=2147483647"`
+	InventoryWarningLevel       int                      `json:"inventory_warning_level,omitempty" validate:"omitempty,min=0,max=2147483647"`
+	InventoryTracking           string                   `json:"inventory_tracking,omitempty" validate:"omitempty,oneof=none product variant"`
+	FixedCostShippingPrice      float64                  `json:"fixed_cost_shipping_price,omitempty" validate:"omitempty,min=0"`
+	IsFreeShipping              bool                     `json:"is_free_shipping,omitempty"`
+	IsVisible                   bool                     `json:"is_visible,omitempty"`
+	IsFeatured                  bool                     `json:"is_featured,omitempty"`
+	RelatedProducts             []int                    `json:"related_products,omitempty"`
+	Warranty                    string                   `json:"warranty,omitempty" validate:"omitempty,max=65535"`
+	BinPickingNumber            string                   `json:"bin_picking_number,omitempty" validate:"omitempty,min=0,max=255"`
+	LayoutFile                  string                   `json:"layout_file,omitempty" validate:"omitempty,min=0,max=500"`
+	UPC                         string                   `json:"upc,omitempty" validate:"omitempty,min=0,max=14"`
+	SearchKeywords              string                   `json:"search_keywords,omitempty" validate:"omitempty,min=0,max=65535"`
+	AvailabilityDescription     string                   `json:"availability_description,omitempty" validate:"omitempty,min=0,max=255"`
+	Availability                string                   `json:"availability,omitempty" validate:"omitempty,oneof=available disabled preorder"`
+	GiftWrappingOptionsType     string                   `json:"gift_wrapping_options_type,omitempty" validate:"omitempty,oneof=any none list"`
+	GiftWrappingOptionsList     []int                    `json:"gift_wrapping_options_list,omitempty"`
+	SortOrder                   int                      `json:"sort_order,omitempty" validate:"omitempty,min=-2147483648,max=2147483647"`
+	Condition                   string                   `json:"condition,omitempty" validate:"omitempty,oneof=New Used Refurbished"`
+	IsConditionShown            bool                     `json:"is_condition_shown,omitempty"`
+	OrderQuantityMinimum        int                      `json:"order_quantity_minimum,omitempty" validate:"omitempty,min=0,max=1000000000"`
+	OrderQuantityMaximum        int                      `json:"order_quantity_maximum,omitempty" validate:"omitempty,min=0,max=1000000000"`
+	PageTitle                   string                   `json:"page_title,omitempty" validate:"omitempty,min=0,max=255"`
+	MetaKeywords                []string                 `json:"meta_keywords,omitempty" validate:"omitempty,dive,min=0,max=65535"`
+	MetaDescription             string                   `json:"meta_description,omitempty" validate:"omitempty,min=0,max=65535"`
+	PreorderReleaseDate         string                   `json:"preorder_release_date,omitempty"`
+	PreorderMessage             string                   `json:"preorder_message,omitempty" validate:"omitempty,min=0,max=255"`
+	IsPreorderOnly              bool                     `json:"is_preorder_only,omitempty"`
+	IsPriceHidden               bool                     `json:"is_price_hidden,omitempty"`
+	PriceHiddenLabel            string                   `json:"price_hidden_label,omitempty" validate:"omitempty,min=0,max=200"`
+	CustomURL                   *CustomURL               `json:"custom_url,omitempty"`
+	OpenGraphType               string                   `json:"open_graph_type,omitempty" validate:"omitempty,oneof=product album book drink food game movie song tv_show"`
+	OpenGraphTitle              string                   `json:"open_graph_title,omitempty"`
+	OpenGraphDescription        string                   `json:"open_graph_description,omitempty"`
+	OpenGraphUseMetaDescription bool                     `json:"open_graph_use_meta_description,omitempty"`
+	OpenGraphUseProductName     bool                     `json:"open_graph_use_product_name,omitempty"`
+	OpenGraphUseImage           bool                     `json:"open_graph_use_image,omitempty"`
+	GTIN                        string                   `json:"gtin,omitempty" validate:"omitempty,min=0,max=14"`
+	MPN                         string                   `json:"mpn,omitempty"`
+	DateLastImported            string                   `json:"date_last_imported,omitempty"`
+	ReviewsRatingSum            int                      `json:"reviews_rating_sum,omitempty"`
+	ReviewsCount                int                      `json:"reviews_count,omitempty"`
+	TotalSold                   int                      `json:"total_sold,omitempty"`
+	CustomFields                []ProductCustomField     `json:"custom_fields,omitempty"`
+	BulkPricingRules            []ProductBulkPricingRule `json:"bulk_pricing_rules,omitempty"`
+	Images                      []ProductImage           `json:"images,omitempty"`
+	Videos                      []ProductVideo           `json:"videos,omitempty"`
+	Variants                    []ProductVariant         `json:"variants,omitempty"`
 }
 
 type ProductBulkPricingRule struct {
@@ -220,32 +298,46 @@ type ProductBulkPricingRule struct {
 	Amount      string `json:"amount"`
 }
 
+// GetProduct retrieves a single product by its ID from the BigCommerce API.
+//
+// Parameters:
+//   - id: The unique identifier of the product to retrieve.
+//   - params: LimitedProductQueryParams to specify additional query parameters for the request.
+//
+// Returns:
+//   - Product: The retrieved product information.
+//   - error: An error if the request fails or if there's an issue processing the response.
 func (client *V3Client) GetProduct(id int, params LimitedProductQueryParams) (Product, error) {
-	type ResponseObject struct {
-		Data Product  `json:"data"`
-		Meta MetaData `json:"meta"`
-	}
 	var response ResponseObject
 
-	getProductUrl := client.constructURL("/catalog/products/", strconv.Itoa(id))
-
 	// Add query parameters
-	url, err := urlWithQueryParams(getProductUrl, params)
+	url, err := urlWithQueryParams(client.constructURL("/catalog/products/", strconv.Itoa(id)), params)
 	if err != nil {
 		return response.Data, err
 	}
 
 	// Send the request
-	err = client.Get(url, &response)
-	if err != nil {
+	if err = client.Get(url, &response); err != nil {
 		return response.Data, err
 	}
 
 	return response.Data, nil
 }
 
+// GetProductBySKU retrieves a product by its SKU (Stock Keeping Unit) from the BigCommerce API.
+//
+// This function first fetches all variants matching the given SKU, then retrieves the associated product.
+// It ensures that exactly one variant is returned for the given SKU to avoid ambiguity.
+//
+// Parameters:
+//   - sku: The Stock Keeping Unit (SKU) of the product to retrieve.
+//
+// Returns:
+//   - Product: The retrieved product information.
+//   - error: An error if the request fails, if no variants are found, if multiple variants are found,
+//     or if there's an issue processing the response.
 func (client *V3Client) GetProductBySKU(sku string) (Product, error) {
-	// this needs to be a call to /catalog/variants
+	// Fetch variants matching the SKU
 	variants, err := client.GetAllVariants(AllProductVariantsQueryParams{SKU: sku})
 	if err != nil {
 		return Product{}, err
@@ -256,6 +348,7 @@ func (client *V3Client) GetProductBySKU(sku string) (Product, error) {
 	if len(variants) > 1 {
 		return Product{}, errors.New("this sku returned too many results")
 	}
+	// Retrieve the product associated with the variant
 	product, err := client.GetProduct(variants[0].ProductID, LimitedProductQueryParams{})
 	if err != nil {
 		return Product{}, err
@@ -263,8 +356,45 @@ func (client *V3Client) GetProductBySKU(sku string) (Product, error) {
 	return product, nil
 }
 
-//TODO maybe change this to getproduct, getproducts and getAllProducts, and have the ability to pass params to get all products
+// TODO maybe change this to getproduct, getproducts and getAllProducts, and have the ability to pass params to get all products
+// GetProductsByIDs retrieves multiple products by their IDs from the BigCommerce API.
+//
+// This function takes a slice of product IDs and fetches the corresponding products.
+// It uses the ProductQueryParams to construct the API request, specifically utilizing
+// the IDIn parameter to filter products by their IDs.
+//
+// Parameters:
+//   - ids: A slice of integers representing the product IDs to retrieve.
+//
+// Returns:
+//   - []Product: A slice of Product structs containing the retrieved product information.
+//   - error: An error if the request fails or if there's an issue processing the response.
+func (client *V3Client) GetProductsByIDs(ids []int) ([]Product, error) {
+	params := ProductQueryParams{
+		IDIn: ids,
+	}
 
+	products, _, err := client.GetProducts(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}
+
+// GetProducts retrieves a list of products from the BigCommerce API based on the provided query parameters.
+//
+// This function sends a GET request to the BigCommerce API's catalog/products endpoint with the specified
+// query parameters. It returns a slice of Product structs, metadata about the request, and any error encountered.
+//
+// Parameters:
+//   - params: ProductQueryParams struct containing various query parameters to filter and paginate the products.
+//
+// Returns:
+//   - []Product: A slice of Product structs containing the retrieved product information.
+//   - MetaData: Metadata about the API response, including pagination information.
+//   - error: An error if the request fails, if there's an issue constructing the URL, or if there's a problem
+//     processing the response.
 func (client *V3Client) GetProducts(params ProductQueryParams) ([]Product, MetaData, error) {
 	type ResponseObject struct {
 		Data []Product `json:"data"`
@@ -283,6 +413,18 @@ func (client *V3Client) GetProducts(params ProductQueryParams) ([]Product, MetaD
 	return response.Data, response.Meta, nil
 }
 
+// GetAllProducts retrieves all products from the BigCommerce API based on the provided query parameters.
+//
+// This function uses pagination to fetch all products that match the given criteria. It automatically
+// handles multiple API requests to retrieve all pages of results.
+//
+// Parameters:
+//   - params: ProductQueryParams struct containing various query parameters to filter the products.
+//     The Page and Limit fields of this struct will be overwritten by this function.
+//
+// Returns:
+//   - []Product: A slice of Product structs containing all retrieved product information.
+//   - error: An error if any request fails or if there's an issue processing the responses.
 func (client *V3Client) GetAllProducts(params ProductQueryParams) ([]Product, error) {
 	var products []Product
 	params.Page = 1
@@ -302,19 +444,143 @@ func (client *V3Client) GetAllProducts(params ProductQueryParams) ([]Product, er
 
 		params.Page++
 	}
-
 }
 
-func (client *V3Client) UpdateProduct(productId int, params CreateUpdateProductParams) (Product, error) {
-	type ResponseObject struct {
-		Data Product  `json:"data"`
-		Meta MetaData `json:"meta"`
+// ForEach applies a series of functions to each product in the BigCommerce catalog.
+//
+// This function iterates through all products in the catalog, applying each function
+// in the provided slice to every product. If any function returns true, indicating
+// that the product was modified, the product is updated via the API.
+//
+// Parameters:
+//   - funcs: A slice of functions, each taking a pointer to a Product and returning a boolean.
+//     The boolean indicates whether the product was modified (true) or not (false).
+//
+// Returns:
+//   - error: An error if any API request fails or if there's an issue updating a product.
+//
+// Note:
+//
+//	This function uses pagination to process all products in batches of 250.
+//	It will continue making API requests until all products have been processed.
+func (client *V3Client) ForEachProduct(funcs []func(p *Product) bool) error {
+	page := 1
+	limit := 250
+	for {
+
+		if client.logger != nil {
+			client.logger.Printf("Fetching page %d", page)
+		}
+
+		params := ProductQueryParams{Page: page, Limit: limit}
+		batch, _, err := client.GetProducts(params)
+		if err != nil {
+			return err
+		}
+
+		for i := range batch {
+			product := &batch[i]
+
+			updated := false
+			for _, fn := range funcs {
+				if fn(product) {
+					if client.logger != nil {
+						client.logger.Printf("Product %d modified", product.ID)
+					}
+					updated = true
+				}
+			}
+
+			// Compare modified product to original and update if changed
+			if updated {
+				updateParams := UpdateProductParams{
+					Name:                        product.Name,
+					Type:                        product.Type,
+					SKU:                         product.SKU,
+					Description:                 product.Description,
+					Weight:                      product.Weight,
+					Width:                       product.Width,
+					Depth:                       product.Depth,
+					Height:                      product.Height,
+					Price:                       product.Price,
+					CostPrice:                   product.CostPrice,
+					RetailPrice:                 product.RetailPrice,
+					SalePrice:                   product.SalePrice,
+					MapPrice:                    product.MapPrice,
+					TaxClassID:                  product.TaxClassID,
+					ProductTaxCode:              product.ProductTaxCode,
+					Categories:                  product.Categories,
+					BrandID:                     product.BrandID,
+					InventoryLevel:              product.InventoryLevel,
+					InventoryWarningLevel:       product.InventoryWarningLevel,
+					InventoryTracking:           product.InventoryTracking,
+					FixedCostShippingPrice:      product.FixedCostShippingPrice,
+					IsFreeShipping:              product.IsFreeShipping,
+					IsVisible:                   product.IsVisible,
+					IsFeatured:                  product.IsFeatured,
+					RelatedProducts:             product.RelatedProducts,
+					Warranty:                    product.Warranty,
+					BinPickingNumber:            product.BinPickingNumber,
+					LayoutFile:                  product.LayoutFile,
+					UPC:                         product.UPC,
+					SearchKeywords:              product.SearchKeywords,
+					Availability:                product.Availability,
+					AvailabilityDescription:     product.AvailabilityDescription,
+					GiftWrappingOptionsType:     product.GiftWrappingOptionsType,
+					GiftWrappingOptionsList:     product.GiftWrappingOptionsList,
+					SortOrder:                   product.SortOrder,
+					Condition:                   product.Condition,
+					IsConditionShown:            product.IsConditionShown,
+					OrderQuantityMinimum:        product.OrderQuantityMinimum,
+					OrderQuantityMaximum:        product.OrderQuantityMaximum,
+					PageTitle:                   product.PageTitle,
+					MetaKeywords:                product.MetaKeywords,
+					MetaDescription:             product.MetaDescription,
+					PreorderReleaseDate:         product.PreorderReleaseDate,
+					PreorderMessage:             product.PreorderMessage,
+					IsPreorderOnly:              product.IsPreorderOnly,
+					IsPriceHidden:               product.IsPriceHidden,
+					PriceHiddenLabel:            product.PriceHiddenLabel,
+					CustomURL:                   &product.CustomURL,
+					OpenGraphType:               product.OpenGraphType,
+					OpenGraphTitle:              product.OpenGraphTitle,
+					OpenGraphDescription:        product.OpenGraphDescription,
+					OpenGraphUseMetaDescription: product.OpenGraphUseMetaDescription,
+					OpenGraphUseProductName:     product.OpenGraphUseProductName,
+					OpenGraphUseImage:           product.OpenGraphUseImage,
+					GTIN:                        product.GTIN,
+					MPN:                         product.MPN,
+					ReviewsRatingSum:            product.ReviewsRatingSum,
+					ReviewsCount:                product.ReviewsCount,
+					TotalSold:                   product.TotalSold,
+					CustomFields:                product.CustomFields,
+					BulkPricingRules:            product.BulkPricingRules,
+					Images:                      product.Images,
+					Videos:                      product.Videos,
+					Variants:                    product.Variants,
+				}
+
+				_, err := client.UpdateProduct(product.ID, updateParams)
+				if err != nil {
+					return fmt.Errorf("failed to update product %d: %w", product.ID, err)
+				}
+				if client.logger != nil {
+					client.logger.Printf("Product %d updated", product.ID)
+				}
+			}
+		}
+		if len(batch) < limit {
+			break
+		}
+		page++
 	}
+	return nil
+}
+
+func (client *V3Client) UpdateProduct(productId int, params UpdateProductParams) (Product, error) {
 	var response ResponseObject
 
-	updateProductPath := client.constructURL("/catalog/products", strconv.Itoa(productId))
-
-	err := client.Put(updateProductPath, params, &response)
+	err := client.Put(client.constructURL("/catalog/products", strconv.Itoa(productId)), params, &response)
 	if err != nil {
 		return response.Data, err
 	}
@@ -322,11 +588,7 @@ func (client *V3Client) UpdateProduct(productId int, params CreateUpdateProductP
 	return response.Data, nil
 }
 
-func (client *V3Client) CreateProduct(params CreateUpdateProductParams) (Product, error) {
-	type ResponseObject struct {
-		Data Product  `json:"data"`
-		Meta MetaData `json:"meta"`
-	}
+func (client *V3Client) CreateProduct(params CreateProductParams) (Product, error) {
 	var response ResponseObject
 
 	noNameSupplied := params.Name == ""
@@ -337,10 +599,7 @@ func (client *V3Client) CreateProduct(params CreateUpdateProductParams) (Product
 		return response.Data, fmt.Errorf("failed check of name, type and weight")
 	}
 
-	createProductPath := client.constructURL("/catalog/products")
-
-	err := client.Post(createProductPath, params, &response)
-	if err != nil {
+	if err := client.Post(client.constructURL("/catalog/products"), params, &response); err != nil {
 		return response.Data, nil
 	}
 
@@ -348,12 +607,10 @@ func (client *V3Client) CreateProduct(params CreateUpdateProductParams) (Product
 }
 
 func (client *V3Client) DeleteProduct(productID int) error {
-	path := client.constructURL("/catalog/products", strconv.Itoa(productID))
-	err := client.Delete(path, nil)
+	err := client.Delete(client.constructURL("/catalog/products", strconv.Itoa(productID)), nil)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -364,7 +621,6 @@ func (client *V3Client) RemoveCategoryFromProduct(productID, categoryToRemoveID 
 	}
 
 	categoriesToKeep := []int{}
-
 	for i := 0; i < len(product.Categories); i++ {
 		categoryID := product.Categories[i]
 		if categoryID != categoryToRemoveID {
@@ -372,7 +628,7 @@ func (client *V3Client) RemoveCategoryFromProduct(productID, categoryToRemoveID 
 		}
 	}
 
-	return client.UpdateProduct(productID, CreateUpdateProductParams{Categories: categoriesToKeep})
+	return client.UpdateProduct(productID, UpdateProductParams{Categories: categoriesToKeep})
 }
 
 func (client *V3Client) AddCategoryToProduct(productID, categoryToAddID int) (Product, error) {
@@ -381,7 +637,7 @@ func (client *V3Client) AddCategoryToProduct(productID, categoryToAddID int) (Pr
 		return product, err
 	}
 	updatedProductCategories := append(product.Categories, categoryToAddID)
-	return client.UpdateProduct(productID, CreateUpdateProductParams{Categories: updatedProductCategories})
+	return client.UpdateProduct(productID, UpdateProductParams{Categories: updatedProductCategories})
 }
 
 func (p *Product) AddCategory(c int) []int {

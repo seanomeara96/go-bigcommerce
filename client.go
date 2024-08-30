@@ -58,6 +58,24 @@ type Client struct {
 	V2 *V2Client
 }
 
+// NewClient creates and returns a new BigCommerce API client.
+//
+// Parameters:
+//   - storeHash: The unique identifier for your BigCommerce store.
+//   - authToken: Your BigCommerce API authentication token.
+//   - config: Optional RateLimitConfig. If nil, default values will be used.
+//   - logger: Optional Logger interface for logging. If nil, no logging will occur.
+//
+// The client includes both V2 and V3 API clients, accessible via the V2 and V3 fields respectively.
+//
+// Example usage:
+//
+//	client := NewClient("your_store_hash", "your_auth_token", nil, nil)
+//	products, err := client.V3.GetAllProducts(bigcommerce.ProductQueryParams{})
+//
+// Returns:
+//   - *Client: A pointer to the newly created BigCommerce API client.
+
 func NewClient(storeHash string, authToken string, config *RateLimitConfig, logger Logger) *Client {
 	v2URL, err := url.Parse(fmt.Sprintf("https://api.bigcommerce.com/stores/%s/v%d", storeHash, 2))
 	if err != nil {
@@ -148,70 +166,73 @@ func (c *BaseVersionClient) backoff() error {
 	return nil
 }
 
-func (c *BaseVersionClient) request(httpMethod string, relativeUrl string, payload []byte, attempt int) (*http.Response, error) {
-	if c.logger != nil {
-		c.logger.Printf("Attempting %s request to %s (attempt %d)", httpMethod, relativeUrl, attempt+1)
-	}
+func (c *BaseVersionClient) request(httpMethod string, relativeUrl string, payload []byte) (*http.Response, error) {
+	maxAttempts := 3
+	backoffDuration := time.Second * 3
 
-	if err := c.backoff(); err != nil {
-		return nil, fmt.Errorf("backoff failed: %w", err)
-	}
-
-	req, err := configureRequest(c.authToken, httpMethod, relativeUrl, payload)
-	if err != nil {
-		return nil, fmt.Errorf("failed to configure request: %w", err)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
+	for attempt := 0; attempt < maxAttempts; attempt++ {
 		if c.logger != nil {
-			c.logger.Printf("Request failed: %v", err)
+			c.logger.Printf("Attempting %s request to %s (attempt %d)", httpMethod, relativeUrl, attempt+1)
 		}
-		if attempt < 3 {
-			log.Printf("Request failed. Retrying in 3 seconds. Error: %v", err)
-			time.Sleep(3 * time.Second)
-			return c.request(httpMethod, relativeUrl, payload, attempt+1)
+
+		if err := c.backoff(); err != nil {
+			return nil, fmt.Errorf("backoff failed: %w", err)
 		}
-		return nil, fmt.Errorf("request failed after 3 attempts: %w", err)
-	}
 
-	if c.logger != nil {
-		c.logger.Printf("Response received: Status %d", resp.StatusCode)
-	}
-
-	c.setRateLimitStatus(resp.Header)
-
-	if resp.StatusCode == 429 || (resp.StatusCode/100 == 5) {
-		if attempt < 3 {
-			waitTime := 3 * time.Second
-			if resp.StatusCode == 429 {
-				waitTime = time.Duration(c.rateLimitStatus.MsToReset) * time.Millisecond
-			}
-			log.Printf("%s request to %s failed with status code %d. Retrying in %v.", httpMethod, relativeUrl, resp.StatusCode, waitTime)
-			time.Sleep(waitTime)
-			return c.request(httpMethod, relativeUrl, payload, attempt+1)
-		}
-		if resp.StatusCode == 429 {
-			return nil, fmt.Errorf("429 - Rate limit exceeded. Max retries reached for %s request to %s", httpMethod, relativeUrl)
-		}
-		return nil, fmt.Errorf("server error: %d. Max retries reached for %s request to %s", resp.StatusCode, httpMethod, relativeUrl)
-	}
-
-	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-		body, err := io.ReadAll(resp.Body)
+		req, err := configureRequest(c.authToken, httpMethod, relativeUrl, payload)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read error response body: %v", err)
+			return nil, fmt.Errorf("failed to configure request: %w", err)
 		}
-		return nil, fmt.Errorf("bigCommerce 4xx error response: %s", string(body))
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			if c.logger != nil {
+				c.logger.Printf("Request failed: %v", err)
+			}
+			if attempt < maxAttempts-1 {
+				if c.logger != nil {
+					c.logger.Printf("Retrying in %v seconds. Error: %v", backoffDuration.Seconds(), err)
+				}
+				time.Sleep(backoffDuration)
+				backoffDuration *= 2 // Exponential backoff
+				continue
+			}
+			return nil, fmt.Errorf("request failed after %d attempts: %w", maxAttempts, err)
+		}
+
+		if c.logger != nil {
+			c.logger.Printf("Response received: Status %d", resp.StatusCode)
+		}
+
+		c.setRateLimitStatus(resp.Header)
+
+		if resp.StatusCode >= 400 {
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body.Close()
+			if resp.StatusCode >= 500 && attempt < maxAttempts-1 {
+				if c.logger != nil {
+					c.logger.Printf("Server error (status %d). Retrying in %v seconds.", resp.StatusCode, backoffDuration.Seconds())
+				}
+				time.Sleep(backoffDuration)
+				backoffDuration *= 2 // Exponential backoff
+				continue
+			}
+			return nil, NewBigCommerceError(resp, body)
+		}
+
+		return resp, nil
 	}
 
-	return resp, nil
+	return nil, fmt.Errorf("request failed after %d attempts", maxAttempts)
 }
 
 func (client *BaseVersionClient) requestAndDecode(httpMethod string, relativeUrl string, payload []byte, dest any) error {
-	res, err := client.request(httpMethod, relativeUrl, payload, 0)
+	res, err := client.request(httpMethod, relativeUrl, payload)
 	if err != nil {
-		return fmt.Errorf("request failed: %w", err)
+		return err
 	}
 	defer res.Body.Close()
 

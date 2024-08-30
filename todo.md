@@ -1,10 +1,10 @@
 # BigCommerce API Client Improvements
 
-1. **Consistent error handling**: Implement a custom error type that includes more details about API errors. This will make it easier for users to handle and debug issues.
+1. ~~**Consistent error handling**: Implement a custom error type that includes more details about API errors. This will make it easier for users to handle and debug issues.~~
 
 2. **Pagination helper**: Create a generic pagination helper function that can be used across different endpoints to simplify fetching all pages of results.
 
-3. **Logging**: Add an optional logging interface to allow users to debug API calls and responses.
+3. ~~**Logging**: Add an optional logging interface to allow users to debug API calls and responses.~~
 
 4. **Rate limiting**: Implement a more sophisticated rate limiting mechanism that respects the rate limits returned by the BigCommerce API.
 
@@ -14,7 +14,7 @@
 
 7. **Validation**: Implement input validation for all method parameters to catch errors early.
 
-8. **Retries**: Add a configurable retry mechanism for transient errors.
+8. ~~**Retries**: Add a configurable retry mechanism for transient errors.~~
 
 9. **Caching**: Implement an optional caching layer for frequently accessed resources.
 
@@ -81,17 +81,4 @@ func validateProductID(id int) error {
     return nil
 }
 
-// Retry mechanism
-func (client *BaseVersionClient) retryRequest(req *http.Request, maxRetries int) (*http.Response, error) {
-    var resp *http.Response
-    var err error
-    for i := 0; i < maxRetries; i++ {
-        resp, err = http.DefaultClient.Do(req)
-        if err == nil && resp.StatusCode < 500 {
-            return resp, nil
-        }
-        time.Sleep(time.Second * time.Duration(i+1))
-    }
-    return resp, err
-}
 ```

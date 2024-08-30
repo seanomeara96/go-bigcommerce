@@ -31,7 +31,12 @@ func main() {
 
 	products, err := store.V3.GetAllProducts(bigcommerce.ProductQueryParams{})
 	if err != nil {
-		panic(err)
+		if bcErr, ok := err.(*bigcommerce.BigCommerceError); ok {
+			fmt.Printf("BigCommerce API error: Status %d, Message: %s\n", bcErr.StatusCode, bcErr.Message)
+			fmt.Printf("Raw response body: %s\n", string(bcErr.RawBody))
+		} else {
+			fmt.Printf("Other error: %v\n", err)
+		}
 	}
 	fmt.Println(products)
 }
