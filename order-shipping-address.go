@@ -55,7 +55,7 @@ type ShippingAddress struct {
 	ShippingMethod         string                     `json:"shipping_method"`
 }
 
-func (client *V2Client) GetOrderShippingAddress(orderID int, params ShippingAddressQueryParams) ([]ShippingAddress, MetaData, error) {
+func (client *V2Client) GetOrderShippingAddress(orderID int, params ShippingAddressQueryParams) ([]ShippingAddress, error) {
 	type ResponseData struct {
 		Data []ShippingAddress `json:"data"`
 		Meta MetaData          `json:"meta"`
@@ -64,12 +64,12 @@ func (client *V2Client) GetOrderShippingAddress(orderID int, params ShippingAddr
 
 	getOrdersURL, err := urlWithQueryParams(client.constructURL("orders", strconv.Itoa(orderID), "shipping_addresses"), params)
 	if err != nil {
-		return nil, MetaData{}, fmt.Errorf("failed to construct URL for GetOrderShippingAddress (order ID: %d): %w", orderID, err)
+		return nil, fmt.Errorf("failed to construct URL for GetOrderShippingAddress (order ID: %d): %w", orderID, err)
 	}
 
-	if err := client.Get(getOrdersURL, &response); err != nil {
-		return nil, MetaData{}, fmt.Errorf("failed to get shipping addresses for order %d: %w", orderID, err)
+	if err := client.Get(getOrdersURL, &response.Data); err != nil {
+		return nil, fmt.Errorf("failed to get shipping addresses for order %d: %w", orderID, err)
 	}
 
-	return response.Data, response.Meta, nil
+	return response.Data, nil
 }

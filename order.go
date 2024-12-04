@@ -188,7 +188,7 @@ func (client *V2Client) GetOrder(orderID int) (Order, error) {
 	}
 	var response ResponseObject
 
-	getOrderURL := client.constructURL("storefront", "orders", strconv.Itoa(orderID))
+	getOrderURL := client.constructURL("orders", strconv.Itoa(orderID))
 
 	if err := client.Get(getOrderURL, &response.Data); err != nil {
 		return Order{}, fmt.Errorf("failed to get order with ID %d: %w", orderID, err)

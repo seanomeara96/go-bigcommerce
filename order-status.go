@@ -23,7 +23,7 @@ func (client *V2Client) GetOrderStatuses() ([]OrderStatus, error) {
 
 	path := client.constructURL("order_statuses")
 
-	if err := client.Get(path, &response); err != nil {
+	if err := client.Get(path, &response.Data); err != nil {
 		return nil, fmt.Errorf("failed to get order statuses: %w", err)
 	}
 
