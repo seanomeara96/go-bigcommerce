@@ -641,6 +641,9 @@ func (client *V3Client) AddCategoryToProduct(productID, categoryToAddID int) (Pr
 }
 
 func (p *Product) AddCategory(c int) []int {
+	if p.ContainsCategory(c) {
+		return p.Categories
+	}
 	p.Categories = append(p.Categories, c)
 	return p.Categories
 }
@@ -655,6 +658,9 @@ func (p *Product) ContainsCategory(c int) bool {
 }
 
 func (p *Product) RemoveCategory(c int) []int {
+	if !p.ContainsCategory(c) {
+		return p.Categories
+	}
 	idsToKeep := []int{}
 	for _, id := range p.Categories {
 		if id != c {
