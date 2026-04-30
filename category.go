@@ -42,7 +42,7 @@ type CategoryQueryParams struct {
 	PageTitle       string   `url:"page_title,omitempty"`
 	PageTitleLike   []string `url:"page_title:like,omitempty"`
 	Keyword         string   `url:"keyword,omitempty"`
-	IsVisible       bool     `url:"is_visible,omitempty"`
+	IsVisible       *bool    `url:"is_visible,omitempty"`
 	Page            int      `url:"page,omitempty"`
 	Limit           int      `url:"limit,omitempty"`
 	IncludeFields   string   `url:"include_fields,omitempty"`

@@ -2,7 +2,7 @@ package bigcommerce
 
 type CustomURL struct {
 	URL          string `json:"url,omitempty"`
-	IsCustomized bool   `json:"is_customized,omitempty"`
+	IsCustomized *bool  `json:"is_customized,omitempty"`
 }
 
 type MetaData struct {
@@ -27,4 +27,8 @@ type ErrorPayload struct {
 	Title    string `json:"title"`
 	Type     string `json:"type"`
 	Instance string `json:"instance"`
+}
+
+func BoolPtr(v bool) *bool {
+	return &v
 }

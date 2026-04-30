@@ -1,7 +1,7 @@
 This library provides an unofficial Go client for the bigcommerce REST API
 
 ### Installation:
-```
+```sh
 go get github.com/seanomeara96/go-bigcommerce
 ```
 
@@ -13,21 +13,16 @@ package main
 
 import (
 	"fmt"
+	"os"
 
-  	"github.com/joho/godotenv"
-  	"github.com/seanomeara96/go-bigcommerce"
+	"github.com/seanomeara96/go-bigcommerce"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
-	}
-
 	storeHash := os.Getenv("STORE_HASH")
 	xAuthToken := os.Getenv("XAUTHTOKEN")
 
-	store := bigcommerce.NewClient(storeHash, xAuthToken)
+	store := bigcommerce.NewClient(storeHash, xAuthToken, nil, nil)
 
 	products, err := store.V3.GetAllProducts(bigcommerce.ProductQueryParams{})
 	if err != nil {
@@ -40,5 +35,13 @@ func main() {
 	}
 	fmt.Println(products)
 }
+```
 
+For update and query parameters where an explicit `false` value must be sent,
+use pointer booleans:
+
+```go
+_, err := store.V3.UpdateProduct(productID, bigcommerce.UpdateProductParams{
+	IsVisible: bigcommerce.BoolPtr(false),
+})
 ```

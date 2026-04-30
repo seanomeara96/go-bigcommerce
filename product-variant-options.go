@@ -62,9 +62,9 @@ type CreateUpdateProductVariantOptions struct {
 
 type Config struct {
 	DefaultValue            string   `json:"default_value,omitempty"`
-	CheckedByDefault        bool     `json:"checked_by_default,omitempty"`
+	CheckedByDefault        *bool    `json:"checked_by_default,omitempty"`
 	CheckboxLabel           string   `json:"checkbox_label,omitempty"`
-	DateLimited             bool     `json:"date_limited,omitempty"`
+	DateLimited             *bool    `json:"date_limited,omitempty"`
 	DateLimitMode           string   `json:"date_limit_mode,omitempty"`
 	DateEarliestValue       string   `json:"date_earliest_value,omitempty"`
 	DateLatestValue         string   `json:"date_latest_value,omitempty"`
@@ -72,24 +72,24 @@ type Config struct {
 	FileTypesSupported      []string `json:"file_types_supported,omitempty"`
 	FileTypesOther          []string `json:"file_types_other,omitempty"`
 	FileMaxSize             int      `json:"file_max_size,omitempty"`
-	TextCharactersLimited   bool     `json:"text_characters_limited,omitempty"`
+	TextCharactersLimited   *bool    `json:"text_characters_limited,omitempty"`
 	TextMinLength           int      `json:"text_min_length,omitempty"`
 	TextMaxLength           int      `json:"text_max_length,omitempty"`
-	TextLinesLimited        bool     `json:"text_lines_limited,omitempty"`
+	TextLinesLimited        *bool    `json:"text_lines_limited,omitempty"`
 	TextMaxLines            int      `json:"text_max_lines,omitempty"`
-	NumberLimited           bool     `json:"number_limited,omitempty"`
+	NumberLimited           *bool    `json:"number_limited,omitempty"`
 	NumberLimitMode         string   `json:"number_limit_mode,omitempty"`
 	NumberLowestValue       int      `json:"number_lowest_value,omitempty"`
 	NumberHighestValue      int      `json:"number_highest_value,omitempty"`
-	NumberIntegersOnly      bool     `json:"number_integers_only,omitempty"`
-	ProductListAdjustsInv   bool     `json:"product_list_adjusts_inventory,omitempty"`
-	ProductListAdjustsPrc   bool     `json:"product_list_adjusts_pricing,omitempty"`
+	NumberIntegersOnly      *bool    `json:"number_integers_only,omitempty"`
+	ProductListAdjustsInv   *bool    `json:"product_list_adjusts_inventory,omitempty"`
+	ProductListAdjustsPrc   *bool    `json:"product_list_adjusts_pricing,omitempty"`
 	ProductListShippingCalc string   `json:"product_list_shipping_calc,omitempty"`
 	SortOrder               int      `json:"sort_order,omitempty"`
 }
 
 type Option struct {
-	IsDefault bool        `json:"is_default,omitempty"`
+	IsDefault *bool       `json:"is_default,omitempty"`
 	Label     string      `json:"label"`
 	SortOrder int         `json:"sort_order"`
 	ValueData OptionValue `json:"value_data"`

@@ -27,7 +27,7 @@ type UpdateBlogParams struct {
 	URL             string   `json:"url,omitempty"`
 	Body            string   `json:"body,omitempty"`
 	Tags            []string `json:"tags,omitempty"`
-	IsPublished     bool     `json:"is_published,omitempty"`
+	IsPublished     *bool    `json:"is_published,omitempty"`
 	MetaDescription string   `json:"meta_description,omitempty"`
 	MetaKeywords    string   `json:"meta_keywords,omitempty"`
 	Author          string   `json:"author,omitempty"`

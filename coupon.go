@@ -73,7 +73,7 @@ type UpdateCouponParams struct {
 	Amount             string        `json:"amount,omitempty"`
 	MinPurchase        string        `json:"min_purchase,omitempty"`
 	Expires            string        `json:"expires,omitempty"`
-	Enabled            bool          `json:"enabled,omitempty"`
+	Enabled            *bool         `json:"enabled,omitempty"`
 	Code               string        `json:"code,omitempty"`
 	AppliesTo          *AppliesTo    `json:"applies_to,omitempty"`
 	MaxUses            int           `json:"max_uses,omitempty"`

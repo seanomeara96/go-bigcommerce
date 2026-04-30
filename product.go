@@ -118,7 +118,7 @@ type ProductQueryParams struct {
 	DateLastImported      string   `url:"date_last_imported,omitempty"`
 	DateLastImportedMax   string   `url:"date_last_imported:max,omitempty"`
 	DateLastImportedMin   string   `url:"date_last_imported:min,omitempty"`
-	IsVisible             bool     `url:"is_visible,omitempty"`
+	IsVisible             *bool    `url:"is_visible,omitempty"`
 	IsFeatured            int      `url:"is_featured,omitempty"`
 	IsFreeShipping        int      `url:"is_free_shipping,omitempty"`
 	InventoryLevel        int      `url:"inventory_level,omitempty"`
@@ -175,9 +175,9 @@ type CreateProductParams struct {
 	InventoryWarningLevel   int                      `json:"inventory_warning_level,omitempty"`   // Min: 0, Max: 2147483647
 	InventoryTracking       string                   `json:"inventory_tracking,omitempty"`        // Allowed: none, product, variant
 	FixedCostShippingPrice  float64                  `json:"fixed_cost_shipping_price,omitempty"` // Min: 0
-	IsFreeShipping          bool                     `json:"is_free_shipping,omitempty"`
-	IsVisible               bool                     `json:"is_visible,omitempty"`
-	IsFeatured              bool                     `json:"is_featured,omitempty"`
+	IsFreeShipping          *bool                    `json:"is_free_shipping,omitempty"`
+	IsVisible               *bool                    `json:"is_visible,omitempty"`
+	IsFeatured              *bool                    `json:"is_featured,omitempty"`
 	RelatedProducts         []int                    `json:"related_products,omitempty"`
 	Warranty                string                   `json:"warranty,omitempty"`                   // <= 65535 characters
 	BinPickingNumber        string                   `json:"bin_picking_number,omitempty"`         // <= 255 characters
@@ -190,7 +190,7 @@ type CreateProductParams struct {
 	GiftWrappingOptionsList []int                    `json:"gift_wrapping_options_list,omitempty"`
 	SortOrder               int                      `json:"sort_order,omitempty"` // Min: -2147483648, Max: 2147483647
 	Condition               string                   `json:"condition,omitempty"`  // Allowed: New, Used, Refurbished
-	IsConditionShown        bool                     `json:"is_condition_shown,omitempty"`
+	IsConditionShown        *bool                    `json:"is_condition_shown,omitempty"`
 	OrderQuantityMinimum    int                      `json:"order_quantity_minimum,omitempty"` // Min: 0, Max: 1000000000
 	OrderQuantityMaximum    int                      `json:"order_quantity_maximum,omitempty"` // Min: 0, Max: 1000000000
 	PageTitle               string                   `json:"page_title,omitempty"`             // <= 255 characters
@@ -198,16 +198,16 @@ type CreateProductParams struct {
 	MetaDescription         string                   `json:"meta_description,omitempty"`       // <= 65535 characters
 	PreorderReleaseDate     *time.Time               `json:"preorder_release_date,omitempty"`
 	PreorderMessage         string                   `json:"preorder_message,omitempty"` // <= 255 characters
-	IsPreorderOnly          bool                     `json:"is_preorder_only,omitempty"`
-	IsPriceHidden           bool                     `json:"is_price_hidden,omitempty"`
+	IsPreorderOnly          *bool                    `json:"is_preorder_only,omitempty"`
+	IsPriceHidden           *bool                    `json:"is_price_hidden,omitempty"`
 	PriceHiddenLabel        string                   `json:"price_hidden_label,omitempty"` // <= 200 characters
 	CustomURL               *CustomURL               `json:"custom_url,omitempty"`
 	OpenGraphType           string                   `json:"open_graph_type,omitempty"` // Allowed: product, album, book, etc.
 	OpenGraphTitle          string                   `json:"open_graph_title,omitempty"`
 	OpenGraphDescription    string                   `json:"open_graph_description,omitempty"`
-	OpenGraphUseMetaDesc    bool                     `json:"open_graph_use_meta_description,omitempty"`
-	OpenGraphUseProductName bool                     `json:"open_graph_use_product_name,omitempty"`
-	OpenGraphUseImage       bool                     `json:"open_graph_use_image,omitempty"`
+	OpenGraphUseMetaDesc    *bool                    `json:"open_graph_use_meta_description,omitempty"`
+	OpenGraphUseProductName *bool                    `json:"open_graph_use_product_name,omitempty"`
+	OpenGraphUseImage       *bool                    `json:"open_graph_use_image,omitempty"`
 	GTIN                    string                   `json:"gtin,omitempty"` // <= 14 characters
 	MPN                     string                   `json:"mpn,omitempty"`
 	DateLastImported        string                   `json:"date_last_imported,omitempty"`
@@ -244,9 +244,9 @@ type UpdateProductParams struct {
 	InventoryWarningLevel       int                      `json:"inventory_warning_level,omitempty" validate:"omitempty,min=0,max=2147483647"`
 	InventoryTracking           string                   `json:"inventory_tracking,omitempty" validate:"omitempty,oneof=none product variant"`
 	FixedCostShippingPrice      float64                  `json:"fixed_cost_shipping_price,omitempty" validate:"omitempty,min=0"`
-	IsFreeShipping              bool                     `json:"is_free_shipping,omitempty"`
-	IsVisible                   bool                     `json:"is_visible,omitempty"`
-	IsFeatured                  bool                     `json:"is_featured,omitempty"`
+	IsFreeShipping              *bool                    `json:"is_free_shipping,omitempty"`
+	IsVisible                   *bool                    `json:"is_visible,omitempty"`
+	IsFeatured                  *bool                    `json:"is_featured,omitempty"`
 	RelatedProducts             []int                    `json:"related_products,omitempty"`
 	Warranty                    string                   `json:"warranty,omitempty" validate:"omitempty,max=65535"`
 	BinPickingNumber            string                   `json:"bin_picking_number,omitempty" validate:"omitempty,min=0,max=255"`
@@ -259,7 +259,7 @@ type UpdateProductParams struct {
 	GiftWrappingOptionsList     []int                    `json:"gift_wrapping_options_list,omitempty"`
 	SortOrder                   int                      `json:"sort_order,omitempty" validate:"omitempty,min=-2147483648,max=2147483647"`
 	Condition                   string                   `json:"condition,omitempty" validate:"omitempty,oneof=New Used Refurbished"`
-	IsConditionShown            bool                     `json:"is_condition_shown,omitempty"`
+	IsConditionShown            *bool                    `json:"is_condition_shown,omitempty"`
 	OrderQuantityMinimum        int                      `json:"order_quantity_minimum,omitempty" validate:"omitempty,min=0,max=1000000000"`
 	OrderQuantityMaximum        int                      `json:"order_quantity_maximum,omitempty" validate:"omitempty,min=0,max=1000000000"`
 	PageTitle                   string                   `json:"page_title,omitempty" validate:"omitempty,min=0,max=255"`
@@ -267,16 +267,16 @@ type UpdateProductParams struct {
 	MetaDescription             string                   `json:"meta_description,omitempty" validate:"omitempty,min=0,max=65535"`
 	PreorderReleaseDate         string                   `json:"preorder_release_date,omitempty"`
 	PreorderMessage             string                   `json:"preorder_message,omitempty" validate:"omitempty,min=0,max=255"`
-	IsPreorderOnly              bool                     `json:"is_preorder_only,omitempty"`
-	IsPriceHidden               bool                     `json:"is_price_hidden,omitempty"`
+	IsPreorderOnly              *bool                    `json:"is_preorder_only,omitempty"`
+	IsPriceHidden               *bool                    `json:"is_price_hidden,omitempty"`
 	PriceHiddenLabel            string                   `json:"price_hidden_label,omitempty" validate:"omitempty,min=0,max=200"`
 	CustomURL                   *CustomURL               `json:"custom_url,omitempty"`
 	OpenGraphType               string                   `json:"open_graph_type,omitempty" validate:"omitempty,oneof=product album book drink food game movie song tv_show"`
 	OpenGraphTitle              string                   `json:"open_graph_title,omitempty"`
 	OpenGraphDescription        string                   `json:"open_graph_description,omitempty"`
-	OpenGraphUseMetaDescription bool                     `json:"open_graph_use_meta_description,omitempty"`
-	OpenGraphUseProductName     bool                     `json:"open_graph_use_product_name,omitempty"`
-	OpenGraphUseImage           bool                     `json:"open_graph_use_image,omitempty"`
+	OpenGraphUseMetaDescription *bool                    `json:"open_graph_use_meta_description,omitempty"`
+	OpenGraphUseProductName     *bool                    `json:"open_graph_use_product_name,omitempty"`
+	OpenGraphUseImage           *bool                    `json:"open_graph_use_image,omitempty"`
 	GTIN                        string                   `json:"gtin,omitempty" validate:"omitempty,min=0,max=14"`
 	MPN                         string                   `json:"mpn,omitempty"`
 	DateLastImported            string                   `json:"date_last_imported,omitempty"`
@@ -515,9 +515,9 @@ func (client *V3Client) ForEachProduct(funcs []func(p *Product) bool) error {
 					InventoryWarningLevel:       product.InventoryWarningLevel,
 					InventoryTracking:           product.InventoryTracking,
 					FixedCostShippingPrice:      product.FixedCostShippingPrice,
-					IsFreeShipping:              product.IsFreeShipping,
-					IsVisible:                   product.IsVisible,
-					IsFeatured:                  product.IsFeatured,
+					IsFreeShipping:              BoolPtr(product.IsFreeShipping),
+					IsVisible:                   BoolPtr(product.IsVisible),
+					IsFeatured:                  BoolPtr(product.IsFeatured),
 					RelatedProducts:             product.RelatedProducts,
 					Warranty:                    product.Warranty,
 					BinPickingNumber:            product.BinPickingNumber,
@@ -530,7 +530,7 @@ func (client *V3Client) ForEachProduct(funcs []func(p *Product) bool) error {
 					GiftWrappingOptionsList:     product.GiftWrappingOptionsList,
 					SortOrder:                   product.SortOrder,
 					Condition:                   product.Condition,
-					IsConditionShown:            product.IsConditionShown,
+					IsConditionShown:            BoolPtr(product.IsConditionShown),
 					OrderQuantityMinimum:        product.OrderQuantityMinimum,
 					OrderQuantityMaximum:        product.OrderQuantityMaximum,
 					PageTitle:                   product.PageTitle,
@@ -538,16 +538,16 @@ func (client *V3Client) ForEachProduct(funcs []func(p *Product) bool) error {
 					MetaDescription:             product.MetaDescription,
 					PreorderReleaseDate:         product.PreorderReleaseDate,
 					PreorderMessage:             product.PreorderMessage,
-					IsPreorderOnly:              product.IsPreorderOnly,
-					IsPriceHidden:               product.IsPriceHidden,
+					IsPreorderOnly:              BoolPtr(product.IsPreorderOnly),
+					IsPriceHidden:               BoolPtr(product.IsPriceHidden),
 					PriceHiddenLabel:            product.PriceHiddenLabel,
 					CustomURL:                   &product.CustomURL,
 					OpenGraphType:               product.OpenGraphType,
 					OpenGraphTitle:              product.OpenGraphTitle,
 					OpenGraphDescription:        product.OpenGraphDescription,
-					OpenGraphUseMetaDescription: product.OpenGraphUseMetaDescription,
-					OpenGraphUseProductName:     product.OpenGraphUseProductName,
-					OpenGraphUseImage:           product.OpenGraphUseImage,
+					OpenGraphUseMetaDescription: BoolPtr(product.OpenGraphUseMetaDescription),
+					OpenGraphUseProductName:     BoolPtr(product.OpenGraphUseProductName),
+					OpenGraphUseImage:           BoolPtr(product.OpenGraphUseImage),
 					GTIN:                        product.GTIN,
 					MPN:                         product.MPN,
 					ReviewsRatingSum:            product.ReviewsRatingSum,
@@ -592,15 +592,15 @@ func (client *V3Client) CreateProduct(params CreateProductParams) (Product, erro
 	var response ResponseObject
 
 	noNameSupplied := params.Name == ""
-	invalidType := params.Type == "physical" || params.Type == "digital"
-	invalidWeight := params.Weight <= 0
+	invalidType := params.Type != "physical" && params.Type != "digital"
+	invalidWeight := params.Weight < 0
 
 	if noNameSupplied || invalidType || invalidWeight {
 		return response.Data, fmt.Errorf("failed check of name, type and weight")
 	}
 
 	if err := client.Post(client.constructURL("/catalog/products"), params, &response); err != nil {
-		return response.Data, nil
+		return response.Data, err
 	}
 
 	return response.Data, nil

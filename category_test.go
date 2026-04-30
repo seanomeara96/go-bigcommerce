@@ -1,116 +1,115 @@
 package bigcommerce
 
 import (
+	"encoding/json"
+	"net/http"
 	"testing"
 )
 
 func TestGetCategory(t *testing.T) {
-	fs, _ := getTestClient()
+	client, closeServer := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v3/catalog/categories/11":
+			http.Error(w, `{"title":"not found"}`, http.StatusNotFound)
+		case "/v3/catalog/categories/27":
+			writeJSON(t, w, http.StatusOK, map[string]any{
+				"data": Category{ID: 27, Name: "Category"},
+			})
+		default:
+			t.Fatalf("unexpected request path: %s", r.URL.Path)
+		}
+	}))
+	defer closeServer()
 
-	categoryIdDoesNotExist := 11
-
-	_, err := fs.V3.GetCategory(categoryIdDoesNotExist)
-
-	if err == nil {
-		t.Error("Expected Error")
+	if _, err := client.V3.GetCategory(11); err == nil {
+		t.Fatal("expected error for missing category")
 	}
 
-	categoryIdDoesExist := 27
-
-	category, err := fs.V3.GetCategory(categoryIdDoesExist)
-
+	category, err := client.V3.GetCategory(27)
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
-
-	if category.ID != categoryIdDoesExist {
-		t.Error("reponse-category id soes not match request category id")
+	if category.ID != 27 {
+		t.Fatalf("expected category ID 27, got %d", category.ID)
 	}
-
 }
 
-func TestGetCategories(t *testing.T) {
+func TestGetCategoriesCanQueryExplicitFalse(t *testing.T) {
+	client, closeServer := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/v3/catalog/categories" {
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+		if r.URL.Query().Get("is_visible") != "false" {
+			t.Fatalf("expected is_visible=false, got %s", r.URL.RawQuery)
+		}
+		writeJSON(t, w, http.StatusOK, map[string]any{
+			"data": []Category{{ID: 1, Name: "Hidden"}},
+			"meta": MetaData{Pagination: Pagination{
+				CurrentPage: 1,
+				TotalPages:  1,
+			}},
+		})
+	}))
+	defer closeServer()
 
-	fs, _ := getTestClient()
-
-	categories, _, err := fs.V3.GetCategories(CategoryQueryParams{})
-
+	categories, _, err := client.V3.GetCategories(CategoryQueryParams{IsVisible: BoolPtr(false)})
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-
-	if len(categories) < 1 {
-		t.Error("no catgories")
+	if len(categories) != 1 {
+		t.Fatalf("expected 1 category, got %d", len(categories))
 	}
 }
 
 func TestGetAllCategories(t *testing.T) {
+	client, closeServer := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(t, w, http.StatusOK, map[string]any{
+			"data": []Category{{ID: 1}, {ID: 2}},
+			"meta": MetaData{Pagination: Pagination{
+				CurrentPage: 1,
+				TotalPages:  1,
+			}},
+		})
+	}))
+	defer closeServer()
 
-	fs, _ := getTestClient()
-	categories, err := fs.V3.GetAllCategories(CategoryQueryParams{})
+	categories, err := client.V3.GetAllCategories(CategoryQueryParams{})
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
-
-	if len(categories) != 10 {
-		t.Error("Not enough catgeories")
-		return
+	if len(categories) != 2 {
+		t.Fatalf("expected 2 categories, got %d", len(categories))
 	}
 }
 
 func TestEmptyCategory(t *testing.T) {
-
-	fs, _ := getTestClient()
-
-	products, err := fs.V3.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
-	if err != nil {
-		return
-	}
-
-	toRestore := products
-
-	if len(products) != 2 {
-		t.Error("Expected 2 products")
-		return
-	}
-
-	err = fs.V3.EmptyCategory(24)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	products, err = fs.V3.GetAllProducts(ProductQueryParams{CategoriesIn: []int{24}})
-	if err != nil {
-		return
-	}
-
-	if len(products) != 0 {
-		t.Error("Expected 0 products")
-		return
-	}
-
-	for _, product := range toRestore {
-		newCategories := product.AddCategory(24)
-		b := false
-		for _, id := range newCategories {
-			if id == 24 {
-				b = true
+	client, closeServer := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/v3/catalog/products":
+			if r.URL.Query().Get("categories:in") != "24" {
+				t.Fatalf("expected category filter, got %s", r.URL.RawQuery)
 			}
+			writeJSON(t, w, http.StatusOK, map[string]any{
+				"data": []Product{{ID: 7, Categories: []int{24, 30}}},
+			})
+		case r.Method == http.MethodPut && r.URL.Path == "/v3/catalog/products/7":
+			var params UpdateProductParams
+			if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+				t.Fatal(err)
+			}
+			if len(params.Categories) != 1 || params.Categories[0] != 30 {
+				t.Fatalf("expected category 24 to be removed, got %#v", params.Categories)
+			}
+			writeJSON(t, w, http.StatusOK, map[string]any{
+				"data": Product{ID: 7, Categories: params.Categories},
+			})
+		default:
+			t.Fatalf("unexpected request: %s %s", r.Method, r.URL.String())
 		}
-		if !b {
-			t.Error("add category did not work")
-			return
-		}
+	}))
+	defer closeServer()
 
-		_, err = fs.V3.UpdateProduct(product.ID, UpdateProductParams{
-			Categories: newCategories,
-		})
-		if err != nil {
-			t.Error("Could not update products")
-			return
-		}
+	if err := client.V3.EmptyCategory(24); err != nil {
+		t.Fatal(err)
 	}
 }

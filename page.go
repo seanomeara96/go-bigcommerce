@@ -122,22 +122,22 @@ type CreatePageParams struct {
 	URL             string         `json:"url,omitempty"`
 	ChannelID       int            `json:"channel_id,omitempty"`
 	Name            string         `json:"name" validate:"required,min=1,max=100"`
-	IsVisible       bool           `json:"is_visible,omitempty"`
+	IsVisible       *bool          `json:"is_visible,omitempty"`
 	ParentID        int            `json:"parent_id,omitempty"`
 	SortOrder       int            `json:"sort_order,omitempty"`
 	Type            PageType       `json:"type" validate:"required,oneof=page raw contact_form feed link blog"`
-	IsHomepage      bool           `json:"is_homepage,omitempty"`
-	IsCustomersOnly bool           `json:"is_customers_only,omitempty"`
+	IsHomepage      *bool          `json:"is_homepage,omitempty"`
+	IsCustomersOnly *bool          `json:"is_customers_only,omitempty"`
 }
 
 type UpdatePageParams struct {
 	Name            string         `json:"name,omitempty"`
-	IsVisible       bool           `json:"is_visible,omitempty"`
+	IsVisible       *bool          `json:"is_visible,omitempty"`
 	ParentID        int            `json:"parent_id,omitempty"`
 	SortOrder       int            `json:"sort_order,omitempty"`
 	Type            PageType       `json:"type,omitempty"`
-	IsHomepage      bool           `json:"is_homepage,omitempty"`
-	IsCustomersOnly bool           `json:"is_customers_only,omitempty"`
+	IsHomepage      *bool          `json:"is_homepage,omitempty"`
+	IsCustomersOnly *bool          `json:"is_customers_only,omitempty"`
 	ID              int            `json:"id,omitempty"`
 	Email           string         `json:"email,omitempty"`
 	MetaTitle       string         `json:"meta_title,omitempty"`

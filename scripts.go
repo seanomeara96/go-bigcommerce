@@ -23,14 +23,14 @@ type UpdateScriptParams struct {
 	Description     string `json:"description,omitempty"`
 	HTML            string `json:"html,omitempty"`
 	Src             string `json:"src,omitempty"`
-	AutoUninstall   bool   `json:"auto_uninstall,omitempty"`
+	AutoUninstall   *bool  `json:"auto_uninstall,omitempty"`
 	LoadMethod      string `json:"load_method,omitempty"`
 	Location        string `json:"location,omitempty"`
 	Visibility      string `json:"visibility,omitempty"`
 	Kind            string `json:"kind,omitempty"`
 	APIClientID     string `json:"api_client_id,omitempty"`
 	ConsentCategory string `json:"consent_category,omitempty"`
-	Enabled         bool   `json:"enabled,omitempty"`
+	Enabled         *bool  `json:"enabled,omitempty"`
 	ChannelID       int    `json:"channel_id,omitempty"`
 }
 
@@ -88,14 +88,14 @@ type CreateScriptParams struct {
 	Description     string `json:"description,omitempty"`
 	HTML            string `json:"html,omitempty" validate:"max=65536"`
 	Src             string `json:"src,omitempty"`
-	AutoUninstall   bool   `json:"auto_uninstall,omitempty"`
+	AutoUninstall   *bool  `json:"auto_uninstall,omitempty"`
 	LoadMethod      string `json:"load_method,omitempty" validate:"omitempty,oneof=default async defer"`
 	Location        string `json:"location,omitempty" validate:"omitempty,oneof=head footer"`
 	Visibility      string `json:"visibility,omitempty" validate:"omitempty,oneof=storefront all_pages checkout order_confirmation"`
 	Kind            string `json:"kind,omitempty" validate:"omitempty,oneof=src script_tag"`
 	APIClientID     string `json:"api_client_id,omitempty"`
 	ConsentCategory string `json:"consent_category,omitempty" validate:"omitempty,oneof=essential functional analytics targeting"`
-	Enabled         bool   `json:"enabled,omitempty"`
+	Enabled         *bool  `json:"enabled,omitempty"`
 	ChannelID       int    `json:"channel_id,omitempty"`
 }
 
@@ -106,7 +106,7 @@ func StorefrontFooterHTMLScript(Name string, HTML string) CreateScriptParams {
 	p.HTML = HTML
 	p.Kind = "script_tag"
 	p.ConsentCategory = "essential"
-	p.Enabled = true
+	p.Enabled = BoolPtr(true)
 	p.Visibility = "storefront"
 	p.Location = "footer"
 	p.LoadMethod = "default"

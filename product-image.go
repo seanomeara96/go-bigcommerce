@@ -109,7 +109,7 @@ type CreateProductImageParams struct {
 	URLThumbnail string `json:"url_thumbnail,omitempty"`
 	URLTiny      string `json:"url_tiny,omitempty"`
 	DateModified string `json:"date_modified,omitempty"`
-	IsThumbnail  bool   `json:"is_thumbnail,omitempty"`
+	IsThumbnail  *bool  `json:"is_thumbnail,omitempty"`
 	SortOrder    int    `json:"sort_order,omitempty"`
 	Description  string `json:"description,omitempty"`
 	ImageURL     string `json:"image_url,omitempty"`
@@ -122,7 +122,7 @@ type UpdateProductImageParams struct {
 	URLThumbnail string `json:"url_thumbnail,omitempty"`
 	URLTiny      string `json:"url_tiny,omitempty"`
 	ImageFile    string `json:"image_file,omitempty"`
-	IsThumbnail  bool   `json:"is_thumbnail,omitempty"`
+	IsThumbnail  *bool  `json:"is_thumbnail,omitempty"`
 	SortOrder    int    `json:"sort_order,omitempty"`
 	Description  string `json:"description,omitempty"`
 	ImageURL     string `json:"image_url,omitempty"`

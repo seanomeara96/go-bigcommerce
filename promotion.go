@@ -107,13 +107,13 @@ type PromotionUpdateParams struct {
 	Status                                              string                `json:"status,omitempty" url:"status,omitempty"`
 	StartDate                                           string                `json:"start_date,omitempty" url:"start_date,omitempty"`
 	EndDate                                             string                `json:"end_date,omitempty" url:"end_date,omitempty"`
-	Stop                                                bool                  `json:"stop,omitempty" url:"stop,omitempty"`
-	CanBeUsedWithOtherPromotions                        bool                  `json:"can_be_used_with_other_promotions,omitempty" url:"can_be_used_with_other_promotions,omitempty"`
+	Stop                                                *bool                 `json:"stop,omitempty" url:"stop,omitempty"`
+	CanBeUsedWithOtherPromotions                        *bool                 `json:"can_be_used_with_other_promotions,omitempty" url:"can_be_used_with_other_promotions,omitempty"`
 	CurrencyCode                                        string                `json:"currency_code,omitempty" url:"currency_code,omitempty"`
 	Notifications                                       []NotificationParams  `json:"notifications,omitempty" url:"notifications,omitempty"`
 	ShippingAddress                                     ShippingAddressParams `json:"shipping_address,omitempty" url:"shipping_address,omitempty"`
 	Schedule                                            ScheduleParams        `json:"schedule,omitempty" url:"schedule,omitempty"`
-	CouponOverridesAutomaticWhenOfferingHigherDiscounts bool                  `json:"coupon_overrides_automatic_when_offering_higher_discounts,omitempty" url:"coupon_overrides_automatic_when_offering_higher_discounts,omitempty"`
+	CouponOverridesAutomaticWhenOfferingHigherDiscounts *bool                 `json:"coupon_overrides_automatic_when_offering_higher_discounts,omitempty" url:"coupon_overrides_automatic_when_offering_higher_discounts,omitempty"`
 }
 
 type CustomerParams struct {
@@ -129,8 +129,8 @@ type SegmentParams struct {
 
 type RuleParams struct {
 	Action    string          `json:"action,omitempty" url:"action,omitempty"`
-	ApplyOnce bool            `json:"apply_once,omitempty" url:"apply_once,omitempty"`
-	Stop      bool            `json:"stop,omitempty" url:"stop,omitempty"`
+	ApplyOnce *bool           `json:"apply_once,omitempty" url:"apply_once,omitempty"`
+	Stop      *bool           `json:"stop,omitempty" url:"stop,omitempty"`
 	CartValue CartValueParams `json:"cart_value,omitempty" url:"cart_value,omitempty"`
 	Condition ConditionParams `json:"condition,omitempty" url:"condition,omitempty"`
 }
