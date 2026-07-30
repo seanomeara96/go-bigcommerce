@@ -3,6 +3,7 @@ package bigcommerce
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -230,6 +231,32 @@ func (c *BaseVersionClient) request(httpMethod string, relativeUrl string, paylo
 }
 
 func (client *BaseVersionClient) requestAndDecode(httpMethod string, relativeUrl string, payload []byte, dest any) error {
+	const maxDecodeAttempts = 3
+
+	backoffDuration := time.Second
+	for attempt := 1; attempt <= maxDecodeAttempts; attempt++ {
+		err := client.requestAndDecodeOnce(httpMethod, relativeUrl, payload, dest)
+		if err == nil {
+			return nil
+		}
+
+		var syntaxErr *json.SyntaxError
+		isTruncatedResponse := errors.Is(err, io.ErrUnexpectedEOF) || errors.As(err, &syntaxErr)
+		if httpMethod != http.MethodGet || !isTruncatedResponse || attempt == maxDecodeAttempts {
+			return err
+		}
+
+		if client.logger != nil {
+			client.logger.Printf("Retrying GET after invalid JSON response in %v (attempt %d/%d): %v", backoffDuration, attempt, maxDecodeAttempts, err)
+		}
+		time.Sleep(backoffDuration)
+		backoffDuration *= 2
+	}
+
+	return nil
+}
+
+func (client *BaseVersionClient) requestAndDecodeOnce(httpMethod string, relativeUrl string, payload []byte, dest any) error {
 	res, err := client.request(httpMethod, relativeUrl, payload)
 	if err != nil {
 		return err
@@ -245,12 +272,19 @@ func (client *BaseVersionClient) requestAndDecode(httpMethod string, relativeUrl
 		client.logger.Printf("Response body: %s", string(body))
 	}
 
+	// Some BigCommerce V2 endpoints return a successful response with no body
+	// when the requested collection is empty (for example, an order with no
+	// shipments). Treat that as an empty result rather than a JSON decode error.
+	if len(bytes.TrimSpace(body)) == 0 {
+		return nil
+	}
+
 	if dest != nil {
 		if err := json.Unmarshal(body, dest); err != nil {
 			if client.logger != nil {
 				client.logger.Printf("Failed to decode response: %s", string(body))
 			}
-			return fmt.Errorf("failed to decode response: %w", err)
+			return &ResponseDecodeError{Body: append([]byte(nil), body...), Err: err}
 		}
 	}
 	return nil
