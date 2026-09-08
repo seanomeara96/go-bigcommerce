@@ -161,8 +161,7 @@ type OrderQueryParams struct {
 	IsVisible       *bool    `url:"is_visible,omitempty"`
 	Page            int      `url:"page,omitempty"`
 	Limit           int      `url:"limit,omitempty"`
-	IncludeFields   string   `url:"include_fields,omitempty"`
-	ExcludeFields   string   `url:"exclude_fields,omitempty"`
+	Include         string   `url:"include,omitempty"`
 	MinID           int      `url:"min_id,omitempty"`
 	MaxID           int      `url:"max_id,omitempty"`
 	MinTotal        float64  `url:"min_total,omitempty"`
