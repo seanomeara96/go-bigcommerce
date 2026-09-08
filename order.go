@@ -139,45 +139,53 @@ type URLResource struct {
 	Resource string `json:"resource"`
 }
 
+type OrderInclude string
+
+const (
+	OrderIncludeConsignments        OrderInclude = "consignments"
+	OrderIncludeConsignmentLineIems OrderInclude = "consignments.line_items"
+	OrderIncludeFees                OrderInclude = "fees"
+)
+
 type OrderQueryParams struct {
-	ID              int      `url:"id,omitempty"`
-	IDIn            []int    `url:"id:in,omitempty"`
-	IDNotIn         []int    `url:"id:not_in,omitempty"`
-	IDMin           []int    `url:"id:min,omitempty"`
-	IDMax           []int    `url:"id:max,omitempty"`
-	IDGreater       []int    `url:"id:greater,omitempty"`
-	IDLess          []int    `url:"id:less,omitempty"`
-	Name            string   `url:"name,omitempty"`
-	NameLike        []string `url:"name:like,omitempty"`
-	ParentID        int      `url:"parent_id,omitempty"`
-	ParentIDIn      []int    `url:"parent_id:in,omitempty"`
-	ParentIDMin     []int    `url:"parent_id:min,omitempty"`
-	ParentIDMax     []int    `url:"parent_id:max,omitempty"`
-	ParentIDGreater []int    `url:"parent_id:greater,omitempty"`
-	ParentIDLess    []int    `url:"parent_id:less,omitempty"`
-	PageTitle       string   `url:"page_title,omitempty"`
-	PageTitleLike   []string `url:"page_title:like,omitempty"`
-	Keyword         string   `url:"keyword,omitempty"`
-	IsVisible       *bool    `url:"is_visible,omitempty"`
-	Page            int      `url:"page,omitempty"`
-	Limit           int      `url:"limit,omitempty"`
-	Include         string   `url:"include,omitempty"`
-	MinID           int      `url:"min_id,omitempty"`
-	MaxID           int      `url:"max_id,omitempty"`
-	MinTotal        float64  `url:"min_total,omitempty"`
-	MaxTotal        float64  `url:"max_total,omitempty"`
-	CustomerID      int      `url:"customer_id,omitempty"`
-	Email           string   `url:"email,omitempty"`
-	StatusID        int      `url:"status_id,omitempty"`
-	CartID          string   `url:"cart_id,omitempty"`
-	PaymentMethod   string   `url:"payment_method,omitempty"`
-	MinDateCreated  string   `url:"min_date_created,omitempty"`
-	MaxDateCreated  string   `url:"max_date_created,omitempty"`
-	MinDateModified string   `url:"min_date_modified,omitempty"`
-	MaxDateModified string   `url:"max_date_modified,omitempty"`
-	Sort            string   `url:"sort,omitempty"`
-	IsDeleted       *bool    `url:"is_deleted,omitempty"`
-	ChannelID       int      `url:"channel_id,omitempty"`
+	ID              int          `url:"id,omitempty"`
+	IDIn            []int        `url:"id:in,omitempty"`
+	IDNotIn         []int        `url:"id:not_in,omitempty"`
+	IDMin           []int        `url:"id:min,omitempty"`
+	IDMax           []int        `url:"id:max,omitempty"`
+	IDGreater       []int        `url:"id:greater,omitempty"`
+	IDLess          []int        `url:"id:less,omitempty"`
+	Name            string       `url:"name,omitempty"`
+	NameLike        []string     `url:"name:like,omitempty"`
+	ParentID        int          `url:"parent_id,omitempty"`
+	ParentIDIn      []int        `url:"parent_id:in,omitempty"`
+	ParentIDMin     []int        `url:"parent_id:min,omitempty"`
+	ParentIDMax     []int        `url:"parent_id:max,omitempty"`
+	ParentIDGreater []int        `url:"parent_id:greater,omitempty"`
+	ParentIDLess    []int        `url:"parent_id:less,omitempty"`
+	PageTitle       string       `url:"page_title,omitempty"`
+	PageTitleLike   []string     `url:"page_title:like,omitempty"`
+	Keyword         string       `url:"keyword,omitempty"`
+	IsVisible       *bool        `url:"is_visible,omitempty"`
+	Page            int          `url:"page,omitempty"`
+	Limit           int          `url:"limit,omitempty"`
+	Include         OrderInclude `url:"include,omitempty"`
+	MinID           int          `url:"min_id,omitempty"`
+	MaxID           int          `url:"max_id,omitempty"`
+	MinTotal        float64      `url:"min_total,omitempty"`
+	MaxTotal        float64      `url:"max_total,omitempty"`
+	CustomerID      int          `url:"customer_id,omitempty"`
+	Email           string       `url:"email,omitempty"`
+	StatusID        int          `url:"status_id,omitempty"`
+	CartID          string       `url:"cart_id,omitempty"`
+	PaymentMethod   string       `url:"payment_method,omitempty"`
+	MinDateCreated  string       `url:"min_date_created,omitempty"`
+	MaxDateCreated  string       `url:"max_date_created,omitempty"`
+	MinDateModified string       `url:"min_date_modified,omitempty"`
+	MaxDateModified string       `url:"max_date_modified,omitempty"`
+	Sort            string       `url:"sort,omitempty"`
+	IsDeleted       *bool        `url:"is_deleted,omitempty"`
+	ChannelID       int          `url:"channel_id,omitempty"`
 }
 
 func (client *V2Client) GetOrder(orderID int) (Order, error) {
